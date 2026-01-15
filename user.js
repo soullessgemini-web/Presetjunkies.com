@@ -1683,10 +1683,28 @@ function renderUploadCards(filter = currentUploadFilter) {
         });
     });
 
-    // Auto-select first card
-    const firstCard = container.querySelector('.profile-category-card');
-    if (firstCard) {
-        firstCard.click();
+    // If filter is 'all', show all items combined; otherwise auto-select first card
+    if (filter === 'all' && groups.length > 0) {
+        // Combine all items from all groups
+        const allItems = [];
+        groups.forEach(g => allItems.push(...g.items));
+        const combinedGroup = {
+            id: 'all-uploads',
+            name: 'All',
+            category: 'all',
+            groupKey: 'all',
+            count: allItems.length,
+            items: allItems
+        };
+        currentProfileGroup = combinedGroup;
+        window.currentProfileGroup = combinedGroup;
+        renderProfileContentFromGroup(combinedGroup);
+    } else {
+        // Auto-select first card
+        const firstCard = container.querySelector('.profile-category-card');
+        if (firstCard) {
+            firstCard.click();
+        }
     }
 }
 
@@ -1853,10 +1871,26 @@ function renderSavedCards(filter = currentSavedFilter) {
         });
     });
 
-    // Auto-select first card
-    const firstCard = container.querySelector('.profile-category-card');
-    if (firstCard) {
-        firstCard.click();
+    // If filter is 'all', show all items combined; otherwise auto-select first card
+    if (filter === 'all' && groups.length > 0) {
+        const allItems = [];
+        groups.forEach(g => allItems.push(...g.items));
+        const combinedGroup = {
+            id: 'all-saved',
+            name: 'All',
+            category: 'all',
+            groupKey: 'all',
+            count: allItems.length,
+            items: allItems
+        };
+        currentSavedGroup = combinedGroup;
+        renderProfileContentFromGroup(combinedGroup);
+    } else {
+        // Auto-select first card
+        const firstCard = container.querySelector('.profile-category-card');
+        if (firstCard) {
+            firstCard.click();
+        }
     }
 }
 
@@ -2015,10 +2049,26 @@ function renderLikedCards(filter = currentLikesFilter) {
         });
     });
 
-    // Auto-select first card
-    const firstCard = container.querySelector('.profile-category-card');
-    if (firstCard) {
-        firstCard.click();
+    // If filter is 'all', show all items combined; otherwise auto-select first card
+    if (filter === 'all' && groups.length > 0) {
+        const allItems = [];
+        groups.forEach(g => allItems.push(...g.items));
+        const combinedGroup = {
+            id: 'all-likes',
+            name: 'All',
+            category: 'all',
+            groupKey: 'all',
+            count: allItems.length,
+            items: allItems
+        };
+        currentLikesGroup = combinedGroup;
+        renderProfileContentFromGroup(combinedGroup);
+    } else {
+        // Auto-select first card
+        const firstCard = container.querySelector('.profile-category-card');
+        if (firstCard) {
+            firstCard.click();
+        }
     }
 }
 
@@ -3297,3 +3347,4 @@ async function adminDeleteUserProfile(username) {
 }
 
 window.adminDeleteUserProfile = adminDeleteUserProfile;
+
