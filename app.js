@@ -411,14 +411,16 @@ const vstImages = {
 };
 
 const dawImages = {
-    'fl studio': '../DAW Images/flstudio.png',
-    'ableton': '../DAW Images/ableton.png',
-    'logic pro': '../DAW Images/logic.png',
-    'pro tools': '../DAW Images/protools.png',
-    'studio one': '../DAW Images/studioone.png',
-    'cubase': '../DAW Images/cubase.png',
-    'reason': '../DAW Images/reason.png',
-    'bitwig': '../DAW Images/bitwig.png'
+    'fl studio': 'VST Images/FL studio.png',
+    'ableton': 'VST Images/ableton.png',
+    'logic pro': 'VST Images/logic pro.png',
+    'pro tools': 'VST Images/pro tools.png',
+    'studio one': 'VST Images/studio one.png',
+    'cubase': 'VST Images/cubase.png',
+    'reason': 'VST Images/reason.png',
+    'bitwig': 'VST Images/bitwig.png',
+    'reaper': 'VST Images/reaper.png',
+    'cakewalk': 'VST Images/cakewalk.png'
 };
 
 function updateInstrumentDisplay() {
@@ -2471,4 +2473,3 @@ if (presetsBgInput) {
         }
     });
 }
-
