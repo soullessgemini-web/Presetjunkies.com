@@ -544,7 +544,7 @@ function createCardHTML(item, category) {
 
         frontContent = `
             <div class="player-container" style="${item.coverArt && sanitizeCSSUrl(item.coverArt) ? `background-image: url('${sanitizeCSSUrl(item.coverArt)}'); background-size: cover; background-position: center;` : ''}">
-                ${!item.coverArt && !isMidi ? '<img src="Emojies/pepe-disappointed-pepe.png" alt="" class="card-placeholder-img">' : ''}
+                ${!item.coverArt && !isMidi ? '<img src="./Emojies/pepe-disappointed-pepe.png" alt="" class="card-placeholder-img">' : ''}
                 ${cardTopHTML}
                 ${visualizerHTML}
                 <div class="item-title">${escapeHTML(item.title)}</div>
@@ -1002,3 +1002,4 @@ function initKeyboardNavigation() {
         }
     });
 }
+
