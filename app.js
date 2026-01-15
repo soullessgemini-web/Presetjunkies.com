@@ -1073,7 +1073,8 @@ function stopSpectralBars(itemId) {
 // Piano roll functions are in audio.js
 
 // ===== PLAYBACK =====
-function playItemInGlobalBar(item, category) {
+// REMOVED: Duplicate playItemInGlobalBar - use the one in audio.js instead
+/* function playItemInGlobalBar(item, category) {
     if (!item) return;
 
     // Stop current playback first
@@ -1220,7 +1221,7 @@ function playItemInGlobalBar(item, category) {
             globalAudio.load();
         }
     }
-}
+} */
 
 function updatePlayButton(isPlaying) {
     const btn = document.getElementById('global-play-btn');
@@ -1319,7 +1320,8 @@ document.getElementById('mute-btn').addEventListener('click', () => {
 });
 
 // ===== TOGGLE PLAY ON CARD =====
-window.togglePlay = (id, cat) => {
+// REMOVED: Duplicate togglePlay - use the one in audio.js instead
+/* window.togglePlay = (id, cat) => {
     const item = items[cat].find(i => i.id === id);
     if (!item) return;
 
@@ -1346,7 +1348,7 @@ window.togglePlay = (id, cat) => {
         // Play a different item
         playItemInGlobalBar(item, cat);
     }
-};
+}; */
 
 // ===== LIBRARY FUNCTIONS =====
 // Note: Main implementation is in browse.js with Supabase sync
@@ -2469,3 +2471,4 @@ if (presetsBgInput) {
         }
     });
 }
+
