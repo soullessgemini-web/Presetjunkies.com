@@ -2147,9 +2147,13 @@ function renderProfileContentFromGroup(group, page = 1) {
         wrap.innerHTML = createCardHTML(item, itemCategory);
         grid.appendChild(wrap);
 
-        // Initialize audio features (waveform, scrubbing, etc.)
+        // Initialize audio features (waveform, scrubbing, etc.) with delay for DOM render
         if (typeof setupCardAudio === 'function') {
-            setupCardAudio(item, itemCategory);
+            const itemCopy = item;
+            const catCopy = itemCategory;
+            setTimeout(() => {
+                setupCardAudio(itemCopy, catCopy);
+            }, 150);
         }
     });
 
@@ -3362,5 +3366,3 @@ async function adminDeleteUserProfile(username) {
 }
 
 window.adminDeleteUserProfile = adminDeleteUserProfile;
-
-
