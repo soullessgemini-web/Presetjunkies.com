@@ -53,7 +53,7 @@ function createCommentReactionsHTML(reactions) {
         const isActive = users.includes(currentUser || 'You');
         return `
             <span class="comment-reaction ${isActive ? 'active' : ''}">
-                <img src="Emojies/${emoji.file}" alt="${emojiCode}" width="16" height="16">
+                <img src="./Emojies/${emoji.file}" alt="${emojiCode}" width="16" height="16">
                 <span class="comment-reaction-count">${users.length}</span>
             </span>
         `;
@@ -668,9 +668,9 @@ async function updateCenterPanel(item, category, skipFetch = false) {
         if (uploaderName.startsWith('[Deleted')) {
             description.textContent = 'This user deleted their account.';
         } else if (uploaderBio) {
-            description.innerHTML = `<span class="description-label">Bio:</span> ${escapeHTML(uploaderBio)}`;
+            description.textContent = uploaderBio;
         } else {
-            description.textContent = 'No Bio available.';
+            description.textContent = '';
         }
     }
 
@@ -1286,7 +1286,7 @@ function handleCommentReact(commentEl, reactBtn, commentIndex, parentIndex, repl
 
     popup.innerHTML = reactionEmojis.map(emoji =>
         `<div class="reaction-emoji-btn" onclick="handleCommentReaction('${emoji.code}', this, ${idx}, ${pIdx}); event.stopPropagation();">
-            <img src="Emojies/${emoji.file}" alt="${emoji.code}" width="24" height="24">
+            <img src="./Emojies/${emoji.file}" alt="${emoji.code}" width="24" height="24">
         </div>`
     ).join('');
 
@@ -1464,3 +1464,4 @@ async function adminDeleteItem(item, category) {
 
 // Make admin functions globally available
 window.adminDeleteItem = adminDeleteItem;
+
