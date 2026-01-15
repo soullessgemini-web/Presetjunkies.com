@@ -1,0 +1,398 @@
+/* ===== FILTERS - Left Panel Filters, Tags, Dropdowns ===== */
+
+/* ===== FILTER TABS ===== */
+.filter-tabs-container {
+    background: transparent;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.filter-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    gap: 0;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 0;
+    padding: 0;
+    border-bottom: 1px solid rgba(234, 88, 12, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.filter-tab-divider {
+    display: none;
+}
+
+.filter-tab {
+    flex: 1;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.filter-tab:hover {
+    color: #fff;
+}
+
+.filter-tab.active {
+    background: var(--theme-color);
+    color: #fff;
+}
+
+.filter-tab.has-selection {
+    position: relative;
+}
+
+.filter-tab.has-selection::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    background: var(--theme-color);
+    border-radius: 50%;
+}
+
+.filter-tab.active.has-selection::after {
+    background: #101010;
+}
+
+.filter-content {
+    display: none;
+}
+
+.filter-content.active {
+    display: block;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: transparent;
+}
+
+.filter-content.active::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-content.active::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filter-content.active::-webkit-scrollbar-thumb {
+    background: rgba(234, 88, 12, 0.3);
+    border-radius: 3px;
+}
+
+.filter-content.active::-webkit-scrollbar-thumb:hover {
+    background: rgba(234, 88, 12, 0.5);
+}
+
+.filter-content .tags-search {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.filter-content .filter-list {
+    margin-top: 8px;
+}
+
+/* ===== FILTER LIST (Checkbox Style) ===== */
+.filter-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for filter lists */
+.filter-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-list::-webkit-scrollbar-track {
+    background: rgba(234, 88, 12, 0.05);
+    border-radius: 3px;
+}
+
+.filter-list::-webkit-scrollbar-thumb {
+    background: rgba(234, 88, 12, 0.3);
+    border-radius: 3px;
+}
+
+.filter-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(234, 88, 12, 0.5);
+}
+
+.filter-list-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    border-left: 2px solid transparent;
+    color: var(--text-secondary, #fff);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+    width: 100%;
+    min-width: 0;
+}
+
+.filter-list-item:hover {
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--text-primary);
+}
+
+.filter-list-item.selected {
+    background: rgba(var(--theme-color-rgb, 232, 232, 232), 0.2);
+    border-left-color: var(--theme-color);
+    color: var(--text-primary);
+}
+
+.filter-checkbox {
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    background: transparent;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.filter-list-item:hover .filter-checkbox {
+    border-color: rgba(234, 88, 12, 0.5);
+}
+
+.filter-list-item.selected .filter-checkbox {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+}
+
+.filter-list-item.selected .filter-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 3px;
+    height: 7px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Filter count badge */
+.filter-count {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0;
+    flex-shrink: 0;
+    background: rgba(234, 88, 12, 0.3);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(234, 88, 12, 0.4);
+}
+
+.filter-count-num {
+    color: #fff;
+    font-weight: 100;
+}
+
+.filter-list-item.selected .filter-count {
+    background: rgba(234, 88, 12, 0.5);
+    border-color: rgba(234, 88, 12, 0.6);
+}
+
+.filter-list-item.selected .filter-count-num {
+    color: #fff;
+}
+
+/* Filter label text - truncate if too long */
+.filter-list-item > span:not(.filter-checkbox):not(.filter-count) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Legacy container (kept for compatibility) */
+.type-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* ===== TAGS SECTION ===== */
+.tags-section {
+    margin-top: 20px;
+    max-width: 450px;
+}
+
+.tags-section > .tags-search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
+}
+
+.tags-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.tags-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tags-search {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid rgba(234, 88, 12, 0.15);
+    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.tags-search:focus {
+    border-color: var(--theme-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tags-search::placeholder {
+    color: #fff;
+}
+
+/* ===== VST TAGS ===== */
+.vst-tags-section {
+    margin-bottom: 15px;
+}
+
+.vst-tags-section > .tags-search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.vst-tags-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.filter-section {
+    margin-bottom: 0;
+    background: transparent;
+    border-radius: 0;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(234, 88, 12, 0.1);
+}
+
+.filter-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-section-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.filter-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.filter-section-chevron {
+    width: 16px;
+    height: 16px;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.filter-section.collapsed .filter-section-chevron {
+    transform: rotate(-90deg);
+}
+
+.filter-section-content {
+    padding: 0 20px 16px 20px;
+    max-height: 500px;
+    opacity: 1;
+    transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.filter-section.collapsed .filter-section-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+}
+
+/* VST tag selected state (for JS compatibility) */
+.vst-tag.selected {
+    background: rgba(var(--theme-color-rgb, 232, 232, 232), 0.2);
+    border-left-color: var(--theme-color);
+}
+
+.vst-dropdown {
+    padding: 10px 15px;
+    border: 1px solid rgba(234, 88, 12, 0.15);
+    border-radius: 8px;
+    background: #101010;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    min-width: 150px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.vst-dropdown:hover,
+.vst-dropdown:focus {
+    border-color: var(--theme-color);
+}
+
+.vst-dropdown option {
+    background: #101010;
+    color: #fff;
+}

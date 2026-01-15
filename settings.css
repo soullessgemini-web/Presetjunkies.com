@@ -1,0 +1,344 @@
+/* ===== SETTINGS PAGE STYLES ===== */
+
+/* Main container */
+#settings-content {
+    position: fixed;
+    top: 0;
+    left: 230px;
+    right: 0;
+    bottom: 90px;
+    background: #101010;
+    z-index: 50;
+    display: none;
+    overflow-y: auto;
+}
+
+#settings-content.active {
+    display: block;
+}
+
+.settings-page {
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.settings-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+/* Settings Sections */
+.settings-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.settings-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Settings Items */
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.settings-item:first-of-type {
+    padding-top: 0;
+}
+
+.settings-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.settings-item-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.settings-item-value {
+    font-size: 13px;
+    color: #fff;
+}
+
+.settings-item-desc {
+    font-size: 12px;
+    color: #fff;
+}
+
+/* Settings Buttons */
+.settings-btn {
+    padding: 10px 20px;
+    background: rgba(234, 88, 12, 0.15);
+    border: 1px solid rgba(234, 88, 12, 0.3);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+    background: rgba(234, 88, 12, 0.25);
+    border-color: rgba(234, 88, 12, 0.5);
+}
+
+.settings-btn-danger {
+    background: rgba(255, 71, 87, 0.15);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #fff;
+}
+
+.settings-btn-danger:hover {
+    background: rgba(255, 71, 87, 0.25);
+    border-color: rgba(255, 71, 87, 0.5);
+}
+
+/* Settings Select */
+.settings-select {
+    padding: 10px 36px 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: all 0.2s ease;
+}
+
+.settings-select:hover {
+    border-color: rgba(234, 88, 12, 0.4);
+}
+
+.settings-select:focus {
+    outline: none;
+    border-color: rgba(234, 88, 12, 0.5);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.settings-select option {
+    background: #101010;
+    color: #fff;
+}
+
+/* Danger Zone */
+.settings-danger-zone {
+    border-color: rgba(255, 71, 87, 0.2);
+}
+
+.settings-danger-zone .settings-section-title {
+    color: #fff;
+}
+
+/* Settings Modal Overrides */
+.settings-modal-content {
+    max-width: 420px;
+}
+
+.settings-form-group {
+    margin-bottom: 20px;
+}
+
+.settings-form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.settings-current-value {
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+.settings-form-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.settings-form-input:focus {
+    outline: none;
+    border-color: rgba(234, 88, 12, 0.5);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.settings-form-input::placeholder {
+    color: #fff;
+}
+
+.settings-form-input.error {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.15);
+}
+
+/* Bug report textarea */
+textarea.settings-form-input {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.settings-form-error {
+    display: block;
+    font-size: 12px;
+    color: #fff;
+    margin-top: 6px;
+    min-height: 18px;
+}
+
+.settings-form-submit {
+    width: 100%;
+    padding: 14px;
+    background: rgba(234, 88, 12, 0.2);
+    border: 1px solid rgba(234, 88, 12, 0.4);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settings-form-submit:hover {
+    background: rgba(234, 88, 12, 0.3);
+    border-color: rgba(234, 88, 12, 0.6);
+}
+
+.settings-form-submit.settings-btn-danger {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: rgba(255, 71, 87, 0.4);
+}
+
+.settings-form-submit.settings-btn-danger:hover {
+    background: rgba(255, 71, 87, 0.3);
+    border-color: rgba(255, 71, 87, 0.6);
+}
+
+/* Delete Warning */
+.settings-delete-warning {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.settings-delete-warning svg {
+    margin-bottom: 12px;
+}
+
+.settings-delete-warning p {
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.5;
+}
+
+/* Bio Input */
+.settings-item-bio {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.settings-item-bio .settings-item-info {
+    width: 100%;
+}
+
+.settings-bio-input-wrap {
+    width: 100%;
+    position: relative;
+}
+
+.settings-bio-input {
+    width: 100%;
+    padding: 12px 14px;
+    padding-bottom: 28px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    min-height: 80px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.settings-bio-input:focus {
+    outline: none;
+    border-color: rgba(234, 88, 12, 0.5);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.settings-bio-input::placeholder {
+    color: #fff;
+}
+
+.settings-bio-count {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #fff;
+}
+
+.settings-item-bio .settings-btn {
+    align-self: flex-end;
+}
