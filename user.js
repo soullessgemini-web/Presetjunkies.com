@@ -1685,9 +1685,13 @@ function renderUploadCards(filter = currentUploadFilter) {
 
     // If filter is 'all', show all items combined; otherwise auto-select first card
     if (filter === 'all' && groups.length > 0) {
-        // Combine all items from all groups
+        // Combine all items from all groups, preserving each item's category
         const allItems = [];
-        groups.forEach(g => allItems.push(...g.items));
+        groups.forEach(g => {
+            g.items.forEach(item => {
+                allItems.push({ ...item, _category: g.category });
+            });
+        });
         const combinedGroup = {
             id: 'all-uploads',
             name: 'All',
@@ -1874,7 +1878,11 @@ function renderSavedCards(filter = currentSavedFilter) {
     // If filter is 'all', show all items combined; otherwise auto-select first card
     if (filter === 'all' && groups.length > 0) {
         const allItems = [];
-        groups.forEach(g => allItems.push(...g.items));
+        groups.forEach(g => {
+            g.items.forEach(item => {
+                allItems.push({ ...item, _category: g.category });
+            });
+        });
         const combinedGroup = {
             id: 'all-saved',
             name: 'All',
@@ -2052,7 +2060,11 @@ function renderLikedCards(filter = currentLikesFilter) {
     // If filter is 'all', show all items combined; otherwise auto-select first card
     if (filter === 'all' && groups.length > 0) {
         const allItems = [];
-        groups.forEach(g => allItems.push(...g.items));
+        groups.forEach(g => {
+            g.items.forEach(item => {
+                allItems.push({ ...item, _category: g.category });
+            });
+        });
         const combinedGroup = {
             id: 'all-likes',
             name: 'All',
@@ -2124,17 +2136,20 @@ function renderProfileContentFromGroup(group, page = 1) {
     grid.innerHTML = '';
 
     pageItems.forEach(item => {
+        // Use item's actual category if available (for 'all' view), otherwise use group category
+        const itemCategory = item._category || group.category;
+
         const wrap = document.createElement('div');
         wrap.dataset.itemId = item.id;
-        wrap.dataset.category = group.category;
+        wrap.dataset.category = itemCategory;
         wrap.className = 'profile-item-card-wrap';
         // Event listener handled via delegation in DOMContentLoaded
-        wrap.innerHTML = createCardHTML(item, group.category);
+        wrap.innerHTML = createCardHTML(item, itemCategory);
         grid.appendChild(wrap);
 
         // Initialize audio features (waveform, scrubbing, etc.)
         if (typeof setupCardAudio === 'function') {
-            setupCardAudio(item, group.category);
+            setupCardAudio(item, itemCategory);
         }
     });
 
@@ -3347,4 +3362,5 @@ async function adminDeleteUserProfile(username) {
 }
 
 window.adminDeleteUserProfile = adminDeleteUserProfile;
+
 
