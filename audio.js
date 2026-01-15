@@ -211,6 +211,11 @@ function playItemInGlobalBar(item, category) {
     updateNowPlaying(item);
     updatePlayingBackdrop(item, category);
 
+    // If on profile page, also update via selectItemAndShowComments
+    if (document.body.classList.contains('profile-active') && typeof selectItemAndShowComments === 'function') {
+        selectItemAndShowComments(item, category);
+    }
+
     document.querySelectorAll('.play-bar-btn').forEach(btn => btn.disabled = false);
     document.querySelectorAll('.play-bar-action-btn').forEach(btn => btn.disabled = false);
     const muteBtn = document.getElementById('mute-btn');
@@ -394,14 +399,15 @@ function playNext() {
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % navItems.length;
     clearAllCardStyles();
 
-    // Use profile category if in profile mode
-    const category = (document.body.classList.contains('profile-active') && currentProfileGroup)
-        ? currentProfileGroup.category
-        : currentTab;
+    const nextItem = navItems[nextIndex];
+    // Use item's actual category (for "all" view), then profile group category, then current tab
+    const category = nextItem._category
+        || (document.body.classList.contains('profile-active') && currentProfileGroup ? currentProfileGroup.category : null)
+        || currentTab;
 
-    playItemInGlobalBar(navItems[nextIndex], category);
+    playItemInGlobalBar(nextItem, category);
     currentFocusIndex = nextIndex;
-    scrollToCard(navItems[nextIndex].id);
+    scrollToCard(nextItem.id);
 }
 
 function playPrevious() {
@@ -411,14 +417,15 @@ function playPrevious() {
     const prevIndex = currentIndex <= 0 ? navItems.length - 1 : currentIndex - 1;
     clearAllCardStyles();
 
-    // Use profile category if in profile mode
-    const category = (document.body.classList.contains('profile-active') && currentProfileGroup)
-        ? currentProfileGroup.category
-        : currentTab;
+    const prevItem = navItems[prevIndex];
+    // Use item's actual category (for "all" view), then profile group category, then current tab
+    const category = prevItem._category
+        || (document.body.classList.contains('profile-active') && currentProfileGroup ? currentProfileGroup.category : null)
+        || currentTab;
 
-    playItemInGlobalBar(navItems[prevIndex], category);
+    playItemInGlobalBar(prevItem, category);
     currentFocusIndex = prevIndex;
-    scrollToCard(navItems[prevIndex].id);
+    scrollToCard(prevItem.id);
 }
 
 // Scroll to a card by its ID
@@ -485,7 +492,16 @@ window.togglePlay = (id, cat) => {
     if (typeof id === 'string' && id.startsWith('preview-')) {
         item = window.uploadPreviewItem || null;
     } else {
+        // Try items[cat] first (browse mode)
         item = items[cat]?.find(i => i.id === id);
+        // If not found and in profile mode, check currentProfileGroup.items
+        if (!item && document.body.classList.contains('profile-active') && typeof currentProfileGroup !== 'undefined' && currentProfileGroup?.items) {
+            item = currentProfileGroup.items.find(i => i.id === id);
+            // Use item's actual category if available
+            if (item && item._category) {
+                cat = item._category;
+            }
+        }
     }
     if (!item) return;
 
@@ -905,38 +921,46 @@ const midiNotesCache = {};
 const pianoRollAnimations = {};
 
 function renderPianoRoll(itemId, midiNotes, themeColor) {
-    const canvas = document.getElementById(`canvas-${itemId}`);
-    if (!canvas || !midiNotes) return;
+    // Find ALL canvases with this ID (there might be duplicates in browse vs profile)
+    const allCanvases = document.querySelectorAll(`#canvas-${itemId}`);
+
+    if (allCanvases.length === 0 || !midiNotes) {
+        return;
+    }
 
     midiNotesCache[itemId] = { notes: midiNotes, color: themeColor };
 
-    const ctx = canvas.getContext('2d');
-    const container = canvas.parentElement;
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
+    // Render on ALL matching canvases
+    allCanvases.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const container = canvas.parentElement;
+        // Use container dimensions, fallback to card dimensions if container not ready
+        canvas.width = container.offsetWidth || 408;
+        canvas.height = container.offsetHeight || 180;
 
-    const allNotes = [];
-    midiNotes.tracks.forEach(track => track.notes.forEach(note => allNotes.push(note)));
+        const allNotes = [];
+        midiNotes.tracks.forEach(track => track.notes.forEach(note => allNotes.push(note)));
 
-    if (allNotes.length > 0) {
-        let minMidi = Math.min(...allNotes.map(n => n.midi));
-        let maxMidi = Math.max(...allNotes.map(n => n.midi));
-        const range = Math.max(maxMidi - minMidi, 12);
-        minMidi = minMidi - 2;
-        maxMidi = minMidi + range + 4;
+        if (allNotes.length > 0) {
+            let minMidi = Math.min(...allNotes.map(n => n.midi));
+            let maxMidi = Math.max(...allNotes.map(n => n.midi));
+            const range = Math.max(maxMidi - minMidi, 12);
+            minMidi = minMidi - 2;
+            maxMidi = minMidi + range + 4;
 
-        canvas.dataset.minMidi = minMidi;
-        canvas.dataset.maxMidi = maxMidi;
-    }
+            canvas.dataset.minMidi = minMidi;
+            canvas.dataset.maxMidi = maxMidi;
+        }
 
-    const duration = midiNotes.duration;
-    const pixelsPerSecond = canvas.width / duration;
+        const duration = midiNotes.duration;
+        const pixelsPerSecond = canvas.width / duration;
 
-    canvas.dataset.duration = duration;
-    canvas.dataset.pixelsPerSecond = pixelsPerSecond;
-    canvas.dataset.themeColor = themeColor;
+        canvas.dataset.duration = duration;
+        canvas.dataset.pixelsPerSecond = pixelsPerSecond;
+        canvas.dataset.themeColor = themeColor;
 
-    drawPianoRoll(canvas, midiNotes, 0, themeColor);
+        drawPianoRoll(canvas, midiNotes, 0, themeColor);
+    });
 }
 window.renderPianoRoll = renderPianoRoll;
 
@@ -944,13 +968,14 @@ function drawPianoRoll(canvas, midiNotes, currentTime, themeColor) {
     const ctx = canvas.getContext('2d');
 
     const container = canvas.parentElement;
-    if (container) {
+    // Only resize if container has valid dimensions, otherwise keep existing canvas size
+    if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
         canvas.width = container.offsetWidth;
         canvas.height = container.offsetHeight;
     }
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const width = canvas.width || 408;
+    const height = canvas.height || 180;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -1075,17 +1100,24 @@ function drawPianoRoll(canvas, midiNotes, currentTime, themeColor) {
 function startPianoRollAnimation(itemId, midiNotes, audioElement, themeColor) {
     if (pianoRollAnimations[itemId]) cancelAnimationFrame(pianoRollAnimations[itemId]);
 
-    const canvas = document.getElementById(`canvas-${itemId}`);
-    const progressBar = document.getElementById(`progress-${itemId}`);
-    if (!canvas || !progressBar) return;
+    // Find ALL canvases and progress bars (browse + profile may have duplicates)
+    const allCanvases = document.querySelectorAll(`#canvas-${itemId}`);
+    const allProgressBars = document.querySelectorAll(`#progress-${itemId}`);
+    if (allCanvases.length === 0) return;
 
     function animate() {
         if (!pianoRollAnimations[itemId]) return;
         const currentTime = audioElement.currentTime;
         const duration = audioElement.duration;
         const percentage = (currentTime / duration) * 100;
-        progressBar.style.left = percentage + '%';
-        drawPianoRoll(canvas, midiNotes, currentTime, themeColor);
+
+        // Update ALL progress bars and canvases
+        allProgressBars.forEach(progressBar => {
+            progressBar.style.left = percentage + '%';
+        });
+        allCanvases.forEach(canvas => {
+            drawPianoRoll(canvas, midiNotes, currentTime, themeColor);
+        });
         updatePianoKeys(itemId, midiNotes, currentTime, themeColor);
         pianoRollAnimations[itemId] = requestAnimationFrame(animate);
     }
@@ -1195,3 +1227,4 @@ function updatePianoKeys(itemId, midiNotes, currentTime, themeColor) {
 
     drawPianoKeys(canvas, activeNotes, themeColor, itemId);
 }
+
