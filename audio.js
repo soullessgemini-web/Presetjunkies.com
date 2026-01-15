@@ -1227,4 +1227,3 @@ function updatePianoKeys(itemId, midiNotes, currentTime, themeColor) {
 
     drawPianoKeys(canvas, activeNotes, themeColor, itemId);
 }
-
