@@ -4,34 +4,6 @@
 let currentCommentItem = null;
 let currentCommentCategory = null;
 
-// ===== LOCAL REPLIES STORAGE =====
-// Save replies to localStorage (keyed by comment ID)
-function saveLocalReplies(commentId, replies) {
-    if (!commentId) return;
-    const allReplies = safeJSONParse(localStorage.getItem('localCommentReplies'), {});
-    allReplies[commentId] = replies;
-    localStorage.setItem('localCommentReplies', JSON.stringify(allReplies));
-}
-
-// Get replies from localStorage for a comment
-function getLocalReplies(commentId) {
-    if (!commentId) return [];
-    const allReplies = safeJSONParse(localStorage.getItem('localCommentReplies'), {});
-    return allReplies[commentId] || [];
-}
-
-// Merge local replies into comments loaded from Supabase
-function mergeLocalReplies(comments) {
-    if (!comments || !Array.isArray(comments)) return comments;
-    return comments.map(c => {
-        const localReplies = getLocalReplies(c.id);
-        if (localReplies.length > 0) {
-            c.replies = [...(c.replies || []), ...localReplies];
-        }
-        return c;
-    });
-}
-
 // Create reactions HTML for a comment
 function createCommentReactionsHTML(reactions) {
     if (!reactions || Object.keys(reactions).length === 0) {
@@ -53,7 +25,7 @@ function createCommentReactionsHTML(reactions) {
         const isActive = users.includes(currentUser || 'You');
         return `
             <span class="comment-reaction ${isActive ? 'active' : ''}">
-                <img src="./Emojies/${emoji.file}" alt="${emojiCode}" width="16" height="16">
+                <img src="Emojies/${emoji.file}" alt="${emojiCode}" width="16" height="16">
                 <span class="comment-reaction-count">${users.length}</span>
             </span>
         `;
@@ -112,7 +84,7 @@ window.handleCommentReaction = function(emojiCode, element, commentIndex, parent
 };
 
 // ===== LINK DETECTION FOR COMMENTS =====
-// Block links in comments (allowed only in lounge)
+// Block links in comments (allowed only in lounge and DMs)
 function containsLink(text) {
     if (!text) return false;
     const lowerText = text.toLowerCase();
@@ -278,72 +250,76 @@ document.addEventListener('click', function(e) {
 });
 
 // Open comment modal
-window.openCommentModal = async (id, category, skipFetch = false) => {
-    // Use findItemById helper (checks global items and currentProfileGroup)
-    const item = typeof findItemById === 'function'
-        ? findItemById(id, category)
-        : items[category]?.find(i => i.id == id);
+window.openCommentModal = (id, category) => {
+    if (!items[category]) return;
+    const item = items[category].find(i => i.id === id);
     if (!item) return;
 
     currentCommentItem = item;
     currentCommentCategory = category;
 
-    // Load comments from Supabase (skip if just refreshing after local add)
-    if (!skipFetch && item.id && typeof supabaseGetComments === 'function') {
-        try {
-            const { data: supabaseComments, error } = await supabaseGetComments(item.id);
-            if (!error && supabaseComments) {
-                const currentUsername = localStorage.getItem('profileUsername') || '';
-                const loadedComments = supabaseComments.map(c => ({
-                    id: c.id,
-                    user: c.user?.username || 'Unknown',
-                    text: c.content,
-                    time: new Date(c.created_at).getTime(),
-                    avatar: c.user?.avatar_url || null,
-                    replies: [],
-                    isOwn: (c.user?.username || '').toLowerCase() === currentUsername.toLowerCase()
-                }));
-                // Merge in locally stored replies
-                currentCommentItem.comments = mergeLocalReplies(loadedComments);
-            }
-        } catch (err) {
-            console.error('Error loading comments from Supabase:', err);
-        }
-    }
-
+    const uploaderName = item.uploader || 'username';
     const modal = document.getElementById('comment-modal');
-    const banner = document.getElementById('comment-modal-banner');
-    const title = document.getElementById('comment-modal-title');
+    const header = document.getElementById('comment-modal-header');
+    const avatar = document.getElementById('comment-modal-avatar');
+    const username = document.getElementById('comment-modal-username');
     const list = document.getElementById('comment-list');
+    const morePresetsUsername = document.getElementById('more-presets-username');
+    const morePresetsList = document.getElementById('more-presets-list');
 
-    // Set banner to item's cover art
-    const rawCoverUrl = item.coverArt || item.cover_url || '';
-    if (banner) {
-        if (rawCoverUrl) {
-            const coverUrl = sanitizeCSSUrl(rawCoverUrl);
-            if (coverUrl) {
-                banner.style.backgroundImage = `url('${coverUrl}')`;
-                banner.classList.add('has-cover');
-            } else {
-                banner.style.backgroundImage = 'none';
-                banner.classList.remove('has-cover');
-            }
+    const bannerUrl = sanitizeCSSUrl(item.uploaderBanner);
+    if (header) {
+        if (bannerUrl) {
+            header.style.backgroundImage = `url('${bannerUrl}')`;
         } else {
-            banner.style.backgroundImage = 'none';
-            banner.classList.remove('has-cover');
+            header.style.backgroundImage = 'linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 100%)';
         }
     }
 
-    // Set title to item's title
-    if (title) title.textContent = item.title || 'Untitled';
+    const avatarUrl = sanitizeCSSUrl(item.uploaderAvatar);
+    if (avatar) {
+        if (avatarUrl) {
+            avatar.style.backgroundImage = `url('${avatarUrl}')`;
+        } else {
+            avatar.style.backgroundImage = 'none';
+            avatar.style.background = '#666';
+        }
+    }
+
+    if (username) username.textContent = uploaderName;
+    if (morePresetsUsername) morePresetsUsername.textContent = uploaderName;
+
+    const uploaderPresets = (items[category] || []).filter(i => i.uploader === uploaderName);
+    const followersEl = document.getElementById('comment-modal-followers');
+    const uploadsEl = document.getElementById('comment-modal-uploads');
+    if (followersEl) followersEl.textContent = item.uploaderFollowers || 0;
+    if (uploadsEl) uploadsEl.textContent = uploaderPresets.length;
 
     if (list) {
-        if (item.comments && item.comments.length > 0) {
-            list.innerHTML = item.comments.map((c, idx) => createCenterPanelCommentHTML(c, idx)).join('');
-            // Event listeners handled via delegation in initCenterPanelComments()
-        } else {
-            list.innerHTML = '<div class="no-comments">No comments yet</div>';
-        }
+        list.innerHTML = (item.comments || []).map(c => `
+            <div class="comment-item">
+                <div class="comment-avatar"></div>
+                <div class="comment-content">
+                    <div class="comment-user">${escapeHTML(c.user)}</div>
+                    <div class="comment-text">${typeof window.safeParseEmojis === 'function' ? window.safeParseEmojis(c.text) : escapeHTML(c.text)}</div>
+                </div>
+            </div>
+        `).join('') || '<div class="no-comments">No comments yet</div>';
+    }
+
+    const otherPresets = (items[category] || []).filter(i => i.uploader === uploaderName && i.id !== id).slice(0, 5);
+    if (morePresetsList) {
+        morePresetsList.innerHTML = otherPresets.length > 0
+            ? otherPresets.map(p => createCardHTML(p, category)).join('')
+            : '<div class="no-comments">No other presets</div>';
+    }
+
+    // Update follow button state
+    const followBtn = document.querySelector('.comment-modal-action');
+    if (followBtn) {
+        const followedUsers = safeJSONParse(localStorage.getItem('followedUsers'), []);
+        const isFollowing = followedUsers.includes(uploaderName);
+        followBtn.textContent = isFollowing ? 'Following' : 'Follow';
     }
 
     if (modal) modal.classList.add('show');
@@ -395,12 +371,21 @@ window.closeCommentModal = () => {
 };
 
 window.submitComment = () => {
-    submitCommentInner();
+    // Prevent race conditions with action lock
+    if (typeof withActionLock === 'function') {
+        withActionLock('submitComment', () => submitCommentInner())();
+    } else {
+        submitCommentInner();
+    }
 };
 
 async function submitCommentInner() {
+    // Rate limiting (5 seconds = max 12 comments/minute)
+    if (typeof rateLimit === 'function' && !rateLimit('submitComment', 5000)) {
+        return; // Too fast
+    }
+
     const input = document.getElementById('comment-input');
-    if (!input) return;
     const text = input.value.trim();
     if (!text || !currentCommentItem) return;
 
@@ -418,29 +403,10 @@ async function submitCommentInner() {
     }
 
     if (!currentCommentItem.comments) currentCommentItem.comments = [];
-    const currentUsername = localStorage.getItem('profileUsername') || 'You';
-    const userAvatar = localStorage.getItem('profileAvatar') || null;
-    currentCommentItem.comments.unshift({
-        user: currentUsername,
-        text: text,
-        time: Date.now(),
-        avatar: userAvatar,
-        isOwn: true
-    });
+    currentCommentItem.comments.unshift({ user: 'You', text: text, time: Date.now() });
 
     input.value = '';
-
-    // Refresh modal UI without re-fetching from Supabase (local comment not saved yet)
-    await openCommentModal(currentCommentItem.id, currentCommentCategory, true);
-
-    // Scroll to top to show new comment and refocus input
-    const commentList = document.getElementById('comment-list');
-    if (commentList) {
-        commentList.scrollTop = 0;
-    }
-    // Refocus input for quick follow-up comments
-    const newInput = document.getElementById('comment-input');
-    if (newInput) newInput.focus();
+    openCommentModal(currentCommentItem.id, currentCommentCategory);
 
     const countEl = document.getElementById(`comments-count-${currentCommentItem.id}`);
     if (countEl) countEl.textContent = formatCount(currentCommentItem.comments.length);
@@ -460,44 +426,18 @@ async function submitCommentInner() {
         }
     }
 
-    // Add notification for comment (pass the comment text)
+    // Add notification for comment
     if (window.addNotification) {
-        window.addNotification('comment', currentCommentItem.title || currentCommentItem.name, currentCommentItem.id, currentCommentCategory, 'You', text);
+        window.addNotification('comment', currentCommentItem.title || currentCommentItem.name, currentCommentItem.id, currentCommentCategory, 'You');
     }
 }
 
 // Center Panel Functions
-async function updateCenterPanel(item, category, skipFetch = false) {
+function updateCenterPanel(item, category) {
     if (!item) return;
 
     centerPanelItem = item;
     centerPanelCategory = category;
-
-    // Load comments from Supabase (skip if just refreshing local changes)
-    if (!skipFetch && item.id && typeof supabaseGetComments === 'function') {
-        try {
-            const { data: supabaseComments, error } = await supabaseGetComments(item.id);
-            if (!error && supabaseComments) {
-                // Transform Supabase format to local format
-                const currentUsername = localStorage.getItem('profileUsername') || '';
-                const loadedComments = supabaseComments.map(c => ({
-                    id: c.id,
-                    user: c.user?.username || 'Unknown',
-                    text: c.content,
-                    time: new Date(c.created_at).getTime(),
-                    avatar: c.user?.avatar_url || null,
-                    likes: 0,
-                    replies: [],
-                    reactions: {},
-                    isOwn: (c.user?.username || '').toLowerCase() === currentUsername.toLowerCase()
-                }));
-                // Merge in locally stored replies
-                centerPanelItem.comments = mergeLocalReplies(loadedComments);
-            }
-        } catch (err) {
-            console.error('Error loading comments from Supabase:', err);
-        }
-    }
 
     const banner = document.getElementById('center-panel-banner');
     const avatar = document.getElementById('center-panel-avatar');
@@ -551,10 +491,15 @@ async function updateCenterPanel(item, category, skipFetch = false) {
         }
     }
 
-    // Set user section background - always use fixed black gradient
+    // Set user section background (using CSS-safe URL sanitization)
     const userSection = document.querySelector('.center-panel-user-section');
     if (userSection) {
-        userSection.style.setProperty('--user-bg', 'linear-gradient(135deg, #101010 0%, rgba(255,255,255,0.08) 50%, #101010 100%)');
+        const safeBannerUrl = typeof sanitizeCSSUrl === 'function' ? sanitizeCSSUrl(uploaderBanner) : '';
+        if (safeBannerUrl) {
+            userSection.style.setProperty('--user-bg', `url('${safeBannerUrl}')`);
+        } else {
+            userSection.style.setProperty('--user-bg', 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)');
+        }
     }
 
     if (avatar) {
@@ -564,7 +509,7 @@ async function updateCenterPanel(item, category, skipFetch = false) {
             avatar.classList.add('has-image');
         } else {
             avatar.style.backgroundImage = 'none';
-            avatar.style.background = '#101010';
+            avatar.style.background = '#333';
             avatar.classList.remove('has-image');
         }
     }
@@ -585,72 +530,6 @@ async function updateCenterPanel(item, category, skipFetch = false) {
         };
     }
 
-    // Set up Follow button
-    const followBtn = document.getElementById('center-panel-follow-btn');
-    if (followBtn) {
-        followBtn.dataset.username = uploaderName;
-        followBtn.style.display = 'block';
-        followBtn.classList.remove('following');
-
-        // Check if current user is following this user
-        const currentUser = localStorage.getItem('profileUsername');
-        const isOwnProfile = currentUser && currentUser.toLowerCase() === uploaderName.toLowerCase();
-
-        // Check follow status
-        const following = safeJSONParse(localStorage.getItem('following'), []);
-        const isFollowing = following.some(f => f.toLowerCase() === uploaderName.toLowerCase());
-
-        if (isFollowing) {
-            followBtn.textContent = 'Unfollow';
-            followBtn.classList.add('following');
-        } else {
-            followBtn.textContent = 'Follow';
-            followBtn.classList.remove('following');
-        }
-
-        followBtn.onclick = async function() {
-            const targetUser = this.dataset.username;
-            if (!targetUser) return;
-
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                if (typeof openAuthModal === 'function') openAuthModal('login');
-                return;
-            }
-
-            // Can't follow yourself
-            const currentUsername = localStorage.getItem('profileUsername');
-            if (currentUsername && currentUsername.toLowerCase() === targetUser.toLowerCase()) {
-                return;
-            }
-
-            const following = safeJSONParse(localStorage.getItem('following'), []);
-            const isCurrentlyFollowing = following.some(f => f.toLowerCase() === targetUser.toLowerCase());
-
-            if (isCurrentlyFollowing) {
-                // Unfollow
-                const newFollowing = following.filter(f => f.toLowerCase() !== targetUser.toLowerCase());
-                localStorage.setItem('following', JSON.stringify(newFollowing));
-                this.textContent = 'Follow';
-                this.classList.remove('following');
-
-                if (typeof supabaseUnfollow === 'function') {
-                    await supabaseUnfollow(targetUser);
-                }
-            } else {
-                // Follow
-                following.push(targetUser);
-                localStorage.setItem('following', JSON.stringify(following));
-                this.textContent = 'Unfollow';
-                this.classList.add('following');
-
-                if (typeof supabaseFollow === 'function') {
-                    await supabaseFollow(targetUser);
-                }
-            }
-        };
-    }
-
     const followers = document.getElementById('center-panel-followers');
     const uploads = document.getElementById('center-panel-uploads');
 
@@ -665,12 +544,10 @@ async function updateCenterPanel(item, category, skipFetch = false) {
     // Update user bio
     const description = document.getElementById('center-panel-description');
     if (description) {
-        if (uploaderName.startsWith('[Deleted')) {
-            description.textContent = 'This user deleted their account.';
-        } else if (uploaderBio) {
-            description.textContent = uploaderBio;
+        if (uploaderBio) {
+            description.innerHTML = `<span class="description-label">Bio:</span> ${escapeHTML(uploaderBio)}`;
         } else {
-            description.textContent = '';
+            description.textContent = 'No Bio available.';
         }
     }
 
@@ -753,21 +630,6 @@ async function updateCenterPanel(item, category, skipFetch = false) {
         itemTags.innerHTML = tagsHTML;
     }
 
-    // Show/hide admin controls
-    const adminControls = document.getElementById('center-panel-admin-controls');
-    if (adminControls) {
-        if (typeof isAdmin === 'function' && isAdmin()) {
-            adminControls.classList.remove('hidden');
-            // Set up admin delete button
-            const adminDeleteBtn = document.getElementById('admin-delete-item-btn');
-            if (adminDeleteBtn) {
-                adminDeleteBtn.onclick = () => adminDeleteItem(item, category);
-            }
-        } else {
-            adminControls.classList.add('hidden');
-        }
-    }
-
     // Update Now Playing container
     const nowPlayingCover = document.getElementById('center-panel-now-playing-cover');
     const nowPlayingTitle = document.getElementById('center-panel-now-playing-title');
@@ -795,7 +657,7 @@ async function updateCenterPanel(item, category, skipFetch = false) {
     if (list) {
         if (item.comments && item.comments.length > 0) {
             list.innerHTML = item.comments.map((c, idx) => createCenterPanelCommentHTML(c, idx)).join('');
-            // Event listeners handled via delegation in initCenterPanelComments()
+            list.querySelectorAll('.center-panel-comment').forEach(el => attachCenterPanelCommentListeners(el));
             // Re-apply current user's avatar to their comments
             if (typeof updateProfileAvatar === 'function') {
                 updateProfileAvatar();
@@ -821,14 +683,10 @@ function createCenterPanelCommentHTML(comment, index) {
     const likes = comment.likes || 0;
     const replies = comment.replies || [];
     const hasReplies = replies.length > 0;
-    const currentUsername = localStorage.getItem('profileUsername') || '';
-    const isOwnComment = comment.isOwn || comment.user === 'You' ||
-        (comment.user && currentUsername && comment.user.toLowerCase() === currentUsername.toLowerCase());
-    const isAdminUser = typeof isAdmin === 'function' && isAdmin();
-    const canModerate = isOwnComment || isAdminUser;
+    const isOwnComment = comment.user === 'You';
 
     return `
-        <div class="center-panel-comment ${hasReplies ? 'has-replies' : ''}" data-index="${index}" data-comment-id="${comment.id || ''}">
+        <div class="center-panel-comment ${hasReplies ? 'has-replies' : ''}" data-index="${index}">
             <div class="center-panel-comment-avatar">
                 ${comment.avatar && sanitizeURL(comment.avatar) ? `<img src="${escapeAttr(sanitizeURL(comment.avatar))}" alt="${escapeAttr(comment.user)}">` : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
             </div>
@@ -836,14 +694,14 @@ function createCenterPanelCommentHTML(comment, index) {
                 <div class="center-panel-comment-header">
                     <span class="center-panel-comment-user">${escapeHTML(comment.user)}</span>
                     <span class="center-panel-comment-time">${timeAgo}</span>
-                    ${canModerate ? `
+                    ${isOwnComment ? `
                         <div class="center-panel-comment-menu-wrapper" style="position: relative; margin-left: auto;">
                             <button class="center-panel-comment-menu">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
                             </button>
-                            <div class="comment-menu-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: #101010; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; min-width: 100px;">
-                                ${isOwnComment ? `<button class="comment-edit-btn" data-index="${index}" style="display: block; width: 100%; padding: 8px 12px; background: none; border: none; color: white; text-align: left; cursor: pointer; font-size: 13px;">Edit</button>` : ''}
-                                <button class="comment-delete-btn" data-index="${index}" style="display: block; width: 100%; padding: 8px 12px; background: none; border: none; color: #e74c3c; text-align: left; cursor: pointer; font-size: 13px;">${isAdminUser && !isOwnComment ? 'Delete (Admin)' : 'Delete'}</button>
+                            <div class="comment-menu-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: #2a2a2e; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; min-width: 100px;">
+                                <button class="comment-edit-btn" data-index="${index}" style="display: block; width: 100%; padding: 8px 12px; background: none; border: none; color: white; text-align: left; cursor: pointer; font-size: 13px;">Edit</button>
+                                <button class="comment-delete-btn" data-index="${index}" style="display: block; width: 100%; padding: 8px 12px; background: none; border: none; color: #e74c3c; text-align: left; cursor: pointer; font-size: 13px;">Delete</button>
                             </div>
                         </div>
                     ` : ''}
@@ -857,12 +715,12 @@ function createCenterPanelCommentHTML(comment, index) {
                 </div>
                 ${createCommentReactionsHTML(comment.reactions)}
                 ${hasReplies ? `
-                    <button class="center-panel-comment-replies-toggle expanded">
+                    <button class="center-panel-comment-replies-toggle">
                         <span class="replies-count">${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}</span>
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                 ` : ''}
-                <div class="center-panel-comment-replies ${hasReplies ? 'show' : ''}" style="display: ${hasReplies ? 'block' : 'none'};">
+                <div class="center-panel-comment-replies ${hasReplies ? '' : ''}" style="display: none;">
                     ${replies.map((r, rIdx) => createCenterPanelReplyHTML(r, index, rIdx)).join('')}
                 </div>
             </div>
@@ -898,7 +756,186 @@ function createCenterPanelReplyHTML(reply, parentIndex, replyIndex) {
     `;
 }
 
-// Old attachCenterPanelCommentListeners removed - now using event delegation in initCenterPanelComments()
+function attachCenterPanelCommentListeners(commentEl) {
+    const reactBtn = commentEl.querySelector('.center-panel-react-btn');
+    const replyBtn = commentEl.querySelector('.center-panel-reply-btn');
+    const repliesToggle = commentEl.querySelector('.center-panel-comment-replies-toggle');
+    const repliesContainer = commentEl.querySelector('.center-panel-comment-replies');
+    const commentIndex = commentEl.dataset.index;
+    const parentIndex = commentEl.dataset.parent; // For replies
+    const replyIndex = commentEl.dataset.reply; // For replies
+    const menuBtn = commentEl.querySelector('.center-panel-comment-menu');
+    const menuDropdown = commentEl.querySelector('.comment-menu-dropdown');
+    const editBtn = commentEl.querySelector('.comment-edit-btn');
+    const deleteBtn = commentEl.querySelector('.comment-delete-btn');
+
+    // Menu toggle
+    menuBtn?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.querySelectorAll('.comment-menu-dropdown').forEach(d => d.style.display = 'none');
+        if (menuDropdown) menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Edit comment
+    editBtn?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.style.display = 'none';
+        const idx = parseInt(this.dataset.index);
+        if (!centerPanelItem || !centerPanelItem.comments || !centerPanelItem.comments[idx]) return;
+        const comment = centerPanelItem.comments[idx];
+        if (comment.user !== 'You') return;
+        const newText = prompt('Edit your comment:', comment.text || '');
+        if (newText !== null && newText.trim() !== '') {
+            comment.text = newText.trim();
+            comment.edited = true;
+            refreshCommentList();
+        }
+    });
+
+    // Delete comment
+    deleteBtn?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.style.display = 'none';
+        const idx = parseInt(this.dataset.index);
+        if (!centerPanelItem || !centerPanelItem.comments || !centerPanelItem.comments[idx]) return;
+        if (centerPanelItem.comments[idx].user !== 'You') return;
+        if (confirm('Delete this comment?')) {
+            centerPanelItem.comments.splice(idx, 1);
+            refreshCommentList();
+        }
+    });
+
+    // React button - show emoji picker popup
+    reactBtn?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // Remove any existing reaction popup
+        document.querySelectorAll('.comment-reaction-popup').forEach(el => el.remove());
+
+        const popup = document.createElement('div');
+        popup.className = 'comment-reaction-popup';
+
+        // Only these specific emojis with their actual filenames
+        const reactionEmojis = [
+            { code: 'pepeyes', file: '44680-pepeyes.png' },
+            { code: 'no', file: '73309-no.png' },
+            { code: 'pepeheart', file: '1211-pepeheart.png' },
+            { code: 'wtfpepe', file: '98318-wtfpepe.png' },
+            { code: 'pepefinger', file: '66904-pepefinger.png' },
+            { code: 'ok', file: '829312-ok.png' }
+        ];
+
+        // Determine if this is a parent comment or a reply
+        const isReply = parentIndex !== undefined;
+        const idx = isReply ? replyIndex : commentIndex;
+        const pIdx = isReply ? parentIndex : 'null';
+
+        popup.innerHTML = reactionEmojis.map(emoji =>
+            `<div class="reaction-emoji-btn" onclick="handleCommentReaction('${emoji.code}', this, ${idx}, ${pIdx}); event.stopPropagation();">
+                <img src="Emojies/${emoji.file}" alt="${emoji.code}" width="24" height="24">
+            </div>`
+        ).join('');
+
+        // Position popup near the button - append to actions container
+        const actionsContainer = this.closest('.center-panel-comment-actions');
+        if (actionsContainer) {
+            actionsContainer.style.position = 'relative';
+            actionsContainer.appendChild(popup);
+        } else {
+            this.parentElement.style.position = 'relative';
+            this.parentElement.appendChild(popup);
+        }
+
+        // Close popup when clicking outside
+        const closePopup = (ev) => {
+            if (!popup.contains(ev.target) && !ev.target.closest('.center-panel-react-btn')) {
+                popup.remove();
+                document.removeEventListener('click', closePopup);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closePopup), 10);
+    });
+
+    replyBtn?.addEventListener('click', function() {
+        // Remove any existing reply input in the entire comments section
+        document.querySelectorAll('.center-panel-reply-input-wrapper').forEach(el => el.remove());
+
+        // Determine if this is a reply to a parent comment or to another reply
+        const isReplyToReply = commentEl.dataset.parent !== undefined;
+        const parentIndex = isReplyToReply ? parseInt(commentEl.dataset.parent) : commentIndex;
+        const replyToUser = isReplyToReply ? (commentEl.dataset.replyUser || commentEl.querySelector('.center-panel-comment-user')?.textContent) : null;
+
+        const replyInput = document.createElement('div');
+        replyInput.className = 'center-panel-reply-input-wrapper';
+        const placeholder = replyToUser ? `Reply to @${replyToUser}...` : 'Add a reply...';
+        replyInput.innerHTML = `
+            <input type="text" class="center-panel-reply-input" placeholder="${escapeAttr(placeholder)}">
+            <div class="center-panel-reply-actions">
+                <button class="center-panel-reply-cancel">Cancel</button>
+                <button class="center-panel-reply-submit">Reply</button>
+            </div>
+        `;
+
+        const actionsEl = commentEl.querySelector('.center-panel-comment-actions');
+        actionsEl.after(replyInput);
+        replyInput.querySelector('.center-panel-reply-input').focus();
+
+        replyInput.querySelector('.center-panel-reply-cancel').addEventListener('click', () => {
+            replyInput.remove();
+        });
+
+        replyInput.querySelector('.center-panel-reply-submit').addEventListener('click', () => {
+            const input = replyInput.querySelector('.center-panel-reply-input');
+            const text = input.value.trim();
+            if (!text || !centerPanelItem || parentIndex === undefined) return;
+
+            // Block links in replies
+            if (containsLink(text)) {
+                showCommentLinkError(input);
+                return;
+            }
+
+            // Always add to the parent comment's replies array
+            if (!centerPanelItem?.comments?.[parentIndex]) return;
+            const comment = centerPanelItem.comments[parentIndex];
+            if (!comment.replies) comment.replies = [];
+            const userAvatar = localStorage.getItem('profileAvatarUrl') || null;
+
+            // Include replyTo if replying to another reply
+            const newReply = {
+                user: 'You',
+                text: text,
+                time: Date.now(),
+                avatar: userAvatar
+            };
+            if (replyToUser) {
+                newReply.replyTo = replyToUser;
+            }
+            comment.replies.push(newReply);
+
+            updateCenterPanel(centerPanelItem, centerPanelCategory);
+        });
+
+        replyInput.querySelector('.center-panel-reply-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                replyInput.querySelector('.center-panel-reply-submit').click();
+            }
+        });
+    });
+
+    repliesToggle?.addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        if (repliesContainer) {
+            repliesContainer.style.display = this.classList.contains('expanded') ? 'block' : 'none';
+            repliesContainer.classList.toggle('show');
+        }
+    });
+
+    if (repliesContainer) {
+        repliesContainer.querySelectorAll('.center-panel-comment').forEach(replyEl => {
+            attachCenterPanelCommentListeners(replyEl);
+        });
+    }
+}
 
 // Metrics Panel
 function updateMetricsPanel(item) {
@@ -1028,16 +1065,14 @@ async function postCenterPanelCommentInner() {
     }
 
     if (!centerPanelItem.comments) centerPanelItem.comments = [];
-    const currentUsername = localStorage.getItem('profileUsername') || 'You';
-    const userAvatar = localStorage.getItem('profileAvatar') || localStorage.getItem('profileAvatarUrl') || null;
+    const userAvatar = localStorage.getItem('profileAvatarUrl') || null;
     centerPanelItem.comments.unshift({
-        user: currentUsername,
+        user: 'You',
         text: text,
         time: Date.now(),
         likes: 0,
         replies: [],
-        avatar: userAvatar,
-        isOwn: true
+        avatar: userAvatar
     });
 
     input.value = '';
@@ -1049,7 +1084,7 @@ async function postCenterPanelCommentInner() {
     const list = document.getElementById('center-panel-list');
     if (list) {
         list.innerHTML = centerPanelItem.comments.map((c, idx) => createCenterPanelCommentHTML(c, idx)).join('');
-        // Event listeners handled via delegation in initCenterPanelComments()
+        list.querySelectorAll('.center-panel-comment').forEach(el => attachCenterPanelCommentListeners(el));
     }
 
     // Save to Supabase if available
@@ -1067,9 +1102,9 @@ async function postCenterPanelCommentInner() {
         }
     }
 
-    // Add notification for comment (pass the comment text)
+    // Add notification for comment
     if (window.addNotification) {
-        window.addNotification('comment', centerPanelItem.title || centerPanelItem.name, centerPanelItem.id, centerPanelCategory, 'You', text);
+        window.addNotification('comment', centerPanelItem.title || centerPanelItem.name, centerPanelItem.id, centerPanelCategory, 'You');
     }
 }
 
@@ -1108,269 +1143,6 @@ function initCenterPanelComments() {
         }
     });
 
-    // Event delegation for comment list - handles all comment interactions
-    const commentList = document.getElementById('center-panel-list');
-    if (commentList) {
-        commentList.addEventListener('click', handleCommentListClick);
-    }
-}
-
-// Delegated click handler for comment list
-function handleCommentListClick(e) {
-    const commentEl = e.target.closest('.center-panel-comment');
-    if (!commentEl) return;
-
-    const commentIndex = commentEl.dataset.index;
-    const parentIndex = commentEl.dataset.parent;
-    const replyIndex = commentEl.dataset.reply;
-
-    // Menu button click
-    if (e.target.closest('.center-panel-comment-menu')) {
-        e.stopPropagation();
-        const menuDropdown = commentEl.querySelector('.comment-menu-dropdown');
-        document.querySelectorAll('.comment-menu-dropdown').forEach(d => d.style.display = 'none');
-        if (menuDropdown) menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
-        return;
-    }
-
-    // Edit button click
-    if (e.target.closest('.comment-edit-btn')) {
-        e.stopPropagation();
-        handleCommentEdit(commentEl, e.target.closest('.comment-edit-btn'));
-        return;
-    }
-
-    // Delete button click
-    if (e.target.closest('.comment-delete-btn')) {
-        e.stopPropagation();
-        handleCommentDelete(commentEl, e.target.closest('.comment-delete-btn'));
-        return;
-    }
-
-    // React button click
-    if (e.target.closest('.center-panel-react-btn')) {
-        e.stopPropagation();
-        handleCommentReact(commentEl, e.target.closest('.center-panel-react-btn'), commentIndex, parentIndex, replyIndex);
-        return;
-    }
-
-    // Reply button click
-    if (e.target.closest('.center-panel-reply-btn')) {
-        e.stopPropagation();
-        handleCommentReply(commentEl, commentIndex);
-        return;
-    }
-
-    // Replies toggle click
-    if (e.target.closest('.center-panel-comment-replies-toggle')) {
-        const toggle = e.target.closest('.center-panel-comment-replies-toggle');
-        const repliesContainer = commentEl.querySelector('.center-panel-comment-replies');
-        if (repliesContainer) {
-            const isHidden = repliesContainer.style.display === 'none';
-            repliesContainer.style.display = isHidden ? 'block' : 'none';
-            toggle.classList.toggle('expanded', isHidden);
-        }
-        return;
-    }
-}
-
-// Handle comment edit
-function handleCommentEdit(commentEl, editBtn) {
-    const menuDropdown = commentEl.querySelector('.comment-menu-dropdown');
-    if (menuDropdown) menuDropdown.style.display = 'none';
-    const idx = parseInt(editBtn.dataset.index);
-    if (!centerPanelItem || !centerPanelItem.comments || !centerPanelItem.comments[idx]) return;
-    const comment = centerPanelItem.comments[idx];
-    const currentUsername = localStorage.getItem('profileUsername');
-    const isOwn = comment.isOwn || comment.user === 'You' ||
-        (comment.user && currentUsername && comment.user.toLowerCase() === currentUsername.toLowerCase());
-    if (!isOwn) return;
-
-    const textEl = commentEl.querySelector('.center-panel-comment-text');
-    if (!textEl) return;
-    const originalText = comment.text || '';
-
-    textEl.innerHTML = `
-        <textarea class="comment-edit-textarea" style="width:100%;min-height:60px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;padding:8px;font-size:13px;resize:vertical;">${escapeHTML(originalText)}</textarea>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-            <button class="comment-edit-save" style="padding:6px 12px;background:#8b5cf6;border:none;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;">Save</button>
-            <button class="comment-edit-cancel" style="padding:6px 12px;background:rgba(255,255,255,0.1);border:none;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;">Cancel</button>
-        </div>
-    `;
-    const textarea = textEl.querySelector('.comment-edit-textarea');
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-
-    textEl.querySelector('.comment-edit-save').onclick = async () => {
-        const newText = textarea.value.trim();
-        if (newText) {
-            comment.text = newText;
-            comment.edited = true;
-            if (comment.id && typeof supabaseUpdateComment === 'function') {
-                await supabaseUpdateComment(comment.id, newText);
-            }
-        }
-        refreshCommentList();
-    };
-    textEl.querySelector('.comment-edit-cancel').onclick = () => refreshCommentList();
-}
-
-// Handle comment delete
-function handleCommentDelete(commentEl, deleteBtn) {
-    const menuDropdown = commentEl.querySelector('.comment-menu-dropdown');
-    if (menuDropdown) menuDropdown.style.display = 'none';
-    const idx = parseInt(deleteBtn.dataset.index);
-    if (!centerPanelItem || !centerPanelItem.comments || !centerPanelItem.comments[idx]) return;
-    const comment = centerPanelItem.comments[idx];
-    const currentUsername = localStorage.getItem('profileUsername');
-    const isOwn = comment.isOwn || comment.user === 'You' ||
-        (comment.user && currentUsername && comment.user.toLowerCase() === currentUsername.toLowerCase());
-    const isAdminUser = typeof isAdmin === 'function' && isAdmin();
-    if (!isOwn && !isAdminUser) return;
-
-    const textEl = commentEl.querySelector('.center-panel-comment-text');
-    if (!textEl) return;
-    const originalHTML = textEl.innerHTML;
-
-    textEl.innerHTML = `
-        <div style="color:#e74c3c;font-size:13px;margin-bottom:8px;">Delete this comment?</div>
-        <div style="display:flex;gap:8px;">
-            <button class="comment-delete-confirm" style="padding:6px 12px;background:#e74c3c;border:none;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;">Delete</button>
-            <button class="comment-delete-cancel" style="padding:6px 12px;background:rgba(255,255,255,0.1);border:none;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;">Cancel</button>
-        </div>
-    `;
-
-    textEl.querySelector('.comment-delete-confirm').onclick = async () => {
-        if (comment.id) {
-            if (isAdminUser && typeof supabaseAdminDeleteComment === 'function') {
-                const { error } = await supabaseAdminDeleteComment(comment.id);
-                if (error) {
-                    alert('Failed to delete comment: ' + error.message);
-                    return;
-                }
-            } else if (typeof supabaseDeleteComment === 'function') {
-                const { error } = await supabaseDeleteComment(comment.id);
-                if (error) {
-                    alert('Failed to delete comment: ' + error.message);
-                    return;
-                }
-            }
-        }
-        centerPanelItem.comments.splice(idx, 1);
-        refreshCommentList();
-    };
-    textEl.querySelector('.comment-delete-cancel').onclick = () => {
-        textEl.innerHTML = originalHTML;
-    };
-}
-
-// Handle comment react
-function handleCommentReact(commentEl, reactBtn, commentIndex, parentIndex, replyIndex) {
-    document.querySelectorAll('.comment-reaction-popup').forEach(el => el.remove());
-
-    const popup = document.createElement('div');
-    popup.className = 'comment-reaction-popup';
-
-    const reactionEmojis = [
-        { code: 'pepeyes', file: '44680-pepeyes.png' },
-        { code: 'no', file: '73309-no.png' },
-        { code: 'pepeheart', file: '1211-pepeheart.png' },
-        { code: 'wtfpepe', file: '98318-wtfpepe.png' },
-        { code: 'pepefinger', file: '66904-pepefinger.png' },
-        { code: 'ok', file: '829312-ok.png' }
-    ];
-
-    const isReply = parentIndex !== undefined;
-    const idx = isReply ? replyIndex : commentIndex;
-    const pIdx = isReply ? parentIndex : 'null';
-
-    popup.innerHTML = reactionEmojis.map(emoji =>
-        `<div class="reaction-emoji-btn" onclick="handleCommentReaction('${emoji.code}', this, ${idx}, ${pIdx}); event.stopPropagation();">
-            <img src="./Emojies/${emoji.file}" alt="${emoji.code}" width="24" height="24">
-        </div>`
-    ).join('');
-
-    const actionsContainer = reactBtn.closest('.center-panel-comment-actions');
-    if (actionsContainer) {
-        actionsContainer.style.position = 'relative';
-        actionsContainer.appendChild(popup);
-    } else {
-        reactBtn.parentElement.style.position = 'relative';
-        reactBtn.parentElement.appendChild(popup);
-    }
-
-    const closePopup = (ev) => {
-        if (!popup.contains(ev.target) && !ev.target.closest('.center-panel-react-btn')) {
-            popup.remove();
-            document.removeEventListener('click', closePopup);
-        }
-    };
-    setTimeout(() => document.addEventListener('click', closePopup), 10);
-}
-
-// Handle comment reply
-function handleCommentReply(commentEl, commentIndex) {
-    document.querySelectorAll('.center-panel-reply-input-wrapper').forEach(el => el.remove());
-
-    const isReplyToReply = commentEl.dataset.parent !== undefined;
-    const parentIdx = isReplyToReply ? parseInt(commentEl.dataset.parent) : commentIndex;
-    const replyToUser = isReplyToReply ? (commentEl.dataset.replyUser || commentEl.querySelector('.center-panel-comment-user')?.textContent) : null;
-
-    const replyInput = document.createElement('div');
-    replyInput.className = 'center-panel-reply-input-wrapper';
-    const placeholder = replyToUser ? `Reply to @${replyToUser}...` : 'Add a reply...';
-    replyInput.innerHTML = `
-        <input type="text" class="center-panel-reply-input" placeholder="${escapeAttr(placeholder)}">
-        <div class="center-panel-reply-actions">
-            <button class="center-panel-reply-cancel">Cancel</button>
-            <button class="center-panel-reply-submit" data-parent="${parentIdx}">Reply</button>
-        </div>
-    `;
-
-    const actionsEl = commentEl.querySelector('.center-panel-comment-actions');
-    actionsEl.after(replyInput);
-    replyInput.querySelector('.center-panel-reply-input').focus();
-
-    replyInput.querySelector('.center-panel-reply-cancel').onclick = () => replyInput.remove();
-    replyInput.querySelector('.center-panel-reply-submit').onclick = () => submitCommentReply(replyInput, parentIdx, replyToUser);
-}
-
-// Submit comment reply
-async function submitCommentReply(replyInput, parentIdx, replyToUser) {
-    const input = replyInput.querySelector('.center-panel-reply-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const currentUsername = localStorage.getItem('profileUsername') || 'You';
-    const currentAvatar = localStorage.getItem('profileAvatar') || '';
-    const parentComment = centerPanelItem.comments[parentIdx];
-    if (!parentComment) return;
-
-    if (!parentComment.replies) parentComment.replies = [];
-
-    const newReply = {
-        user: currentUsername,
-        avatar: currentAvatar,
-        text: text,
-        time: 'Just now',
-        isOwn: true,
-        replyTo: replyToUser || parentComment.user,
-        reactions: {}
-    };
-
-    if (centerPanelItem.id && typeof supabaseAddComment === 'function') {
-        const { data, error } = await supabaseAddComment(centerPanelItem.id, centerPanelCategory, text, parentComment.id);
-        if (data) {
-            newReply.id = data.id;
-        }
-    }
-
-    parentComment.replies.push(newReply);
-    refreshCommentList();
-
-    if (parentComment.user !== currentUsername && typeof window.addNotification === 'function') {
-        window.addNotification('reply', centerPanelItem.title || centerPanelItem.name, centerPanelItem.id, centerPanelCategory, currentUsername, text);
-    }
 }
 
 // Refresh comment list after edit/delete
@@ -1379,7 +1151,7 @@ function refreshCommentList() {
     const countEl = document.getElementById('comment-count');
     if (list && centerPanelItem && centerPanelItem.comments) {
         list.innerHTML = centerPanelItem.comments.map((c, idx) => createCenterPanelCommentHTML(c, idx)).join('');
-        // Event listeners handled via delegation in initCenterPanelComments()
+        list.querySelectorAll('.center-panel-comment').forEach(el => attachCenterPanelCommentListeners(el));
     }
     if (countEl && centerPanelItem) {
         countEl.textContent = (centerPanelItem.comments || []).length;
@@ -1390,78 +1162,3 @@ function refreshCommentList() {
 document.addEventListener('click', function() {
     document.querySelectorAll('.comment-menu-dropdown').forEach(d => d.style.display = 'none');
 });
-
-// Initialize center panel comments when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    initCenterPanelComments();
-});
-
-// ===== ADMIN FUNCTIONS =====
-
-// Admin delete item function
-async function adminDeleteItem(item, category) {
-    if (!isAdmin()) {
-        console.error('Admin access required');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to delete "${item.title}"?\n\nThis action cannot be undone.`)) {
-        return;
-    }
-
-    try {
-        // Decrement tag counts for the deleted item's tags BEFORE deleting
-        if (item.tags && Array.isArray(item.tags) && window.decrementTagCounts) {
-            window.decrementTagCounts(item.tags);
-        }
-
-        // Delete from Supabase
-        if (typeof supabaseAdminDeleteItem === 'function') {
-            const { error } = await supabaseAdminDeleteItem(item.id, category);
-            if (error) {
-                alert('Failed to delete item: ' + error.message);
-                return;
-            }
-        }
-
-        // Close the center panel
-        const centerPanel = document.getElementById('center-panel');
-        if (centerPanel) {
-            centerPanel.classList.remove('open');
-        }
-
-        // Reload items from Supabase to get fresh data
-        if (typeof loadItemsFromSupabase === 'function') {
-            await loadItemsFromSupabase();
-        }
-
-        // Refresh the browse grid
-        if (typeof renderItems === 'function') {
-            renderItems(category);
-        }
-
-        // Update filter counts (VST, DAW, Type, etc.)
-        if (typeof updateFilterCounts === 'function') {
-            updateFilterCounts();
-        }
-
-        // Re-render trending tags to reflect updated counts
-        if (typeof renderCategoryTrendingTags === 'function') {
-            renderCategoryTrendingTags('presets', 'preset-trending-tags');
-            renderCategoryTrendingTags('samples', 'sample-trending-tags');
-            renderCategoryTrendingTags('midi', 'midi-trending-tags');
-            renderCategoryTrendingTags('projects', 'project-trending-tags');
-        }
-
-        if (typeof showToast === 'function') {
-            showToast('Item deleted successfully', 'success');
-        }
-    } catch (err) {
-        console.error('Error deleting item:', err);
-        alert('Failed to delete item: ' + err.message);
-    }
-}
-
-// Make admin functions globally available
-window.adminDeleteItem = adminDeleteItem;
-
