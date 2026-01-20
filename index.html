@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Preset Junkies</title>
-    <link rel="icon" type="image/png" href="./Emojies/48301-clownpepe.png">
+    <link rel="icon" type="image/png" href="Emojies/48301-clownpepe.png">
     <!-- External libraries -->
     <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.min.js"></script>
@@ -14,13 +14,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <!-- Modular CSS -->
-    <link rel="stylesheet" href="base.css?v=6">
+    <link rel="stylesheet" href="base.css?v=5">
     <link rel="stylesheet" href="layout.css?v=7">
     <link rel="stylesheet" href="filters.css?v=5">
     <link rel="stylesheet" href="cards.css?v=5">
     <link rel="stylesheet" href="playbar.css?v=5">
-    <link rel="stylesheet" href="lounge.css?v=9">
-    <link rel="stylesheet" href="notifications.css?v=14">
+    <link rel="stylesheet" href="lounge.css?v=7">
+    <link rel="stylesheet" href="notifications.css?v=7">
     <link rel="stylesheet" href="profile.css?v=6">
     <link rel="stylesheet" href="upload-page.css?v=5">
     <link rel="stylesheet" href="settings.css?v=1">
@@ -30,7 +30,7 @@
     <!-- MOBILE BLOCK OVERLAY -->
     <div class="mobile-block-overlay" id="mobile-block-overlay">
         <div class="mobile-block-content">
-            <img src="./Emojies/48301-clownpepe.png" alt="Pepe Clown" class="mobile-block-emoji">
+            <img src="Emojies/48301-clownpepe.png" alt="Pepe Clown" class="mobile-block-emoji">
             <h1 class="mobile-block-title">Preset Junkies</h1>
             <p class="mobile-block-message">This website is desktop only</p>
         </div>
@@ -92,9 +92,44 @@
     <div class="side-nav" id="side-nav">
         <div class="side-nav-header">
             <div class="side-nav-mascot">
-                <img src="./Emojies/48301-clownpepe.png" alt="Preset Junkies Mascot">
+                <img src="Emojies/48301-clownpepe.png" alt="Preset Junkies Mascot">
+                <span class="mascot-notification-badge" id="mascot-notifications-badge"></span>
             </div>
-            <div class="side-nav-title">Preset Junkies</div>
+            <div class="side-nav-title-wrapper">
+                <div class="side-nav-title" id="nav-title-text">Preset Junkies</div>
+                <div class="side-nav-title side-nav-title-user" id="nav-title-user" style="display: none;">
+                    <span id="nav-title-username">Username</span>
+                    <svg class="nav-dropdown-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="nav-user-dropdown" id="nav-user-dropdown">
+                    <a href="#" class="nav-dropdown-item" data-view="profile">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-dropdown-item" data-view="notifications">
+                        <svg class="nav-dropdown-notif-icon" id="dropdown-notif-bell" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="nav-dropdown-notif-count" id="dropdown-notif-count"></span>
+                        Notifications
+                    </a>
+                    <a href="#" class="nav-dropdown-item" data-view="manage-sounds">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        Manage Sounds
+                    </a>
+                    <a href="#" class="nav-dropdown-item" data-view="settings">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Settings
+                    </a>
+                    <a href="#" class="nav-dropdown-item" id="dropdown-upload-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Upload
+                    </a>
+                    <div class="nav-dropdown-divider"></div>
+                    <a href="#" class="nav-dropdown-item nav-dropdown-logout" id="dropdown-logout-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="side-nav-section">
@@ -110,41 +145,6 @@
             <a href="#" class="side-nav-item" data-view="originals">Original Music</a>
             <a href="#" class="side-nav-item" data-view="lounge">The Lounge</a>
             <a href="#" class="side-nav-item" data-view="junkies">Junkies</a>
-
-            <!-- Dashboard (always expanded, shown when logged in) -->
-            <div class="side-nav-collapsible expanded" id="dashboard-collapsible" style="display: none;">
-                <div class="side-nav-collapsible-header" id="dashboard-toggle" style="cursor: default;">
-                    <span>Dashboard</span>
-                    <span class="dashboard-header-badge" id="dashboard-header-badge"></span>
-                </div>
-                <div class="side-nav-collapsible-content" id="dashboard-content">
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="profile">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        Profile
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="notifications">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                        Notifications
-                        <span class="nav-badge" id="dashboard-notif-badge"></span>
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="manage-sounds">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                        Manage Sounds
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="settings">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        Settings
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" id="dashboard-upload-btn">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Upload
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem side-nav-logout" id="dashboard-logout-btn">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Logout
-                    </a>
-                </div>
-            </div>
         </div>
 
         <!-- Login Section (shown when not logged in) -->
@@ -153,14 +153,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 Login
             </button>
-            <button class="side-nav-upload-btn" id="guest-upload-btn" data-action="showAuthRequiredModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload
-            </button>
-            <a href="mailto:nathan@presetjunkies.com" class="side-nav-contact-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                Contact
-            </a>
         </div>
 
         <div class="side-nav-section" id="user-nav-section" style="display: none;">
@@ -186,6 +178,7 @@
         <!-- Donate Button -->
         <div class="side-nav-donate">
             <a href="https://ko-fi.com/psjv1" target="_blank" rel="noopener noreferrer" class="side-nav-donate-btn" id="donate-btn">
+                <img src="Emojies/829312-ok.png" alt="" width="18" height="18">
                 Donate
             </a>
         </div>
@@ -569,28 +562,6 @@
             </div>
 
             <div id="lounge-content" class="tab-panel">
-
-                <!-- Lounge Intro Splash Modal -->
-                <div id="lounge-intro-modal" class="lounge-intro-modal" style="display: none;">
-                    <div class="lounge-intro-content">
-                        <div class="lounge-intro-header">
-                            <img src="./Emojies/48301-clownpepe.png" alt="Pepe" class="lounge-intro-pepe">
-                            <span class="lounge-intro-brand">Preset Junkies</span>
-                        </div>
-                        <h2 class="lounge-intro-title">Welcome to the Lounge, dickheads.</h2>
-                        <div class="lounge-intro-body">
-                            <p>The Lounge is a live chatroom space for music producers to discuss production, share tips, exchange knowledge, and give feedback.</p>
-                            <p>You can also create your own rooms to hang out and talk about whatever you want, as long as it stays within the guidelines. All rooms are public, anyone can join but you have full control to ban anyone for any reason.</p>
-                            <p>Read the guidelines before creating a room, and try to keep things civil.</p>
-                        </div>
-                        <div class="lounge-intro-notice">
-                            <strong>Important Notice</strong>
-                            <p>You are the sole moderator of your room and cannot assign others as a moderator. Chat history resets every 24 hours, so moderation should be minimal.</p>
-                        </div>
-                        <button class="lounge-intro-btn" id="lounge-intro-dismiss">Enter the Lounge</button>
-                    </div>
-                </div>
-
                 <!-- Left Panel: Rooms -->
                 <div class="instrument-display" id="lounge-display">
                     <!-- Room List View -->
@@ -742,14 +713,9 @@
                             <span class="typing-text"><strong>Someone</strong> is typing...</span>
                         </div>
                         <div class="chat-input-wrapper">
-                            <div class="upload-btns">
-                                <button class="input-btn" id="lounge-image-btn" title="Upload Image">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                </button>
-                                <button class="input-btn" id="lounge-audio-btn" title="Upload Audio">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                                </button>
-                            </div>
+                            <button class="input-btn" id="lounge-image-btn" title="Upload Image">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </button>
                             <input type="text" id="lounge-input" placeholder="Message #Welcome to hell" autocomplete="off" maxlength="500">
                             <div class="input-actions">
                                 <button class="input-btn" id="lounge-emoji-btn" title="Emoji">
@@ -766,7 +732,6 @@
                             </div>
                         </div>
                         <input type="file" id="lounge-image-input" accept="image/*,image/gif" style="display:none;">
-                        <input type="file" id="lounge-audio-input" accept="audio/mpeg,audio/wav,.mp3,.wav" style="display:none;">
                     </div>
                 </div>
 
@@ -801,17 +766,9 @@
 
                     <div class="right-panel-section">
                         <div class="section-header">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-                            <span>Room Creator</span>
-                        </div>
-                        <div class="members-list" id="room-creator-list">
-                        </div>
-                    </div>
-                    <div class="right-panel-section">
-                        <div class="section-header">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                             <span>Members</span>
-                            <span class="member-count" id="room-member-count">0</span>
+                            <span class="member-count" id="room-member-count">0 online</span>
                         </div>
                         <div class="members-list" id="room-members-list">
                         </div>
@@ -820,11 +777,11 @@
             </div>
 
             <div id="notifications-content" class="tab-panel">
-                <!-- Left Panel: Notification List -->
-                <div class="notif-left-panel" id="notif-list-panel">
-                    <div class="notif-panel-content">
-                        <div class="notif-section">
-                            <div class="notif-section-header">
+                <!-- Left Panel: Conversations -->
+                <div class="dm-left-panel" id="messages-display">
+                    <div class="dm-panel-content">
+                        <div class="dm-section">
+                            <div class="dm-section-header">
                                 <span>Notifications</span>
                                 <div class="notif-tabs">
                                     <button class="notif-tab active" data-filter="unread">Unread</button>
@@ -838,84 +795,142 @@
                     </div>
                 </div>
 
-                <!-- Right Panel: Detail Views -->
-                <div class="notif-detail-panel" id="notif-detail-panel">
-
-                    <!-- Follow Detail View -->
-                    <div id="follow-detail-view" class="notif-detail-view hidden">
-                        <div class="detail-header">
-                            <button class="detail-back-btn" data-action="closeDetailView">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Back
-                            </button>
-                            <span>New Follower</span>
-                        </div>
-                        <div class="follow-detail-content">
-                            <div class="follow-user-avatar" id="follow-user-avatar">
+                <!-- Center: Active Conversation -->
+                <div class="dm-chat-area" id="dm-chat-area">
+                    <div class="dm-chat-header">
+                        <div class="dm-chat-header-info">
+                            <div class="dm-header-avatar online" id="dm-header-avatar">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             </div>
-                            <div class="follow-user-name" id="follow-user-name">Username</div>
-                            <button class="view-profile-btn" id="follow-view-profile-btn" data-action="viewFollowerProfile">View Profile</button>
+                            <div class="dm-header-text">
+                                <span class="dm-user-name dm-clickable-user" id="dm-user-name" data-action="view-profile"></span>
+                                <span class="dm-status" id="dm-user-status"></span>
+                            </div>
+                        </div>
+                        <div class="dm-chat-header-actions">
+                            <button class="dm-action-btn" title="View Profile" id="dm-view-profile-btn" data-action="view-profile">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Sound Activity View -->
-                    <div id="sound-activity-view" class="notif-detail-view hidden">
-                        <div class="activity-header">
-                            <button class="detail-back-btn" data-action="closeDetailView">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Back
-                            </button>
-                            <div class="activity-sound-info">
-                                <div class="activity-sound-cover" id="activity-sound-cover"></div>
-                                <div class="activity-sound-details">
-                                    <div class="activity-sound-title" id="activity-sound-title">Sound Title</div>
-                                    <div class="activity-sound-uploader" id="activity-sound-uploader">by Username</div>
+                    <div class="dm-messages" id="dm-messages">
+                    </div>
+
+                    <!-- Notification Detail View (hidden by default) -->
+                    <div id="notification-detail-view" class="hidden">
+                        <!-- Sound Activity View -->
+                        <div id="sound-activity-view" class="hidden">
+                            <div class="activity-header">
+                                <div class="activity-sound-info">
+                                    <div class="activity-sound-cover" id="activity-sound-cover"></div>
+                                    <div class="activity-sound-details">
+                                        <div class="activity-sound-title" id="activity-sound-title">Sound Title</div>
+                                        <div class="activity-sound-uploader" id="activity-sound-uploader">by Username</div>
+                                    </div>
                                 </div>
+                                <button class="activity-back-btn" data-action="closeNotificationDetailView">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                    Back
+                                </button>
+                            </div>
+                            <div class="activity-tabs">
+                                <button class="activity-tab active" data-filter="all">All</button>
+                                <button class="activity-tab" data-filter="likes"><strong id="activity-likes">0</strong> Likes</button>
+                                <button class="activity-tab" data-filter="comments"><strong id="activity-comments">0</strong> Comments</button>
+                                <button class="activity-tab" data-filter="saves"><strong id="activity-saves">0</strong> Saves</button>
+                                <button class="activity-tab" data-filter="shares"><strong id="activity-shares">0</strong> Shares</button>
+                            </div>
+                            <div class="activity-feed" id="activity-feed">
+                                <!-- Activity items will be rendered here -->
                             </div>
                         </div>
-                        <div class="activity-tabs">
-                            <button class="activity-tab active" data-filter="all">All</button>
-                            <button class="activity-tab" data-filter="likes"><strong id="activity-likes">0</strong> Likes</button>
-                            <button class="activity-tab" data-filter="comments"><strong id="activity-comments">0</strong> Comments</button>
-                            <button class="activity-tab" data-filter="saves"><strong id="activity-saves">0</strong> Saves</button>
-                            <button class="activity-tab" data-filter="shares"><strong id="activity-shares">0</strong> Shares</button>
-                            <button class="activity-tab" data-filter="downloads"><strong id="activity-downloads">0</strong> Downloads</button>
-                        </div>
-                        <div class="activity-feed" id="activity-feed">
-                            <!-- Activity items will be rendered here -->
+
+                        <!-- Room Invite View -->
+                        <div id="room-invite-view" class="hidden">
+                            <div class="invite-header">
+                                <button class="activity-back-btn" data-action="closeNotificationDetailView">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                    Back
+                                </button>
+                            </div>
+                            <div class="invite-content">
+                                <div class="invite-icon">
+                                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </div>
+                                <div class="invite-title">Room Invitation</div>
+                                <div class="invite-room-name" id="invite-room-name">Room Name</div>
+                                <div class="invite-from">Invited by <span id="invite-from-user">Username</span></div>
+                                <div class="invite-actions">
+                                    <button class="invite-decline-btn" data-action="declineRoomInvite">Decline</button>
+                                    <button class="invite-accept-btn" data-action="acceptRoomInvite">Accept</button>
+                                </div>
+                                <a class="invite-go-link hidden" id="invite-go-link" href="#">Go to Room</a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Room Invite View -->
-                    <div id="room-invite-view" class="notif-detail-view hidden">
-                        <div class="detail-header">
-                            <button class="detail-back-btn" data-action="closeDetailView">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Back
+                    <div class="dm-input-container">
+                        <input type="file" id="dm-image-input" accept="image/*" style="display: none;">
+                        <div class="dm-input-wrapper">
+                            <button class="dm-input-btn" id="dm-image-btn" title="Send Image">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             </button>
-                            <span>Room Invitation</span>
-                        </div>
-                        <div class="invite-content">
-                            <div class="invite-room-icon" id="invite-room-icon">
-                                <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="9" cy="7" r="4"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                            </div>
-                            <div class="invite-room-name" id="invite-room-name">Room Name</div>
-                            <div class="invite-from">Invited by <span id="invite-from-user">Username</span></div>
-                            <div class="invite-actions">
-                                <button class="invite-decline-btn" data-action="declineRoomInvite">Decline</button>
-                                <button class="invite-accept-btn" data-action="acceptRoomInvite">Accept</button>
+                            <input type="text" id="dm-input" class="dm-input" placeholder="Type a message..." autocomplete="off">
+                            <div class="dm-input-actions">
+                                <button class="dm-input-btn" id="dm-emoji-btn" title="Emoji">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                                </button>
+                                <!-- DM Emoji Picker -->
+                                <div class="emoji-picker" id="dm-emoji-picker" style="display: none;">
+                                    <div class="emoji-picker-header">Emojis</div>
+                                    <div class="emoji-picker-grid"></div>
+                                </div>
+                                <button class="dm-input-btn dm-send-btn" id="dm-post-btn" title="Send">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
+                <!-- Right Panel: Friends / Contacts -->
+                <div class="dm-right-panel" id="friends-panel">
+                    <div class="dm-panel-section">
+                        <div class="dm-section-header">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            <span>Friends</span>
+                            <span class="dm-friend-count" id="dm-friend-count">0</span>
+                        </div>
+                        <div class="dm-search-container">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input type="text" class="dm-search-input" id="friends-search" placeholder="Search friends...">
+                        </div>
+                        <div class="dm-friends-list" id="dm-friends-list">
+                        </div>
+                    </div>
+
+                    <div class="dm-panel-section">
+                        <div class="dm-section-header">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                            <span>Messages</span>
+                            <button class="dm-add-btn" id="new-message-btn" title="New Message">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                        </div>
+                        <div class="dm-search-container">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input type="text" class="dm-search-input" id="messages-search" placeholder="Search messages...">
+                        </div>
+                        <div class="conversations-list" id="conversations-list">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Junkies (User Directory) -->
@@ -980,12 +995,7 @@
                         <input type="file" id="profile-banner-input" accept="image/*,image/gif" style="display:none;">
                         <div class="profile-actions" id="profile-actions">
                             <button class="profile-action-btn primary" id="profile-follow-btn">Follow</button>
-                            <button class="profile-action-btn admin-delete-user-btn hidden" id="admin-delete-user-btn">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                                Delete User (Admin)
-                            </button>
+                            <button class="profile-action-btn secondary" id="profile-message-btn">Message</button>
                         </div>
                     </div>
 
@@ -1003,9 +1013,10 @@
                         <div class="profile-info">
                             <h1 class="profile-username" id="profile-username">Username</h1>
                             <div class="profile-stats-inline">
-                                <span class="profile-stat-inline profile-stat-clickable" data-action="showProfileFollowers"><strong id="profile-followers">0</strong> Followers</span>
-                                <span class="profile-stat-inline"><strong id="profile-uploads">0</strong> Uploads</span>
-                                <span class="profile-stat-inline"><strong id="profile-downloads">0</strong> Downloads</span>
+                                <span class="profile-stat-inline profile-stat-clickable" data-action="showProfileFollowers"><strong id="profile-followers">152</strong> Followers</span>
+                                <span class="profile-stat-inline profile-stat-clickable" data-action="showProfileFollowing"><strong id="profile-following">89</strong> Following</span>
+                                <span class="profile-stat-inline"><strong id="profile-uploads">12</strong> Uploads</span>
+                                <span class="profile-stat-inline"><strong id="profile-downloads">847</strong> Downloads</span>
                             </div>
                             <p class="profile-bio" id="profile-about">No bio yet.</p>
                         </div>
@@ -1017,6 +1028,7 @@
                         <button class="profile-tab" data-tab="likes">Likes</button>
                         <button class="profile-tab hidden" data-tab="comments" id="profile-comments-tab">Comments</button>
                         <button class="profile-tab" data-tab="followers" id="profile-followers-tab">Followers</button>
+                        <button class="profile-tab" data-tab="following" id="profile-following-tab">Following</button>
                     </div>
 
                     <!-- Tab Content -->
@@ -1140,6 +1152,50 @@
                             </div>
                         </div>
 
+                        <!-- Following Panel -->
+                        <div class="profile-panel" id="profile-following-panel">
+                            <div class="profile-users-header">
+                                <span>FOLLOWING</span>
+                                <span class="profile-users-count" id="profile-following-count">0</span>
+                                <div class="profile-users-az-filter" id="following-az-filter">
+                                    <button class="az-filter-btn active" data-letter="all">All</button>
+                                    <button class="az-filter-btn" data-letter="A">A</button>
+                                    <button class="az-filter-btn" data-letter="B">B</button>
+                                    <button class="az-filter-btn" data-letter="C">C</button>
+                                    <button class="az-filter-btn" data-letter="D">D</button>
+                                    <button class="az-filter-btn" data-letter="E">E</button>
+                                    <button class="az-filter-btn" data-letter="F">F</button>
+                                    <button class="az-filter-btn" data-letter="G">G</button>
+                                    <button class="az-filter-btn" data-letter="H">H</button>
+                                    <button class="az-filter-btn" data-letter="I">I</button>
+                                    <button class="az-filter-btn" data-letter="J">J</button>
+                                    <button class="az-filter-btn" data-letter="K">K</button>
+                                    <button class="az-filter-btn" data-letter="L">L</button>
+                                    <button class="az-filter-btn" data-letter="M">M</button>
+                                    <button class="az-filter-btn" data-letter="N">N</button>
+                                    <button class="az-filter-btn" data-letter="O">O</button>
+                                    <button class="az-filter-btn" data-letter="P">P</button>
+                                    <button class="az-filter-btn" data-letter="Q">Q</button>
+                                    <button class="az-filter-btn" data-letter="R">R</button>
+                                    <button class="az-filter-btn" data-letter="S">S</button>
+                                    <button class="az-filter-btn" data-letter="T">T</button>
+                                    <button class="az-filter-btn" data-letter="U">U</button>
+                                    <button class="az-filter-btn" data-letter="V">V</button>
+                                    <button class="az-filter-btn" data-letter="W">W</button>
+                                    <button class="az-filter-btn" data-letter="X">X</button>
+                                    <button class="az-filter-btn" data-letter="Y">Y</button>
+                                    <button class="az-filter-btn" data-letter="Z">Z</button>
+                                </div>
+                            </div>
+                            <div class="profile-users-grid" id="profile-following-grid">
+                                <div class="profile-users-empty">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
+                                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                    </svg>
+                                    <div class="profile-users-empty-text">Not following anyone yet</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1266,6 +1322,117 @@
                     </div>
                 </div>
 
+                <!-- Right Panel - Edit -->
+                <div class="manage-sounds-edit-panel" id="manage-sounds-edit-panel">
+                    <div class="manage-sounds-edit-header">
+                        <h3>Edit Sound</h3>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="manage-sounds-edit-empty" id="manage-edit-empty">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        <span>Select a sound to edit</span>
+                    </div>
+
+                    <!-- Edit Form -->
+                    <div class="manage-sounds-edit-form hidden" id="manage-edit-form">
+                        <div class="manage-edit-group">
+                            <label class="manage-edit-label">Title <span class="required">*</span></label>
+                            <input type="text" class="manage-edit-input" id="manage-edit-title" maxlength="25">
+                            <span class="char-count" id="manage-edit-title-count">0/25</span>
+                        </div>
+
+                        <div class="manage-edit-group" id="manage-edit-vst-group">
+                            <label class="manage-edit-label">Synthesizer <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-vst" data-autocomplete="vst" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-vst-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group" id="manage-edit-type-group">
+                            <label class="manage-edit-label">Sound Type <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-type" data-autocomplete="soundType" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-type-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <!-- Sample-specific fields -->
+                        <div class="manage-edit-group hidden" id="manage-edit-sample-type-group">
+                            <label class="manage-edit-label">Sample Type <span class="required">*</span></label>
+                            <select class="manage-edit-input" id="manage-edit-loop-type">
+                                <option value="">Select...</option>
+                                <option value="Loop">Loop</option>
+                                <option value="One Shot">One Shot</option>
+                            </select>
+                        </div>
+
+                        <div class="manage-edit-group hidden" id="manage-edit-key-group">
+                            <label class="manage-edit-label">Key <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-key" data-autocomplete="key" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-key-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group hidden" id="manage-edit-bpm-group">
+                            <label class="manage-edit-label">BPM <span class="required">*</span></label>
+                            <input type="number" class="manage-edit-input" id="manage-edit-bpm" placeholder="120">
+                        </div>
+
+                        <!-- Project-specific fields -->
+                        <div class="manage-edit-group hidden" id="manage-edit-daw-group">
+                            <label class="manage-edit-label">DAW <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-daw" data-autocomplete="daw" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-daw-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group hidden" id="manage-edit-tempo-group">
+                            <label class="manage-edit-label">Tempo <span class="required">*</span></label>
+                            <input type="number" class="manage-edit-input" id="manage-edit-tempo" placeholder="BPM">
+                        </div>
+
+                        <div class="manage-edit-group hidden" id="manage-edit-scale-group">
+                            <label class="manage-edit-label">Scale <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-scale" data-autocomplete="scale" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-scale-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group hidden" id="manage-edit-genre-group">
+                            <label class="manage-edit-label">Genre <span class="required">*</span></label>
+                            <div class="manage-edit-autocomplete-wrapper">
+                                <input type="text" class="manage-edit-input manage-edit-autocomplete" id="manage-edit-genre" data-autocomplete="genre" autocomplete="off">
+                                <div class="manage-edit-autocomplete-dropdown" id="manage-edit-genre-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group">
+                            <label class="manage-edit-label">Tags</label>
+                            <div class="manage-edit-tags-container" id="manage-edit-tags-container">
+                                <input type="text" class="manage-edit-tags-input" id="manage-edit-tag-input" placeholder="Type tag, then comma + space...">
+                            </div>
+                        </div>
+
+                        <div class="manage-edit-group">
+                            <label class="manage-edit-label">Description</label>
+                            <textarea class="manage-edit-textarea" id="manage-edit-description" rows="3" maxlength="100"></textarea>
+                            <span class="char-count" id="manage-edit-desc-count">0/100</span>
+                        </div>
+
+                        <div class="manage-edit-actions">
+                            <button class="manage-edit-save-btn" id="manage-edit-save">Save Changes</button>
+                            <button class="manage-edit-delete-btn" id="manage-edit-delete">Delete Sound</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Delete Confirmation Modal -->
@@ -1336,10 +1503,28 @@
                                     <span class="settings-item-desc">Write a short bio for your profile</span>
                                 </div>
                                 <div class="settings-bio-input-wrap">
-                                    <textarea class="settings-bio-input" id="settings-bio-input" placeholder="Tell others about yourself..." maxlength="100"></textarea>
-                                    <span class="settings-bio-count"><span id="settings-bio-count">0</span>/100</span>
+                                    <textarea class="settings-bio-input" id="settings-bio-input" placeholder="Tell others about yourself..." maxlength="150"></textarea>
+                                    <span class="settings-bio-count"><span id="settings-bio-count">0</span>/150</span>
                                 </div>
                                 <button class="settings-btn" id="settings-save-bio-btn">Save</button>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="settings-section">
+                            <h2 class="settings-section-title">Privacy</h2>
+
+                            <!-- DM Settings -->
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <label class="settings-item-label">Allow DMs from</label>
+                                    <span class="settings-item-desc">Control who can send you direct messages</span>
+                                </div>
+                                <select class="settings-select" id="settings-dm-privacy">
+                                    <option value="everyone">Everyone</option>
+                                    <option value="followers">Followers Only</option>
+                                    <option value="nobody">Nobody</option>
+                                </select>
                             </div>
                         </div>
 
@@ -1446,12 +1631,12 @@
                 </div>
             </div>
 
-            <!-- Delete Account Warning Modal -->
-            <div class="modal hidden" id="delete-warning-modal">
+            <!-- Delete Account Modal -->
+            <div class="modal hidden" id="delete-account-modal">
                 <div class="modal-content settings-modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title">Delete Account</h3>
-                        <button class="close-btn" id="close-delete-warning-modal">&times;</button>
+                        <button class="close-btn" id="close-delete-modal">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="settings-delete-warning">
@@ -1460,45 +1645,14 @@
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
-                            <p>Your uploaded sounds and lounge rooms will remain visible unless you manually delete them before deleting your account.</p>
-                            <p style="margin-top: 10px;">Are you sure you want to proceed?</p>
+                            <p>This action cannot be undone. All your data, uploads, and account information will be permanently deleted.</p>
                         </div>
-                        <div style="display: flex; gap: 10px; margin-top: 20px;">
-                            <button class="settings-form-submit" id="cancel-delete-btn" style="flex: 1; background: rgba(255,255,255,0.1);">Cancel</button>
-                            <button class="settings-form-submit settings-btn-danger" id="proceed-delete-btn" style="flex: 1;">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delete Account Password Modal -->
-            <div class="modal hidden" id="delete-account-modal">
-                <div class="modal-content settings-modal-content">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Confirm Deletion</h3>
-                        <button class="close-btn" id="close-delete-modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
                         <div class="settings-form-group">
-                            <label class="settings-form-label">Enter your password to confirm</label>
-                            <input type="password" class="settings-form-input" id="delete-confirm-input" placeholder="Enter your password..." autocomplete="off">
+                            <label class="settings-form-label">Type "DELETE" to confirm</label>
+                            <input type="text" class="settings-form-input" id="delete-confirm-input" placeholder="Type DELETE...">
                             <span class="settings-form-error" id="delete-error"></span>
                         </div>
                         <button class="settings-form-submit settings-btn-danger" id="confirm-delete-btn">Delete My Account</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Account Deleted Success Modal -->
-            <div class="modal hidden" id="account-deleted-modal">
-                <div class="modal-content settings-modal-content">
-                    <div class="modal-body" style="text-align: center; padding: 30px;">
-                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#67e8f9" stroke-width="2" style="margin-bottom: 15px;">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M9 12l2 2 4-4"/>
-                        </svg>
-                        <p style="font-size: 18px; margin-bottom: 20px;">Account successfully deleted</p>
-                        <button class="settings-form-submit" id="account-deleted-ok-btn">Okay</button>
                     </div>
                 </div>
             </div>
@@ -1538,7 +1692,7 @@
                         <button class="auth-required-btn auth-required-create" id="auth-required-create-btn">Create account?</button>
                         <button class="auth-required-btn auth-required-dismiss" id="auth-required-dismiss-btn">
                             You suck
-                            <img src="./Emojies/48301-clownpepe.png" alt="clown" class="auth-required-emoji">
+                            <img src="Emojies/48301-clownpepe.png" alt="clown" class="auth-required-emoji">
                         </button>
                     </div>
                 </div>
@@ -1722,7 +1876,7 @@
                                         </div>
                                         <span class="upload-file-label" id="upload-file-main-label">Preset</span>
                                         <span class="upload-file-status" id="upload-file-main-status">Required</span>
-                                        <input type="file" id="upload-file-main" style="display: none;" accept=".zip,.rar,.7z,*/*" />
+                                        <input type="file" id="upload-file-main" style="display: none;" />
                                     </div>
                                     <div class="upload-file-item" id="upload-file-audio-btn">
                                         <div class="upload-file-icon">
@@ -1730,15 +1884,15 @@
                                         </div>
                                         <span class="upload-file-label">Audio</span>
                                         <span class="upload-file-status" id="upload-file-audio-status">Optional</span>
-                                        <input type="file" id="upload-file-audio" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.aiff,.wma" style="display: none;" />
+                                        <input type="file" id="upload-file-audio" accept="audio/*" style="display: none;" />
                                     </div>
                                     <div class="upload-file-item" id="upload-file-cover-btn">
                                         <div class="upload-file-icon">
                                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                         </div>
-                                        <span class="upload-file-label">Cover Art</span>
+                                        <span class="upload-file-label">Cover</span>
                                         <span class="upload-file-status" id="upload-file-cover-status">Optional</span>
-                                        <button type="button" class="upload-file-remove" id="upload-file-cover-remove" title="Remove cover art">&times;</button>
+                                        <button type="button" class="upload-file-remove" id="upload-file-cover-remove" title="Remove cover">&times;</button>
                                         <input type="file" id="upload-file-cover" accept="image/*" style="display: none;" />
                                     </div>
                                     <div class="upload-file-item" id="upload-file-video-btn" style="display: none;">
@@ -1804,16 +1958,16 @@
                 </button>
                 <div class="play-bar-actions">
                     <button class="play-bar-action-btn" id="play-bar-heart-btn" data-action="togglePlayBarLike" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    </button>
-                    <button class="play-bar-action-btn" id="play-bar-save-btn" data-action="savePlayBarTrack" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
                     </button>
                     <button class="play-bar-action-btn" id="play-bar-share-btn" data-action="sharePlayBarTrack" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     </button>
                     <button class="play-bar-action-btn" id="play-bar-download-btn" data-action="downloadPlayBarTrack" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                    <button class="play-bar-action-btn" id="play-bar-save-btn" data-action="savePlayBarTrack" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     </button>
                 </div>
             </div>
@@ -1851,10 +2005,24 @@
                 <div class="share-item-preview" id="share-item-preview">
                     <!-- Item card preview will be inserted here -->
                 </div>
-                <div class="share-room-section">
-                    <label class="share-label">Select Room</label>
-                    <div class="share-rooms-list" id="share-rooms-list">
-                        <!-- Rooms will be listed here -->
+                <div class="share-tabs">
+                    <button class="share-tab active" data-share-tab="room">Room</button>
+                    <button class="share-tab" data-share-tab="dm">Direct Message</button>
+                </div>
+                <div class="share-tab-content" id="share-room-content">
+                    <div class="share-room-section">
+                        <label class="share-label">Select Room</label>
+                        <div class="share-rooms-list" id="share-rooms-list">
+                            <!-- Rooms will be listed here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="share-tab-content hidden" id="share-dm-content">
+                    <div class="share-dm-section">
+                        <label class="share-label">Select Conversation</label>
+                        <div class="share-dm-list" id="share-dm-list">
+                            <!-- DM conversations will be listed here -->
+                        </div>
                     </div>
                 </div>
                 <div class="share-comment-section">
@@ -1916,7 +2084,7 @@
                             <label class="form-label">Audio Demo</label>
                             <div class="file-upload-area" data-action="triggerFileInput" data-input="preset-audio">
                                 <p>Click to upload audio demo</p>
-                                <input type="file" id="preset-audio" style="display: none;" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.aiff,.wma" />
+                                <input type="file" id="preset-audio" style="display: none;" accept="audio/*" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -1963,7 +2131,7 @@
                             <label class="form-label">Sample File</label>
                             <div class="file-upload-area" data-action="triggerFileInput" data-input="sample-audio">
                                 <p>Click to upload sample</p>
-                                <input type="file" id="sample-audio" style="display: none;" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.aiff,.wma" />
+                                <input type="file" id="sample-audio" style="display: none;" accept="audio/*" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -1999,7 +2167,7 @@
                             <label class="form-label">Audio Demo (Optional)</label>
                             <div class="file-upload-area" data-action="triggerFileInput" data-input="midi-audio">
                                 <p>Click to upload audio demo</p>
-                                <input type="file" id="midi-audio" style="display: none;" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.aiff,.wma" />
+                                <input type="file" id="midi-audio" style="display: none;" accept="audio/*" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -2104,7 +2272,7 @@
                             <label class="form-label">Audio File</label>
                             <div class="file-upload-area" data-action="triggerFileInput" data-input="originals-audio">
                                 <p>Click to upload audio</p>
-                                <input type="file" id="originals-audio" style="display: none;" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.aiff,.wma" />
+                                <input type="file" id="originals-audio" style="display: none;" accept="audio/*" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -2152,6 +2320,7 @@
         <div class="center-panel-banner" id="center-panel-banner"></div>
 
         <div class="center-panel-user-section">
+            <button class="view-profile-btn" id="center-panel-view-profile">View Profile</button>
             <div class="info-card">
                 <div class="info-card-left">
                     <div class="info-card-avatar" id="center-panel-avatar">
@@ -2165,9 +2334,11 @@
                     <p class="info-card-bio" id="center-panel-description">No Bio available.</p>
                 </div>
             </div>
-            <div class="info-card-buttons">
-                <button class="view-profile-btn" id="center-panel-view-profile">View Profile</button>
-                <button class="follow-btn" id="center-panel-follow-btn">Follow</button>
+            <div class="info-card-stats">
+                <span class="info-stat"><span class="info-stat-num" id="center-panel-followers">0</span> Followers</span>
+                <span class="info-stat"><span class="info-stat-num" id="center-panel-following">0</span> Following</span>
+                <span class="info-stat"><span class="info-stat-num" id="center-panel-uploads">0</span> Uploads</span>
+                <span class="info-stat"><span class="info-stat-num" id="center-panel-downloads">0</span> Downloads</span>
             </div>
         </div>
 
@@ -2188,15 +2359,6 @@
             <div class="info-card-tags">
                 <span class="info-card-tags-label">Tags</span>
                 <div class="info-card-tags-list" id="center-panel-item-tags"></div>
-            </div>
-            <!-- Admin Controls (hidden by default) -->
-            <div class="admin-controls hidden" id="center-panel-admin-controls">
-                <button class="admin-delete-btn" id="admin-delete-item-btn">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                    Delete Item (Admin)
-                </button>
             </div>
         </div>
 
@@ -2252,27 +2414,45 @@
     <div id="comment-modal" class="comment-modal">
         <div class="comment-modal-content">
             <button class="comment-modal-close" data-action="closeCommentModal">&times;</button>
-            <div class="comment-modal-banner" id="comment-modal-banner">
-                <img src="./Emojies/48301-clownpepe.png" alt="" class="comment-modal-placeholder" id="comment-modal-placeholder">
-                <div class="comment-modal-title" id="comment-modal-title">Sound Title</div>
+            <div class="comment-modal-header" id="comment-modal-header">
+                <div class="comment-modal-avatar-section">
+                    <div class="comment-modal-avatar" id="comment-modal-avatar"></div>
+                </div>
+                <div class="comment-modal-user-info">
+                    <div class="comment-modal-username" id="comment-modal-username">Username</div>
+                    <div class="comment-modal-stats">
+                        <div class="comment-modal-stat"><strong id="comment-modal-followers">0</strong> Followers</div>
+                        <div class="comment-modal-stat"><strong id="comment-modal-uploads">0</strong> Uploads</div>
+                    </div>
+                </div>
+                <div class="comment-modal-actions">
+                    <span class="comment-modal-action" data-action="followUser">Follow</span>
+                    <span class="comment-modal-action">Message</span>
+                </div>
             </div>
             <div class="comment-modal-body">
-                <div class="comment-list" id="comment-list"></div>
-                <div class="comment-input-row">
-                    <div class="comment-input-avatar">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <div class="comment-modal-left">
+                    <div class="comment-list" id="comment-list"></div>
+                    <div class="comment-input-row">
+                        <div class="comment-input-avatar">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <button class="input-btn emoji-btn" id="comment-modal-emoji-btn" title="Emoji">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        </button>
+                        <div class="emoji-picker" id="comment-modal-emoji-picker" style="display: none;">
+                            <div class="emoji-picker-header">Emojis</div>
+                            <div class="emoji-picker-grid"></div>
+                        </div>
+                        <input type="text" id="comment-input" placeholder="Add a comment...">
+                        <button data-action="submitComment">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
                     </div>
-                    <button class="input-btn emoji-btn" id="comment-modal-emoji-btn" title="Emoji">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                    </button>
-                    <div class="emoji-picker" id="comment-modal-emoji-picker" style="display: none;">
-                        <div class="emoji-picker-header">Emojis</div>
-                        <div class="emoji-picker-grid"></div>
-                    </div>
-                    <input type="text" id="comment-input" placeholder="Add a comment...">
-                    <button data-action="submitComment">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
+                </div>
+                <div class="comment-modal-right">
+                    <h3>More from <span id="more-presets-username">username</span></h3>
+                    <div class="more-presets-list" id="more-presets-list"></div>
                 </div>
             </div>
         </div>
@@ -2287,6 +2467,41 @@
             <div class="modal-footer">
                 <button class="modal-btn cancel" id="moderation-cancel">Cancel</button>
                 <button class="modal-btn confirm" id="moderation-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Message Modal -->
+    <div class="modal-overlay" id="profile-message-modal" style="display: none;">
+        <div class="modal-content profile-message-modal">
+            <div class="modal-header">
+                <h2 id="profile-message-title">Message User</h2>
+                <button class="modal-close-btn" data-action="closeProfileMessageModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="profile-message-input" placeholder="Type your message..." rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" data-action="closeProfileMessageModal">Cancel</button>
+                <button class="modal-btn confirm" data-action="sendProfileMessage">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Sent Confirmation Modal -->
+    <div class="modal-overlay" id="message-sent-modal" style="display: none;">
+        <div class="modal-content message-sent-modal">
+            <div class="modal-body">
+                <p class="message-sent-text">
+                    <svg class="message-sent-check" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    Message sent
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" data-action="closeMessageSentModal">Close</button>
+                <button class="modal-btn confirm" data-action="goToMessages">Go to messages</button>
             </div>
         </div>
     </div>
@@ -2433,23 +2648,6 @@
         </div>
     </div>
 
-    <!-- Banner Position Modal -->
-    <div class="modal-overlay" id="banner-position-modal" style="display: none;">
-        <div class="modal-content banner-position-modal">
-            <div class="modal-header">
-                <h2>Position Your Banner</h2>
-                <p class="banner-position-hint">Drag the image up or down to adjust position</p>
-            </div>
-            <div class="banner-position-preview" id="banner-position-preview">
-                <img id="banner-position-image" src="" alt="Banner preview" draggable="false">
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" id="banner-position-cancel">Cancel</button>
-                <button class="modal-btn confirm" id="banner-position-save">Save</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Auth Modal (Login/Signup) -->
     <div class="modal hidden" id="auth-modal">
         <div class="modal-content auth-modal-content">
@@ -2485,7 +2683,7 @@
                         <input type="checkbox" id="remember-me">
                         <span>Remember me</span>
                     </label>
-                    <a href="#" class="auth-forgot" onclick="showAuthPanel('forgot-password'); return false;">Forgot password?</a>
+                    <a href="#" class="auth-forgot" data-action="showAuthPanel" data-panel="forgot-password">Forgot password?</a>
                 </div>
 
                 <div class="auth-error-message" id="login-error"></div>
@@ -2660,7 +2858,7 @@
             </div>
 
             <!-- Forgot Password Form -->
-            <div class="auth-form hidden" id="forgot-password-form">
+            <div class="auth-form hidden" id="forgot-form">
                 <div class="auth-header">
                     <h2 class="auth-title">Reset Password</h2>
                     <p class="auth-subtitle">Enter your email to receive a reset link</p>
@@ -2673,9 +2871,6 @@
                         <span class="auth-error" id="forgot-email-error"></span>
                     </div>
                 </div>
-
-                <div class="auth-error-message" id="forgot-password-error"></div>
-                <div class="auth-success-message" id="forgot-password-success"></div>
 
                 <button type="button" class="auth-submit-btn" data-action="handleForgotPassword">Send Reset Link</button>
 
@@ -2776,22 +2971,23 @@
     </div>
 
     <!-- Modular JavaScript -->
-    <script src="utils.js?v=2"></script>
-    <script src="supabase.js?v=11"></script>
-    <script src="state.js?v=9"></script>
-    <script src="audio.js?v=2"></script>
-    <script src="filters.js?v=2"></script>
-    <script src="browse.js?v=10"></script>
-    <script src="comments.js?v=12"></script>
-    <script src="user.js?v=4"></script>
-    <script src="junkies.js?v=3"></script>
-    <script src="upload.js?v=2"></script>
-    <script src="lounge.js?v=22"></script>
-    <script src="notifications.js?v=13"></script>
-    <script src="settings.js?v=3"></script>
-    <script src="manage-sounds.js?v=2"></script>
-    <script src="auth.js?v=6"></script>
-    <script src="main.js?v=4"></script>
-    <script src="event-handlers.js?v=8"></script>
+    <script src="utils.js"></script>
+    <script src="supabase.js"></script>
+    <script src="state.js"></script>
+    <script src="audio.js"></script>
+    <script src="filters.js"></script>
+    <script src="browse.js"></script>
+    <script src="comments.js"></script>
+    <script src="user.js"></script>
+    <script src="junkies.js"></script>
+    <script src="upload.js"></script>
+    <script src="lounge.js"></script>
+    <script src="notifications.js"></script>
+    <script src="settings.js"></script>
+    <script src="manage-sounds.js"></script>
+    <script src="auth.js"></script>
+    <script src="main.js"></script>
+    <script src="event-handlers.js"></script>
 </body>
 </html>
+
