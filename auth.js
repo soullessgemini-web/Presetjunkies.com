@@ -1860,3 +1860,4 @@ window.logout = logout;
 window.loginWithGoogle = loginWithGoogle;
 window.loginWithDiscord = loginWithDiscord;
 window.checkTermsScroll = checkTermsScroll;
+
