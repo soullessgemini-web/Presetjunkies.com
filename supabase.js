@@ -15,84 +15,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 });
 
 // =============================================
-// CENTRAL AUTH HELPER - Single Source of Truth
-// =============================================
-
-// Get current auth session from Supabase (THE authority for login state)
-async function getAuthSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    return session;
-}
-
-// Check if user is authenticated (async - uses Supabase session)
-async function checkAuthStatus() {
-    const session = await getAuthSession();
-    return !!session;
-}
-
-// Rehydrate auth state from Supabase on page load
-async function rehydrateAuthState() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session?.user) {
-        // User is authenticated - sync localStorage cache
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('supabaseUserId', session.user.id);
-        document.body.classList.remove('guest-mode');
-
-        // Load profile data from Supabase
-        const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('username, avatar_url, banner_url, bio')
-            .eq('id', session.user.id)
-            .single();
-
-        if (profile) {
-            localStorage.setItem('profileUsername', profile.username || '');
-            localStorage.setItem('profileAvatar', profile.avatar_url || '');
-            localStorage.setItem('profileBanner', profile.banner_url || '');
-            localStorage.setItem('profileBio', profile.bio || '');
-        }
-    } else {
-        // No session - clear all auth-related localStorage
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('supabaseUserId');
-        document.body.classList.add('guest-mode');
-    }
-
-    // Update UI after auth state is determined
-    if (typeof updateUserNavSection === 'function') {
-        updateUserNavSection();
-    }
-}
-
-// Listen for auth state changes
-supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('supabaseUserId', session.user.id);
-        document.body.classList.remove('guest-mode');
-    } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('supabaseUserId');
-        document.body.classList.add('guest-mode');
-    } else if (event === 'TOKEN_REFRESHED' && session) {
-        // Token refreshed - ensure we're still marked as logged in
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('supabaseUserId', session.user.id);
-    }
-});
-
-// Rehydrate on load
-document.addEventListener('DOMContentLoaded', () => {
-    rehydrateAuthState();
-});
-
-// Make auth helpers globally available
-window.getAuthSession = getAuthSession;
-window.checkAuthStatus = checkAuthStatus;
-window.rehydrateAuthState = rehydrateAuthState;
-
-// =============================================
 // UI UTILITIES - Loading States & Toasts
 // =============================================
 
@@ -181,9 +103,7 @@ function showToast(message, type = 'info', duration = 3000) {
 
 // Inject loading/toast styles if not present
 function injectSupabaseStyles() {
-    // Remove old styles if they exist to ensure updates are applied
-    const existing = document.getElementById('supabase-ui-styles');
-    if (existing) existing.remove();
+    if (document.getElementById('supabase-ui-styles')) return;
 
     const styles = document.createElement('style');
     styles.id = 'supabase-ui-styles';
@@ -221,40 +141,39 @@ function injectSupabaseStyles() {
         }
         .supabase-toast {
             position: fixed;
-            top: 24px;
+            bottom: 24px;
             right: 24px;
-            transform: translateY(-100px);
-            background: #1a1a1a;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 16px 24px;
+            background: #1c1c1e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             z-index: 10000;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
-            width: 350px;
+            max-width: 400px;
         }
         .supabase-toast.show { transform: translateY(0); opacity: 1; }
-        .supabase-toast.hiding { transform: translateY(-100px); opacity: 0; }
-        .supabase-toast-success { border-left: 4px solid #22c55e; }
-        .supabase-toast-error { border-left: 4px solid #ef4444; }
-        .supabase-toast-warning { border-left: 4px solid #f59e0b; }
-        .supabase-toast-info { border-left: 4px solid #3b82f6; }
+        .supabase-toast.hiding { transform: translateY(100px); opacity: 0; }
+        .supabase-toast-success { border-left: 3px solid #22c55e; }
+        .supabase-toast-error { border-left: 3px solid #ef4444; }
+        .supabase-toast-warning { border-left: 3px solid #f59e0b; }
+        .supabase-toast-info { border-left: 3px solid #3b82f6; }
         .supabase-toast-icon { display: flex; }
-        .supabase-toast-icon svg { width: 28px; height: 28px; }
         .supabase-toast-success .supabase-toast-icon { color: #22c55e; }
         .supabase-toast-error .supabase-toast-icon { color: #ef4444; }
         .supabase-toast-warning .supabase-toast-icon { color: #f59e0b; }
         .supabase-toast-info .supabase-toast-icon { color: #3b82f6; }
-        .supabase-toast-message { color: #fff; font-size: 16px; flex: 1; font-weight: 500; }
+        .supabase-toast-message { color: #fff; font-size: 14px; flex: 1; }
         .supabase-toast-close {
             background: none;
             border: none;
             color: rgba(255,255,255,0.5);
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             padding: 0;
             line-height: 1;
@@ -324,27 +243,16 @@ async function supabaseSignOut() {
     return { error };
 }
 
-// Update user's last active timestamp
-async function supabaseUpdateLastActive() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
-
-    await supabaseClient
-        .from('profiles')
-        .update({ last_active_at: new Date().toISOString() })
-        .eq('id', user.id);
-}
-
 // Get current session
 async function supabaseGetSession() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
     return { session, error };
 }
 
-// Get current user (uses getSession to avoid network calls that can cause logout)
+// Get current user
 async function supabaseGetUser() {
-    const { data: { session }, error } = await supabaseClient.auth.getSession();
-    return { user: session?.user || null, error };
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    return { user, error };
 }
 
 // Get user profile
@@ -358,60 +266,15 @@ async function supabaseGetProfile(userId) {
     return { data, error };
 }
 
-// Get profile by username (only verified profiles are public)
+// Get profile by username
 async function supabaseGetProfileByUsername(username) {
     const { data, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .ilike('username', username)
-        .eq('email_verified', true)
         .single();
 
     return { data, error };
-}
-
-// Get profile by username for auth (doesn't filter by email_verified - needed for login)
-async function supabaseGetProfileByUsernameForAuth(username) {
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('id, email, username')
-        .ilike('username', username)
-        .single();
-
-    return { data, error };
-}
-
-// Check if username is taken (includes deleted accounts - usernames are permanently reserved)
-async function supabaseCheckUsernameTaken(username) {
-    // Check both current usernames and deleted_username (reserved from deleted accounts)
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('id')
-        .or(`username.ilike.${username},deleted_username.ilike.${username}`)
-        .maybeSingle();
-
-    if (error) {
-        console.error('Error checking username:', error);
-        return { taken: false, error };
-    }
-
-    return { taken: !!data, error: null };
-}
-
-// Check if email is taken (includes deleted accounts - emails are permanently reserved)
-async function supabaseCheckEmailTaken(email) {
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('id')
-        .ilike('email', email)
-        .maybeSingle();
-
-    if (error) {
-        console.error('Error checking email:', error);
-        return { taken: false, error };
-    }
-
-    return { taken: !!data, error: null };
 }
 
 // Update profile
@@ -426,12 +289,11 @@ async function supabaseUpdateProfile(userId, updates) {
     return { data, error };
 }
 
-// Get all profiles (for junkies page - only verified)
+// Get all profiles (for junkies page)
 async function supabaseGetAllProfiles() {
     const { data, error } = await supabaseClient
         .from('profiles')
         .select('*')
-        .eq('email_verified', true)
         .order('created_at', { ascending: false });
 
     return { data, error };
@@ -517,7 +379,7 @@ async function supabaseGetItems(category, options = {}) {
         .from('items')
         .select(`
             *,
-            uploader:profiles!uploader_id(id, username, avatar_url, banner_url, bio)
+            uploader:profiles!uploader_id(id, username, avatar_url)
         `)
         .eq('category', category)
         .order('created_at', { ascending: false });
@@ -539,7 +401,7 @@ async function supabaseGetItem(itemId) {
         .from('items')
         .select(`
             *,
-            uploader:profiles!uploader_id(id, username, avatar_url, banner_url, bio)
+            uploader:profiles!uploader_id(id, username, avatar_url)
         `)
         .eq('id', itemId)
         .single();
@@ -591,24 +453,6 @@ async function supabaseDeleteItem(itemId) {
         .eq('id', itemId);
 
     return { error };
-}
-
-// Increment item counter (saves, shares, downloads)
-async function supabaseIncrementCounter(itemId, field) {
-    const { data, error } = await supabaseClient.rpc('increment_counter', {
-        item_id: itemId,
-        field_name: field
-    });
-    return { data, error };
-}
-
-// Decrement item counter (saves, shares, downloads)
-async function supabaseDecrementCounter(itemId, field) {
-    const { data, error } = await supabaseClient.rpc('decrement_counter', {
-        item_id: itemId,
-        field_name: field
-    });
-    return { data, error };
 }
 
 // =============================================
@@ -736,18 +580,11 @@ async function supabaseGetFollowers(userId) {
     const { data, error } = await supabaseClient
         .from('follows')
         .select(`
-            follower:profiles!follower_id(id, username, avatar_url, is_deleted)
+            follower:profiles!follower_id(id, username, avatar_url)
         `)
         .eq('following_id', userId);
 
-    // Filter out deleted users
-    const filtered = data?.map(f => f.follower).filter(f => {
-        if (!f) return false;
-        if (f.is_deleted) return false;
-        if (f.username?.startsWith('[Deleted')) return false;
-        return true;
-    }) || [];
-    return { data: filtered, error };
+    return { data: data?.map(f => f.follower) || [], error };
 }
 
 // Get following
@@ -755,18 +592,11 @@ async function supabaseGetFollowing(userId) {
     const { data, error } = await supabaseClient
         .from('follows')
         .select(`
-            following:profiles!following_id(id, username, avatar_url, is_deleted)
+            following:profiles!following_id(id, username, avatar_url)
         `)
         .eq('follower_id', userId);
 
-    // Filter out deleted users
-    const filtered = data?.map(f => f.following).filter(f => {
-        if (!f) return false;
-        if (f.is_deleted) return false;
-        if (f.username?.startsWith('[Deleted')) return false;
-        return true;
-    }) || [];
-    return { data: filtered, error };
+    return { data: data?.map(f => f.following) || [], error };
 }
 
 // Get follower count
@@ -833,19 +663,12 @@ async function supabaseUpdateComment(commentId, content) {
     return { data, error };
 }
 
-// Delete comment (only owner can delete their own comment)
+// Delete comment
 async function supabaseDeleteComment(commentId) {
-    // Get current user
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session?.user?.id) {
-        return { error: { message: 'You must be logged in to delete comments' } };
-    }
-
     const { error } = await supabaseClient
         .from('comments')
         .delete()
-        .eq('id', commentId)
-        .eq('user_id', session.user.id);
+        .eq('id', commentId);
 
     return { error };
 }
@@ -916,13 +739,9 @@ async function supabaseDeleteRoom(roomId) {
 
 // Join room
 async function supabaseJoinRoom(roomId, userId, role = 'member') {
-    // Use upsert to avoid duplicate key errors if user is already a member
     const { error } = await supabaseClient
         .from('room_members')
-        .upsert(
-            { room_id: roomId, user_id: userId, role },
-            { onConflict: 'room_id,user_id', ignoreDuplicates: true }
-        );
+        .insert({ room_id: roomId, user_id: userId, role });
 
     if (!error) {
         // Update member count
@@ -949,7 +768,7 @@ async function supabaseGetRoomMembers(roomId) {
         .from('room_members')
         .select(`
             *,
-            user:profiles!user_id(id, username, avatar_url, last_active_at)
+            user:profiles!user_id(id, username, avatar_url)
         `)
         .eq('room_id', roomId);
 
@@ -990,24 +809,16 @@ async function supabaseGetRoomMessages(roomId, limit = 100) {
 }
 
 // Send room message
-async function supabaseSendRoomMessage(roomId, authorId, content, replyToId = null, imageUrl = null, audioUrl = null, audioFilename = null) {
-    const insertData = {
-        room_id: roomId,
-        author_id: authorId,
-        content,
-        reply_to_id: replyToId,
-        image_url: imageUrl
-    };
-
-    // Add audio fields if present
-    if (audioUrl) {
-        insertData.audio_url = audioUrl;
-        insertData.audio_filename = audioFilename;
-    }
-
+async function supabaseSendRoomMessage(roomId, authorId, content, replyToId = null, imageUrl = null) {
     const { data, error } = await supabaseClient
         .from('room_messages')
-        .insert(insertData)
+        .insert({
+            room_id: roomId,
+            author_id: authorId,
+            content,
+            reply_to_id: replyToId,
+            image_url: imageUrl
+        })
         .select(`
             *,
             author:profiles!author_id(id, username, avatar_url)
@@ -1077,6 +888,139 @@ async function supabaseGetReactions(messageId) {
     return { data, error };
 }
 
+// =============================================
+// DIRECT MESSAGES
+// =============================================
+
+// Get or create a DM conversation between two users
+async function supabaseGetOrCreateDmConversation(userId1, userId2) {
+    // First try to find existing conversation
+    const { data: existing, error: findError } = await supabaseClient
+        .from('dm_participants')
+        .select('conversation_id')
+        .eq('user_id', userId1);
+
+    if (!findError && existing) {
+        for (const p of existing) {
+            const { data: other } = await supabaseClient
+                .from('dm_participants')
+                .select('user_id')
+                .eq('conversation_id', p.conversation_id)
+                .eq('user_id', userId2)
+                .single();
+
+            if (other) {
+                return { conversationId: p.conversation_id, error: null };
+            }
+        }
+    }
+
+    // Create new conversation
+    const { data: newConv, error: createError } = await supabaseClient
+        .from('dm_conversations')
+        .insert({})
+        .select()
+        .single();
+
+    if (createError) return { conversationId: null, error: createError };
+
+    // Add both participants
+    const { error: partError } = await supabaseClient
+        .from('dm_participants')
+        .insert([
+            { conversation_id: newConv.id, user_id: userId1 },
+            { conversation_id: newConv.id, user_id: userId2 }
+        ]);
+
+    if (partError) return { conversationId: null, error: partError };
+
+    return { conversationId: newConv.id, error: null };
+}
+
+// Get user's DM conversations
+async function supabaseGetDmConversations(userId) {
+    const { data, error } = await supabaseClient
+        .from('dm_participants')
+        .select(`
+            conversation_id,
+            last_read_at,
+            conversation:dm_conversations(id, updated_at)
+        `)
+        .eq('user_id', userId)
+        .order('conversation(updated_at)', { ascending: false });
+
+    if (error) return { data: null, error };
+
+    // Get other participants for each conversation
+    const conversations = [];
+    for (const p of data || []) {
+        const { data: others } = await supabaseClient
+            .from('dm_participants')
+            .select('user:profiles!user_id(id, username, avatar_url)')
+            .eq('conversation_id', p.conversation_id)
+            .neq('user_id', userId);
+
+        const otherUser = others?.[0]?.user;
+        conversations.push({
+            id: p.conversation_id,
+            otherUser,
+            lastReadAt: p.last_read_at,
+            updatedAt: p.conversation?.updated_at
+        });
+    }
+
+    return { data: conversations, error: null };
+}
+
+// Get DM messages for a conversation
+async function supabaseGetDmMessages(conversationId, limit = 100) {
+    const { data, error } = await supabaseClient
+        .from('dm_messages')
+        .select(`
+            *,
+            sender:profiles!sender_id(id, username, avatar_url)
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .limit(limit);
+
+    return { data, error };
+}
+
+// Send a DM message
+async function supabaseSendDmMessage(conversationId, senderId, content, imageUrl = null) {
+    const { data, error } = await supabaseClient
+        .from('dm_messages')
+        .insert({
+            conversation_id: conversationId,
+            sender_id: senderId,
+            content,
+            image_url: imageUrl
+        })
+        .select()
+        .single();
+
+    if (!error) {
+        // Update conversation timestamp
+        await supabaseClient
+            .from('dm_conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', conversationId);
+    }
+
+    return { data, error };
+}
+
+// Mark DM conversation as read
+async function supabaseMarkDmRead(conversationId, userId) {
+    const { error } = await supabaseClient
+        .from('dm_participants')
+        .update({ last_read_at: new Date().toISOString() })
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId);
+
+    return { error };
+}
 
 // =============================================
 // NOTIFICATIONS
@@ -1094,20 +1038,6 @@ async function supabaseGetNotifications(userId, limit = 50) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(limit);
-
-    return { data, error };
-}
-
-// Get notifications for a specific item (to show who liked/saved/shared/downloaded)
-async function supabaseGetItemNotifications(itemId) {
-    const { data, error } = await supabaseClient
-        .from('notifications')
-        .select(`
-            *,
-            actor:profiles!actor_id(id, username, avatar_url)
-        `)
-        .eq('item_id', itemId)
-        .order('created_at', { ascending: false });
 
     return { data, error };
 }
@@ -1193,71 +1123,42 @@ function supabaseSubscribeToNotifications(userId, onNotification) {
         .subscribe();
 }
 
+// Subscribe to DM messages for a conversation
+function supabaseSubscribeToDM(conversationId, onMessage) {
+    console.log('Setting up DM subscription for:', conversationId);
 
-// Subscribe to item changes (for realtime sync across browsers)
-function supabaseSubscribeToItemChanges(onDelete, onInsert) {
-    return supabaseClient
-        .channel('items-changes')
-        .on('postgres_changes', {
-            event: 'DELETE',
-            schema: 'public',
-            table: 'items'
-        }, (payload) => {
-            if (onDelete) onDelete(payload.old);
-        })
+    const channel = supabaseClient
+        .channel(`dm:${conversationId}`)
         .on('postgres_changes', {
             event: 'INSERT',
             schema: 'public',
-            table: 'items'
-        }, (payload) => {
-            if (onInsert) onInsert(payload.new);
-        })
-        .subscribe();
-}
+            table: 'dm_messages',
+            filter: `conversation_id=eq.${conversationId}`
+        }, async (payload) => {
+            console.log('DM realtime event received:', payload);
+            // Fetch full message with sender info
+            const { data, error } = await supabaseClient
+                .from('dm_messages')
+                .select(`
+                    *,
+                    sender:profiles!sender_id(id, username, avatar_url)
+                `)
+                .eq('id', payload.new.id)
+                .single();
 
-// Subscribe to profile changes (for deleted users sync)
-function supabaseSubscribeToProfileChanges(onUpdate) {
-    return supabaseClient
-        .channel('profiles-changes')
-        .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles'
-        }, (payload) => {
-            onUpdate(payload.new);
-        })
-        .subscribe();
-}
-
-// Subscribe to room changes (for room deletion sync across browsers)
-function supabaseSubscribeToRoomChanges(onDelete, onUpdate) {
-    return supabaseClient
-        .channel('rooms-changes')
-        .on('postgres_changes', {
-            event: 'DELETE',
-            schema: 'public',
-            table: 'rooms'
-        }, (payload) => {
-            if (onDelete) onDelete(payload.old);
-        })
-        .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'rooms'
-        }, (payload) => {
-            if (onUpdate) onUpdate(payload.new);
-        })
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'rooms'
-        }, (payload) => {
-            // Reload rooms when a new room is created
-            if (typeof loadRoomsFromSupabase === 'function') {
-                loadRoomsFromSupabase();
+            if (error) {
+                console.error('Error fetching DM message details:', error);
+            }
+            if (data) {
+                console.log('DM message fetched:', data);
+                onMessage(data);
             }
         })
-        .subscribe();
+        .subscribe((status) => {
+            console.log('DM subscription status:', status);
+        });
+
+    return channel;
 }
 
 // Unsubscribe from channel
@@ -1269,7 +1170,7 @@ function supabaseUnsubscribe(channel) {
 // USERS DIRECTORY (JUNKIES)
 // =============================================
 
-// Get all users with stats (only verified)
+// Get all users with stats
 async function supabaseGetAllUsers() {
     const { data, error } = await supabaseClient
         .from('profiles')
@@ -1279,7 +1180,6 @@ async function supabaseGetAllUsers() {
             avatar_url,
             created_at
         `)
-        .eq('email_verified', true)
         .order('created_at', { ascending: false });
 
     return { data, error };
@@ -1390,101 +1290,21 @@ function hasLocalDataToMigrate() {
     });
 }
 
-// Delete user account - anonymize profile but keep content
-async function supabaseDeleteUserAccount() {
-    try {
-        const { user } = await supabaseGetUser();
-        console.log('Delete account - user:', user?.id);
-
-        if (!user) {
-            return { error: { message: 'Not logged in' } };
-        }
-
-        const userId = user.id;
-
-        // 1. Get current username before deleting
-        const { data: currentProfile } = await supabaseClient
-            .from('profiles')
-            .select('username')
-            .eq('id', userId)
-            .single();
-
-        // 2. Anonymize the profile and mark as deleted
-        // Store original username in deleted_username to keep it reserved
-        console.log('Anonymizing profile...');
-        const { error: profileError } = await supabaseClient
-            .from('profiles')
-            .update({
-                username: '[Deleted]',
-                deleted_username: currentProfile?.username || null,
-                bio: null,
-                avatar_url: null,
-                banner_url: null,
-                email_verified: false,
-                is_deleted: true
-            })
-            .eq('id', userId);
-
-        if (profileError) {
-            console.error('Error anonymizing profile:', profileError);
-            return { error: { message: 'Failed to anonymize profile: ' + profileError.message } };
-        }
-        console.log('Profile anonymized successfully');
-
-        // 2. Delete private data that shouldn't persist
-        console.log('Deleting room memberships...');
-        await supabaseClient.from('room_members').delete().eq('user_id', userId);
-
-        console.log('Deleting notifications...');
-        await supabaseClient.from('notifications').delete().eq('user_id', userId);
-
-        console.log('Deleting library...');
-        await supabaseClient.from('library').delete().eq('user_id', userId);
-
-        console.log('Deleting follows...');
-        await supabaseClient.from('follows').delete().eq('follower_id', userId);
-        await supabaseClient.from('follows').delete().eq('following_id', userId);
-
-        console.log('Deleting likes...');
-        await supabaseClient.from('likes').delete().eq('user_id', userId);
-
-        // 3. Keep but anonymize:
-        // - Items (uploads) - kept, will show "[Deleted]" as uploader
-        // - Comments - kept, will show "[Deleted]" as author
-        // - Room messages - kept, will show "[Deleted]" as author
-
-        // 4. Sign out
-        console.log('Signing out...');
-        await supabaseClient.auth.signOut();
-
-        console.log('Account deletion complete');
-        return { error: null };
-    } catch (err) {
-        console.error('Error deleting user account:', err);
-        return { error: { message: err.message || 'Failed to delete account' } };
-    }
-}
-
 // =============================================
 // EXPORT FOR GLOBAL ACCESS
 // =============================================
 
 window.supabaseClient = supabaseClient;
-window.supabaseDeleteUserAccount = supabaseDeleteUserAccount;
 window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.showToast = showToast;
 window.supabaseSignUp = supabaseSignUp;
 window.supabaseSignIn = supabaseSignIn;
 window.supabaseSignOut = supabaseSignOut;
-window.supabaseUpdateLastActive = supabaseUpdateLastActive;
 window.supabaseGetSession = supabaseGetSession;
 window.supabaseGetUser = supabaseGetUser;
 window.supabaseGetProfile = supabaseGetProfile;
 window.supabaseGetProfileByUsername = supabaseGetProfileByUsername;
-window.supabaseGetProfileByUsernameForAuth = supabaseGetProfileByUsernameForAuth;
-window.supabaseCheckUsernameTaken = supabaseCheckUsernameTaken;
-window.supabaseCheckEmailTaken = supabaseCheckEmailTaken;
 window.supabaseUpdateProfile = supabaseUpdateProfile;
 window.supabaseGetAllProfiles = supabaseGetAllProfiles;
 window.supabaseResetPassword = supabaseResetPassword;
@@ -1497,8 +1317,6 @@ window.supabaseGetItem = supabaseGetItem;
 window.supabaseCreateItem = supabaseCreateItem;
 window.supabaseUpdateItem = supabaseUpdateItem;
 window.supabaseDeleteItem = supabaseDeleteItem;
-window.supabaseIncrementCounter = supabaseIncrementCounter;
-window.supabaseDecrementCounter = supabaseDecrementCounter;
 window.supabaseLikeItem = supabaseLikeItem;
 window.supabaseUnlikeItem = supabaseUnlikeItem;
 window.supabaseHasLiked = supabaseHasLiked;
@@ -1533,162 +1351,23 @@ window.supabaseDeleteRoomMessage = supabaseDeleteRoomMessage;
 window.supabaseAddReaction = supabaseAddReaction;
 window.supabaseRemoveReaction = supabaseRemoveReaction;
 window.supabaseGetReactions = supabaseGetReactions;
+window.supabaseGetOrCreateDmConversation = supabaseGetOrCreateDmConversation;
+window.supabaseGetDmConversations = supabaseGetDmConversations;
+window.supabaseGetDmMessages = supabaseGetDmMessages;
+window.supabaseSendDmMessage = supabaseSendDmMessage;
+window.supabaseMarkDmRead = supabaseMarkDmRead;
 window.supabaseGetNotifications = supabaseGetNotifications;
-window.supabaseGetItemNotifications = supabaseGetItemNotifications;
 window.supabaseMarkNotificationRead = supabaseMarkNotificationRead;
 window.supabaseMarkAllNotificationsRead = supabaseMarkAllNotificationsRead;
 window.supabaseGetUnreadCount = supabaseGetUnreadCount;
 window.supabaseCreateNotification = supabaseCreateNotification;
 window.supabaseSubscribeToRoom = supabaseSubscribeToRoom;
 window.supabaseSubscribeToNotifications = supabaseSubscribeToNotifications;
-window.supabaseSubscribeToItemChanges = supabaseSubscribeToItemChanges;
-window.supabaseSubscribeToProfileChanges = supabaseSubscribeToProfileChanges;
-window.supabaseSubscribeToRoomChanges = supabaseSubscribeToRoomChanges;
+window.supabaseSubscribeToDM = supabaseSubscribeToDM;
 window.supabaseUnsubscribe = supabaseUnsubscribe;
 window.supabaseGetAllUsers = supabaseGetAllUsers;
 window.migrateLocalStorageToSupabase = migrateLocalStorageToSupabase;
 window.hasLocalDataToMigrate = hasLocalDataToMigrate;
 
-// =============================================
-// ADMIN FUNCTIONS - Moderation
-// =============================================
-
-// Admin delete item (sound, preset, etc.)
-async function supabaseAdminDeleteItem(itemId, category) {
-    // Check if user is admin
-    if (typeof isAdmin !== 'function' || !isAdmin()) {
-        return { error: { message: 'Admin access required' } };
-    }
-
-    try {
-        console.log('Admin deleting item:', itemId, category);
-
-        // Delete associated data first (likes, comments, library entries)
-        // Use correct table names
-        const likesResult = await supabaseClient.from('item_likes').delete().eq('item_id', itemId);
-        console.log('Deleted likes:', likesResult);
-
-        const commentsResult = await supabaseClient.from('comments').delete().eq('item_id', itemId);
-        console.log('Deleted comments:', commentsResult);
-
-        const libraryResult = await supabaseClient.from('user_library').delete().eq('item_id', itemId);
-        console.log('Deleted library entries:', libraryResult);
-
-        // Delete the item itself
-        const { error } = await supabaseClient
-            .from('items')
-            .delete()
-            .eq('id', itemId);
-
-        console.log('Delete item result:', { error });
-
-        if (error) {
-            console.error('Error deleting item:', error);
-            return { error };
-        }
-
-        // Also remove from local items array if it exists
-        if (typeof items !== 'undefined' && category && items[category]) {
-            const idx = items[category].findIndex(item => String(item.id) === String(itemId));
-            if (idx > -1) {
-                items[category].splice(idx, 1);
-            }
-        }
-
-        return { error: null };
-    } catch (err) {
-        console.error('Error in supabaseAdminDeleteItem:', err);
-        return { error: { message: err.message } };
-    }
-}
-
-// Admin delete user profile (full deletion including content)
-async function supabaseAdminDeleteUser(userId) {
-    // Check if user is admin
-    if (typeof isAdmin !== 'function' || !isAdmin()) {
-        return { error: { message: 'Admin access required' } };
-    }
-
-    try {
-        // Delete all user's data - use correct table names
-        await supabaseClient.from('room_members').delete().eq('user_id', userId);
-        await supabaseClient.from('notifications').delete().eq('user_id', userId);
-        await supabaseClient.from('user_library').delete().eq('user_id', userId);
-        await supabaseClient.from('follows').delete().eq('follower_id', userId);
-        await supabaseClient.from('follows').delete().eq('following_id', userId);
-        await supabaseClient.from('item_likes').delete().eq('user_id', userId);
-        await supabaseClient.from('comments').delete().eq('user_id', userId);
-
-        // Anonymize profile instead of deleting (to preserve content integrity)
-        // Use unique deleted username to avoid constraint violation
-        const deletedUsername = `[Deleted_${Date.now()}]`;
-        const { error } = await supabaseClient
-            .from('profiles')
-            .update({
-                username: deletedUsername,
-                bio: null,
-                avatar_url: null,
-                banner_url: null
-            })
-            .eq('id', userId);
-
-        if (error) {
-            console.error('Error anonymizing profile:', error);
-            return { error };
-        }
-
-        return { error: null };
-    } catch (err) {
-        console.error('Error in supabaseAdminDeleteUser:', err);
-        return { error: { message: err.message } };
-    }
-}
-
-// Admin delete room
-async function supabaseAdminDeleteRoom(roomId) {
-    // Check if user is admin
-    if (typeof isAdmin !== 'function' || !isAdmin()) {
-        return { error: { message: 'Admin access required' } };
-    }
-
-    try {
-        // Delete room messages first
-        await supabaseClient.from('room_messages').delete().eq('room_id', roomId);
-        // Delete room members
-        await supabaseClient.from('room_members').delete().eq('room_id', roomId);
-        // Delete the room
-        const { error } = await supabaseClient.from('rooms').delete().eq('id', roomId);
-
-        if (error) {
-            console.error('Error deleting room:', error);
-            return { error };
-        }
-
-        return { error: null };
-    } catch (err) {
-        console.error('Error in supabaseAdminDeleteRoom:', err);
-        return { error: { message: err.message } };
-    }
-}
-
-// Admin delete any comment
-async function supabaseAdminDeleteComment(commentId) {
-    // Check if user is admin
-    if (typeof isAdmin !== 'function' || !isAdmin()) {
-        return { error: { message: 'Admin access required' } };
-    }
-
-    const { error } = await supabaseClient
-        .from('comments')
-        .delete()
-        .eq('id', commentId);
-
-    return { error };
-}
-
-window.supabaseAdminDeleteItem = supabaseAdminDeleteItem;
-window.supabaseAdminDeleteUser = supabaseAdminDeleteUser;
-window.supabaseAdminDeleteRoom = supabaseAdminDeleteRoom;
-window.supabaseAdminDeleteComment = supabaseAdminDeleteComment;
-
 console.log('Supabase client initialized');
+
