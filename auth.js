@@ -1,33 +1,9 @@
 // ===== AUTHENTICATION =====
 
-// Admin configuration - master admin emails with full moderation access
-const ADMIN_EMAILS = [
-    'nathan@presetjunkies.com'
-];
-
 // Auth state
 let isAuthenticated = false;
 let currentUserData = null;
 let activityInterval = null;
-let isAdminUser = false;
-
-// Check if current user is an admin
-function isAdmin() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) return false;
-    return ADMIN_EMAILS.includes(email.toLowerCase().trim());
-}
-
-// Check if a specific email is an admin
-function isAdminEmail(email) {
-    if (!email) return false;
-    return ADMIN_EMAILS.includes(email.toLowerCase().trim());
-}
-
-// Make admin functions globally available
-window.isAdmin = isAdmin;
-window.isAdminEmail = isAdminEmail;
-window.ADMIN_EMAILS = ADMIN_EMAILS;
 
 // Login attempt tracking (per email)
 // Structure: { email: { attempts: number, lockedUntil: timestamp } }
@@ -89,12 +65,6 @@ function getRemainingAttempts(email) {
 
 // Initialize auth on page load
 async function initAuth() {
-    // Check if returning from email verification
-    checkEmailVerification();
-
-    // Check if returning from password reset link (URL contains type=recovery)
-    await checkPasswordRecovery();
-
     await checkAuthState();
 
     // Listen for auth state changes (login, logout, token refresh)
@@ -124,30 +94,12 @@ async function initAuth() {
             currentUserData = userData;
             updateAuthUI(true, userData);
 
-            // Load notifications after login
-            if (typeof loadExistingNotifications === 'function') {
-                loadExistingNotifications();
-            }
-            if (typeof subscribeToRealtimeNotifications === 'function') {
-                subscribeToRealtimeNotifications();
-            }
-
-            // Load user's joined rooms from Supabase
-            if (typeof loadJoinedRoomsFromSupabase === 'function') {
-                loadJoinedRoomsFromSupabase();
-            }
-
         } else if (event === 'SIGNED_OUT') {
             // User signed out
             isAuthenticated = false;
             currentUserData = null;
             clearSensitiveData();
             updateAuthUI(false, null);
-
-            // Reset joined rooms in memory
-            if (typeof resetJoinedRooms === 'function') {
-                resetJoinedRooms();
-            }
 
         } else if (event === 'PASSWORD_RECOVERY') {
             // User clicked password reset link - clear any lockout and show password update modal
@@ -295,21 +247,12 @@ function showPasswordUpdateModal() {
     // Clear any previous values
     const passwordInput = document.getElementById('update-password');
     const confirmInput = document.getElementById('update-password-confirm');
-    if (passwordInput) {
-        passwordInput.value = '';
-        passwordInput.classList.remove('valid', 'invalid');
-    }
-    if (confirmInput) {
-        confirmInput.value = '';
-        confirmInput.classList.remove('valid', 'invalid');
-    }
+    if (passwordInput) passwordInput.value = '';
+    if (confirmInput) confirmInput.value = '';
 
     // Clear error messages
     const errorEl = document.getElementById('password-update-error');
     const successEl = document.getElementById('password-update-success');
-    const passwordFieldError = document.getElementById('update-password-error');
-    const confirmFieldError = document.getElementById('update-password-confirm-error');
-
     if (errorEl) {
         errorEl.textContent = '';
         errorEl.classList.remove('show');
@@ -320,124 +263,6 @@ function showPasswordUpdateModal() {
         successEl.classList.remove('show');
         successEl.style.display = 'none';
     }
-    if (passwordFieldError) {
-        passwordFieldError.textContent = '';
-        passwordFieldError.classList.remove('show');
-    }
-    if (confirmFieldError) {
-        confirmFieldError.textContent = '';
-        confirmFieldError.classList.remove('show');
-    }
-
-    // Setup real-time validation
-    setupPasswordUpdateValidation();
-}
-
-// Real-time validation for password update fields
-function setupPasswordUpdateValidation() {
-    const passwordInput = document.getElementById('update-password');
-    const confirmInput = document.getElementById('update-password-confirm');
-    const passwordFieldError = document.getElementById('update-password-error');
-    const confirmFieldError = document.getElementById('update-password-confirm-error');
-
-    // Remove old listeners by cloning
-    if (passwordInput && !passwordInput._hasValidation) {
-        passwordInput._hasValidation = true;
-        passwordInput.addEventListener('input', () => {
-            validateUpdatePassword();
-            // Also re-validate confirm if it has a value
-            if (confirmInput?.value) {
-                validateUpdateConfirmPassword();
-            }
-        });
-    }
-
-    if (confirmInput && !confirmInput._hasValidation) {
-        confirmInput._hasValidation = true;
-        confirmInput.addEventListener('input', validateUpdateConfirmPassword);
-    }
-}
-
-function validateUpdatePassword() {
-    const input = document.getElementById('update-password');
-    const error = document.getElementById('update-password-error');
-    const password = input?.value || '';
-
-    if (!password) {
-        input?.classList.remove('valid', 'invalid');
-        if (error) {
-            error.textContent = '';
-            error.classList.remove('show');
-        }
-        return false;
-    }
-
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-
-    if (password.length < 8) {
-        input?.classList.remove('valid');
-        input?.classList.add('invalid');
-        if (error) {
-            error.textContent = 'Password must be at least 8 characters';
-            error.classList.add('show');
-        }
-        return false;
-    }
-
-    if (!specialCharRegex.test(password)) {
-        input?.classList.remove('valid');
-        input?.classList.add('invalid');
-        if (error) {
-            error.textContent = 'Must contain at least 1 special character (!@#$%^&*)';
-            error.classList.add('show');
-        }
-        return false;
-    }
-
-    // Valid
-    input?.classList.remove('invalid');
-    input?.classList.add('valid');
-    if (error) {
-        error.textContent = '';
-        error.classList.remove('show');
-    }
-    return true;
-}
-
-function validateUpdateConfirmPassword() {
-    const passwordInput = document.getElementById('update-password');
-    const confirmInput = document.getElementById('update-password-confirm');
-    const error = document.getElementById('update-password-confirm-error');
-    const password = passwordInput?.value || '';
-    const confirm = confirmInput?.value || '';
-
-    if (!confirm) {
-        confirmInput?.classList.remove('valid', 'invalid');
-        if (error) {
-            error.textContent = '';
-            error.classList.remove('show');
-        }
-        return false;
-    }
-
-    if (password !== confirm) {
-        confirmInput?.classList.remove('valid');
-        confirmInput?.classList.add('invalid');
-        if (error) {
-            error.textContent = 'Passwords do not match';
-            error.classList.add('show');
-        }
-        return false;
-    }
-
-    // Valid
-    confirmInput?.classList.remove('invalid');
-    confirmInput?.classList.add('valid');
-    if (error) {
-        error.textContent = '';
-        error.classList.remove('show');
-    }
-    return true;
 }
 
 // Close password update modal
@@ -455,47 +280,33 @@ function closePasswordUpdateModal() {
 async function handlePasswordUpdate(event) {
     if (event) event.preventDefault();
 
-    const passwordInput = document.getElementById('update-password');
-    const confirmInput = document.getElementById('update-password-confirm');
-    const password = passwordInput?.value;
-    const confirmPassword = confirmInput?.value;
+    const password = document.getElementById('update-password')?.value;
+    const confirmPassword = document.getElementById('update-password-confirm')?.value;
     const errorEl = document.getElementById('password-update-error');
     const successEl = document.getElementById('password-update-success');
-    const passwordFieldError = document.getElementById('update-password-error');
-    const confirmFieldError = document.getElementById('update-password-confirm-error');
 
-    // Clear previous messages and states
+    // Clear previous messages
     if (errorEl) {
         errorEl.textContent = '';
         errorEl.classList.remove('show');
         errorEl.style.display = 'none';
     }
-    if (passwordInput) passwordInput.classList.remove('valid', 'invalid');
-    if (confirmInput) confirmInput.classList.remove('valid', 'invalid');
-    if (passwordFieldError) {
-        passwordFieldError.textContent = '';
-        passwordFieldError.classList.remove('show');
-    }
-    if (confirmFieldError) {
-        confirmFieldError.textContent = '';
-        confirmFieldError.classList.remove('show');
-    }
 
     // Validation
     if (!password) {
-        if (passwordInput) passwordInput.classList.add('invalid');
-        if (passwordFieldError) {
-            passwordFieldError.textContent = 'Please enter a new password';
-            passwordFieldError.classList.add('show');
+        if (errorEl) {
+            errorEl.textContent = 'Please enter a new password';
+            errorEl.classList.add('show');
+            errorEl.style.display = 'block';
         }
         return;
     }
 
     if (password.length < 8) {
-        if (passwordInput) passwordInput.classList.add('invalid');
-        if (passwordFieldError) {
-            passwordFieldError.textContent = 'Password must be at least 8 characters';
-            passwordFieldError.classList.add('show');
+        if (errorEl) {
+            errorEl.textContent = 'Password must be at least 8 characters';
+            errorEl.classList.add('show');
+            errorEl.style.display = 'block';
         }
         return;
     }
@@ -503,37 +314,22 @@ async function handlePasswordUpdate(event) {
     // Check for special character
     const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
     if (!specialCharRegex.test(password)) {
-        if (passwordInput) passwordInput.classList.add('invalid');
-        if (passwordFieldError) {
-            passwordFieldError.textContent = 'Must contain at least 1 special character (!@#$%^&*)';
-            passwordFieldError.classList.add('show');
-        }
-        return;
-    }
-
-    // Password is valid
-    if (passwordInput) passwordInput.classList.add('valid');
-
-    if (!confirmPassword) {
-        if (confirmInput) confirmInput.classList.add('invalid');
-        if (confirmFieldError) {
-            confirmFieldError.textContent = 'Please confirm your password';
-            confirmFieldError.classList.add('show');
+        if (errorEl) {
+            errorEl.textContent = 'Password must contain at least 1 special character (!@#$%^&*)';
+            errorEl.classList.add('show');
+            errorEl.style.display = 'block';
         }
         return;
     }
 
     if (password !== confirmPassword) {
-        if (confirmInput) confirmInput.classList.add('invalid');
-        if (confirmFieldError) {
-            confirmFieldError.textContent = 'Passwords do not match';
-            confirmFieldError.classList.add('show');
+        if (errorEl) {
+            errorEl.textContent = 'Passwords do not match';
+            errorEl.classList.add('show');
+            errorEl.style.display = 'block';
         }
         return;
     }
-
-    // Both valid
-    if (confirmInput) confirmInput.classList.add('valid');
 
     // Show loading state
     const submitBtn = document.querySelector('#password-update-form .auth-submit-btn');
@@ -666,7 +462,7 @@ function clearSignupValidation() {
 // Show error message
 function showAuthError(message, formId = 'login') {
     // Validate formId to prevent selector injection
-    const validFormIds = ['login', 'signup', 'forgot-password'];
+    const validFormIds = ['login', 'signup'];
     const safeFormId = validFormIds.includes(formId) ? formId : 'login';
 
     // Try the specific error element first, then fall back to general selector
@@ -678,121 +474,40 @@ function showAuthError(message, formId = 'login') {
         errorEl.classList.add('show');
         errorEl.style.display = 'block';
     }
+    console.log('Auth error:', message, 'Element found:', !!errorEl);
 }
 
 // Show success message
 function showAuthSuccess(message, formId = 'login') {
     // Validate formId to prevent selector injection
-    const validFormIds = ['login', 'signup', 'forgot-password'];
+    const validFormIds = ['login', 'register'];
     const safeFormId = validFormIds.includes(formId) ? formId : 'login';
 
-    const successEl = document.querySelector(`#${safeFormId}-form .auth-success-message`) ||
+    const successEl = document.querySelector(`#${safeFormId}-panel .auth-success-message`) ||
                       document.querySelector('.auth-success-message');
     if (successEl) {
         successEl.textContent = message;
         successEl.classList.add('show');
-        successEl.style.display = 'block';
-    }
-}
-
-// Show email confirmation modal after signup
-function showEmailConfirmationModal() {
-    closeAuthModal();
-
-    // Create modal
-    const modal = document.createElement('div');
-    modal.id = 'email-confirm-modal';
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10001;';
-    modal.innerHTML = `
-        <div style="background:#1a1a1a;border-radius:16px;padding:40px;max-width:400px;text-align:center;border:1px solid rgba(255,255,255,0.1);position:relative;">
-            <button style="position:absolute;top:12px;right:12px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:24px;cursor:pointer;line-height:1;" onclick="this.closest('#email-confirm-modal').remove()">&times;</button>
-            <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#8b5cf6" stroke-width="1.5" style="margin-bottom:20px;">
-                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <h2 style="color:#fff;margin:0 0 12px;font-size:24px;">Check Your Email</h2>
-            <p style="color:rgba(255,255,255,0.7);margin:0 0 12px;font-size:15px;line-height:1.5;">
-                We've sent a confirmation link to your email address. Please click the link to verify your account.
-            </p>
-            <p style="color:rgba(255,255,255,0.5);margin:0;font-size:13px;line-height:1.5;">
-                Don't see it? Check your spam or junk folder.
-            </p>
-        </div>
-    `;
-    document.body.appendChild(modal);
-
-    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-}
-
-// Check for email verification on page load
-function checkEmailVerification() {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.substring(1));
-
-    // Check for email confirmation (Supabase adds these params)
-    if (params.get('type') === 'signup' || params.get('type') === 'email_change') {
-        // Clear the hash from URL
-        history.replaceState(null, '', window.location.pathname);
-
-        // Show success toast
-        if (typeof showToast === 'function') {
-            showToast('Email verified successfully! Please login.', 'success', 5000);
-        }
-
-        // Open login modal
-        setTimeout(() => {
-            if (typeof openAuthModal === 'function') {
-                openAuthModal('login');
-            }
-        }, 500);
-    }
-}
-
-// Check for password recovery on page load
-async function checkPasswordRecovery() {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.substring(1));
-
-    // Check for password recovery (Supabase adds type=recovery)
-    if (params.get('type') === 'recovery') {
-        // Let Supabase process the token first
-        try {
-            // Supabase automatically processes the hash - wait for session
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
-
-            if (error) {
-                console.error('Recovery session error:', error);
-                if (typeof showToast === 'function') {
-                    showToast('Password reset link expired or invalid. Please request a new one.', 'error');
-                }
-                history.replaceState(null, '', window.location.pathname);
-                return;
-            }
-
-            if (session) {
-                // Clear the hash from URL now that session is established
-                history.replaceState(null, '', window.location.pathname);
-                // Show password update modal
-                showPasswordUpdateModal();
-            }
-        } catch (err) {
-            console.error('Recovery check error:', err);
-            history.replaceState(null, '', window.location.pathname);
-        }
     }
 }
 
 // Handle login form submission
-async function handleLogin(event) {
+function handleLogin(event) {
     if (event) event.preventDefault();
     clearAuthMessages();
 
-    const emailOrUsername = document.getElementById('login-email')?.value?.trim();
+    const email = document.getElementById('login-email')?.value?.trim();
     const password = document.getElementById('login-password')?.value;
     const rememberMe = document.getElementById('remember-me')?.checked;
 
     // Validation
-    if (!emailOrUsername) {
-        showAuthError('Please enter your email or username', 'login');
+    if (!email) {
+        showAuthError('Please enter your email address', 'login');
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showAuthError('Please enter a valid email address', 'login');
         return;
     }
 
@@ -801,40 +516,12 @@ async function handleLogin(event) {
         return;
     }
 
-    let email = emailOrUsername;
-
-    // If not a valid email, treat as username and look up email
-    if (!isValidEmail(emailOrUsername)) {
-        try {
-            // Use auth-specific function that doesn't filter by email_verified
-            const lookupFn = typeof supabaseGetProfileByUsernameForAuth === 'function'
-                ? supabaseGetProfileByUsernameForAuth
-                : supabaseGetProfileByUsername;
-
-            if (typeof lookupFn === 'function') {
-                const { data, error } = await lookupFn(emailOrUsername);
-
-                if (error || !data?.email) {
-                    showAuthError('Username not found', 'login');
-                    return;
-                }
-                email = data.email;
-            } else {
-                showAuthError('Username login not available', 'login');
-                return;
-            }
-        } catch (err) {
-            showAuthError('Error looking up username', 'login');
-            return;
-        }
-    }
-
     // Simulate login (replace with actual API call)
     simulateLogin(email, password, rememberMe);
 }
 
 // Handle signup form submission
-async function handleSignup(event) {
+function handleSignup(event) {
     if (event) event.preventDefault();
     clearAuthMessages();
 
@@ -843,26 +530,21 @@ async function handleSignup(event) {
     const password = document.getElementById('signup-password')?.value;
     const confirmPassword = document.getElementById('signup-confirm-password')?.value;
 
+    // Validate all fields and show visual feedback
+    validateUsernameField();
+    validateEmailField();
+    validatePasswordField();
+    validateConfirmPasswordField();
+
     // Username validation
     if (!username) {
         showAuthError('Please enter a username', 'signup');
         return;
     }
 
-    if (username.length < 3) {
-        showAuthError('Username must be at least 3 characters', 'signup');
-        return;
-    }
-
-    if (username.length > 18) {
-        showAuthError('Username must be 18 characters or less', 'signup');
-        return;
-    }
-
-    // Check reserved names
-    const reservedNames = window.RESERVED_USERNAMES || ['admin', 'moderator', 'system', 'support', 'preset', 'junkies', 'presetjunkies'];
-    if (reservedNames.includes(username.toLowerCase())) {
-        showAuthError('This username is reserved', 'signup');
+    const usernameCheck = isUsernameAvailable(username);
+    if (!usernameCheck.available) {
+        showAuthError(usernameCheck.reason === 'taken' ? `"${username}" is already taken` : 'Invalid username', 'signup');
         return;
     }
 
@@ -879,6 +561,12 @@ async function handleSignup(event) {
 
     if (!isValidEmailDomain(email)) {
         showAuthError('Please use a valid email provider (Gmail, Yahoo, Outlook, etc.)', 'signup');
+        return;
+    }
+
+    // Check if email is already in use
+    if (isEmailTaken(email)) {
+        showAuthError('This email is already in use', 'signup');
         return;
     }
 
@@ -905,55 +593,8 @@ async function handleSignup(event) {
         return;
     }
 
-    // Show loading state
-    const submitBtn = document.querySelector('[data-action="handleSignup"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Checking...';
-    }
-
-    try {
-        // Check username availability with Supabase
-        if (typeof supabaseCheckUsernameTaken === 'function') {
-            const { taken: usernameTaken } = await supabaseCheckUsernameTaken(username);
-            if (usernameTaken) {
-                showAuthError(`"${username}" is already taken`, 'signup');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Sign Up';
-                }
-                return;
-            }
-        }
-
-        // Check email availability with Supabase
-        if (typeof supabaseCheckEmailTaken === 'function') {
-            const { taken: emailTaken } = await supabaseCheckEmailTaken(email);
-            if (emailTaken) {
-                showAuthError('This email is already registered', 'signup');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Sign Up';
-                }
-                return;
-            }
-        }
-
-        // Reset button text before proceeding
-        if (submitBtn) {
-            submitBtn.textContent = 'Creating account...';
-        }
-
-        // Proceed with signup
-        simulateSignup(username, email, password);
-    } catch (err) {
-        console.error('Signup validation error:', err);
-        showAuthError('An error occurred. Please try again.', 'signup');
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Sign Up';
-        }
-    }
+    // Simulate signup (replace with actual API call)
+    simulateSignup(username, email, password);
 }
 
 // Handle forgot password form submission
@@ -1142,9 +783,6 @@ function isEmailTaken(email) {
     return false;
 }
 
-// Debounce timer for username check
-let usernameCheckTimeout = null;
-
 // Real-time validation for username
 function validateUsernameField() {
     const input = document.getElementById('signup-username');
@@ -1152,12 +790,6 @@ function validateUsernameField() {
     if (!input || !error) return;
 
     const username = input.value.trim();
-
-    // Clear any pending check
-    if (usernameCheckTimeout) {
-        clearTimeout(usernameCheckTimeout);
-        usernameCheckTimeout = null;
-    }
 
     if (!username) {
         input.classList.remove('valid', 'invalid');
@@ -1174,57 +806,20 @@ function validateUsernameField() {
         return;
     }
 
-    if (username.length > 18) {
+    const availability = isUsernameAvailable(username);
+
+    if (availability.available) {
+        input.classList.remove('invalid');
+        input.classList.add('valid');
+        error.textContent = '';
+        error.classList.remove('show');
+    } else {
         input.classList.remove('valid');
         input.classList.add('invalid');
-        error.textContent = 'Username must be 18 characters or less';
+        error.textContent = availability.reason === 'taken' ? `"${username}" is already taken` : 'Invalid username';
         error.classList.add('show');
-        return;
     }
-
-    // Check reserved names first (sync)
-    const reservedNames = window.RESERVED_USERNAMES || ['admin', 'moderator', 'system', 'support', 'preset', 'junkies', 'presetjunkies'];
-    if (reservedNames.includes(username.toLowerCase())) {
-        input.classList.remove('valid');
-        input.classList.add('invalid');
-        error.textContent = 'This username is reserved';
-        error.classList.add('show');
-        return;
-    }
-
-    // Show checking state
-    input.classList.remove('valid', 'invalid');
-    error.textContent = 'Checking availability...';
-    error.classList.add('show');
-    error.style.color = '#9ca3af';
-
-    // Debounce the Supabase check (300ms)
-    usernameCheckTimeout = setTimeout(async () => {
-        if (typeof supabaseCheckUsernameTaken === 'function') {
-            const { taken } = await supabaseCheckUsernameTaken(username);
-
-            // Make sure the input value hasn't changed
-            if (input.value.trim() !== username) return;
-
-            if (taken) {
-                input.classList.remove('valid');
-                input.classList.add('invalid');
-                error.textContent = `"${username}" is already taken`;
-                error.style.color = '';
-                error.classList.add('show');
-            } else {
-                input.classList.remove('invalid');
-                input.classList.add('valid');
-                error.textContent = '';
-                error.style.color = '';
-                error.classList.remove('show');
-            }
-        }
-    }, 300);
 }
-
-// Debounce timer for email check
-let emailCheckTimeout = null;
 
 // Real-time validation for email
 function validateEmailField() {
@@ -1233,12 +828,6 @@ function validateEmailField() {
     if (!input || !error) return;
 
     const email = input.value.trim();
-
-    // Clear any pending check
-    if (emailCheckTimeout) {
-        clearTimeout(emailCheckTimeout);
-        emailCheckTimeout = null;
-    }
 
     if (!email) {
         input.classList.remove('valid', 'invalid');
@@ -1263,35 +852,10 @@ function validateEmailField() {
         return;
     }
 
-    // Show checking state
-    input.classList.remove('valid', 'invalid');
-    error.textContent = 'Checking availability...';
-    error.classList.add('show');
-    error.style.color = '#9ca3af';
-
-    // Debounce the Supabase check (300ms)
-    emailCheckTimeout = setTimeout(async () => {
-        if (typeof supabaseCheckEmailTaken === 'function') {
-            const { taken } = await supabaseCheckEmailTaken(email);
-
-            // Make sure the input value hasn't changed
-            if (input.value.trim() !== email) return;
-
-            if (taken) {
-                input.classList.remove('valid');
-                input.classList.add('invalid');
-                error.textContent = 'This email is already registered';
-                error.style.color = '';
-                error.classList.add('show');
-            } else {
-                input.classList.remove('invalid');
-                input.classList.add('valid');
-                error.textContent = '';
-                error.style.color = '';
-                error.classList.remove('show');
-            }
-        }
-    }, 300);
+    input.classList.remove('invalid');
+    input.classList.add('valid');
+    error.textContent = '';
+    error.classList.remove('show');
 }
 
 // Real-time validation for password
@@ -1560,20 +1124,6 @@ async function simulateLogin(email, password, rememberMe) {
             // Get user profile from Supabase
             const { data: profile } = await supabaseGetProfile(data.user.id);
 
-            // Check if account was deleted
-            if (profile?.is_deleted) {
-                // Sign them out immediately
-                if (typeof supabaseSignOut === 'function') {
-                    await supabaseSignOut();
-                }
-                if (submitBtn) {
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
-                showAuthError('This account has been deleted', 'login');
-                return;
-            }
-
             const userData = {
                 id: data.user.id,
                 username: profile?.username || email.split('@')[0],
@@ -1681,8 +1231,18 @@ async function simulateSignup(username, email, password) {
                 return;
             }
 
-            // Show email confirmation modal
-            showEmailConfirmationModal();
+            // Show success message - email confirmation required
+            showAuthSuccess('Account created! Please check your email to confirm your account.', 'signup');
+
+            // Also show a toast for visibility
+            if (typeof showToast === 'function') {
+                showToast('Check your email to confirm your account!', 'success', 5000);
+            }
+
+            // Close modal after delay
+            setTimeout(() => {
+                closeAuthModal();
+            }, 3000);
         }
     } catch (err) {
         // Reset button
@@ -1698,7 +1258,7 @@ async function simulateSignup(username, email, password) {
 // Password reset with Supabase Auth
 async function simulateForgotPassword(email) {
     // Show loading state
-    const submitBtn = document.querySelector('#forgot-password-form .auth-submit-btn');
+    const submitBtn = document.querySelector('#forgot-password-panel .auth-submit-btn');
     const originalText = submitBtn?.textContent;
     if (submitBtn) {
         submitBtn.textContent = 'Sending...';
@@ -1723,7 +1283,7 @@ async function simulateForgotPassword(email) {
         clearLoginAttempts(email);
 
         // Show success message
-        showAuthSuccess('If an account exists with this email, you will receive a password reset link. Check your spam folder if you don\'t see it.', 'forgot-password');
+        showAuthSuccess('If an account exists with this email, you will receive a password reset link.', 'forgot-password');
     } catch (err) {
         // Reset button
         if (submitBtn) {
@@ -1739,8 +1299,8 @@ async function simulateForgotPassword(email) {
 function clearSensitiveData() {
     const sensitiveKeys = [
         'isLoggedIn', 'profileUsername', 'profileAvatar', 'profileBanner',
-        'profileBio', 'followedUsers', 'userFollowingLists', 'allUserProfiles',
-        'userEmail', 'joinedRooms', 'favoriteRooms', 'supabaseUserId'
+        'profileBio', 'followedUsers', 'dmConversations',
+        'userFollowingLists', 'allUserProfiles', 'userEmail'
     ];
     sensitiveKeys.forEach(key => localStorage.removeItem(key));
 }
@@ -1753,7 +1313,7 @@ async function logout() {
         activityInterval = null;
     }
 
-    // Sign out from Supabase first
+    // Sign out from Supabase
     try {
         await supabaseSignOut();
     } catch (err) {
@@ -1767,8 +1327,21 @@ async function logout() {
     // Clear sensitive user data
     clearSensitiveData();
 
-    // Reload page to ensure clean state
-    window.location.reload();
+    isAuthenticated = false;
+    currentUserData = null;
+
+    // Update UI
+    updateAuthUI(false, null);
+
+    // Update nav section (shows "Preset Junkies", hides username dropdown)
+    if (typeof updateUserNavSection === 'function') {
+        updateUserNavSection();
+    }
+
+    // Clear notification badges
+    if (typeof updateNotificationBadge === 'function') {
+        updateNotificationBadge();
+    }
 }
 
 // Track user's last active time
@@ -1820,24 +1393,12 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Close modal on escape key, handle Enter for login/signup
+// Close modal on escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const modal = document.getElementById('auth-modal');
         if (modal && !modal.classList.contains('hidden')) {
             closeAuthModal();
-        }
-    }
-    // Enter key triggers login/signup
-    if (e.key === 'Enter') {
-        const loginForm = document.getElementById('login-form');
-        const signupForm = document.getElementById('signup-form');
-        if (loginForm && !loginForm.classList.contains('hidden') && loginForm.contains(e.target)) {
-            e.preventDefault();
-            handleLogin(e);
-        } else if (signupForm && !signupForm.classList.contains('hidden') && signupForm.contains(e.target)) {
-            e.preventDefault();
-            handleSignup(e);
         }
     }
 });
