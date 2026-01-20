@@ -4,6 +4,10 @@
 let profileHistory = [];
 let profileHistoryIndex = -1;
 
+// Followers/following data (populated when viewing profiles)
+let userFollowers = [];
+let userFollowing = [];
+
 // Stack of parent profiles for "Back to X's profile" navigation
 // Each entry: { username: string, activeTab: string }
 let parentProfileStack = [];
@@ -254,10 +258,12 @@ function viewUserProfile(username, fromNavigation = false, asOverlay = false) {
 
     updateProfileEditVisibility();
 
-    // Ensure Follow/Message buttons are visible when viewing other profiles
+    // Ensure Follow button is visible when viewing other profiles
     const actionsContainer = document.getElementById('profile-actions');
     const followBtn = document.getElementById('profile-follow-btn');
-    const messageBtn = document.getElementById('profile-message-btn');
+
+    // Admin delete user button
+    const adminDeleteUserBtn = document.getElementById('admin-delete-user-btn');
 
     if (!isViewingOwnProfile) {
         // Show the actions container for other users
@@ -271,13 +277,20 @@ function viewUserProfile(username, fromNavigation = false, asOverlay = false) {
                 updateFollowButtonState();
             }
         }
-        if (messageBtn) {
-            // Check DM privacy before showing message button
-            const canMessage = typeof canSendDmToUser === 'function' ? canSendDmToUser(username) : true;
-            messageBtn.style.display = canMessage ? '' : 'none';
+        // Show admin delete button if user is admin
+        if (adminDeleteUserBtn) {
+            if (typeof isAdmin === 'function' && isAdmin()) {
+                adminDeleteUserBtn.classList.remove('hidden');
+                adminDeleteUserBtn.onclick = () => adminDeleteUserProfile(username);
+            } else {
+                adminDeleteUserBtn.classList.add('hidden');
+            }
         }
     } else {
         // Hide on own profile
+        if (adminDeleteUserBtn) {
+            adminDeleteUserBtn.classList.add('hidden');
+        }
         if (actionsContainer) {
             actionsContainer.classList.add('hidden-own-profile');
         }
@@ -527,12 +540,16 @@ async function loadUserProfileData(username) {
     let followingCount = 0;
 
     // Try to fetch from Supabase first
+    let supabaseProfileId = null;
     try {
         const { data: profile } = await supabaseGetProfileByUsername(username);
         if (profile) {
+            supabaseProfileId = profile.id;
+            viewingProfileId = profile.id; // Store for follow/unfollow operations
             userProfile = {
                 avatar: profile.avatar_url,
                 banner: profile.banner_url,
+                bannerPosition: profile.banner_position || 50,
                 bio: profile.bio || ''
             };
 
@@ -541,6 +558,29 @@ async function loadUserProfileData(username) {
             const { count: following } = await supabaseGetFollowingCount(profile.id);
             followerCount = followers || 0;
             followingCount = following || 0;
+
+            // Get actual followers and following lists from Supabase
+            const { data: followersData } = await supabaseGetFollowers(profile.id);
+            const { data: followingData } = await supabaseGetFollowing(profile.id);
+
+            // Populate userFollowers from Supabase
+            userFollowers = (followersData || []).map(f => ({
+                username: f.username,
+                avatar: f.avatar_url || null,
+                uploads: 0,
+                followers: 0
+            }));
+
+            // Populate userFollowing from Supabase
+            userFollowing = (followingData || []).map(f => ({
+                username: f.username,
+                avatar: f.avatar_url || null,
+                uploads: 0,
+                followers: 0
+            }));
+
+            console.log('Supabase followers:', userFollowers);
+            console.log('Supabase following:', userFollowing);
         }
     } catch (e) {
         console.log('Supabase profile fetch failed, using localStorage fallback');
@@ -559,9 +599,61 @@ async function loadUserProfileData(username) {
         }
         followerCount = allUserFollowers[username] || 0;
 
-        const userFollowingLists = safeJSONParse(localStorage.getItem('userFollowingLists'), {});
-        followingCount = (userFollowingLists[username] || []).length;
+        const tempFollowingLists = safeJSONParse(localStorage.getItem('userFollowingLists'), {});
+        followingCount = (tempFollowingLists[username] || []).length;
+
     }
+
+    // Only use localStorage fallback if Supabase didn't provide data
+    if (!supabaseProfileId) {
+        const userFollowingLists = safeJSONParse(localStorage.getItem('userFollowingLists'), {});
+        const allUserProfilesForFollow = safeJSONParse(localStorage.getItem('allUserProfiles'), {});
+
+        console.log('Using localStorage fallback for:', username);
+        console.log('userFollowingLists:', userFollowingLists);
+
+        // Populate userFollowing array - who this user follows
+        const followingUsernames = userFollowingLists[username] || [];
+        console.log('followingUsernames for', username, ':', followingUsernames);
+        const allUserFollowersData = safeJSONParse(localStorage.getItem('allUserFollowers'), {});
+        userFollowing = followingUsernames
+            .filter(uname => !uname?.startsWith('[Deleted'))  // Filter out deleted users
+            .map(uname => ({
+                username: uname,
+                avatar: allUserProfilesForFollow[uname]?.avatar || null,
+                uploads: allUserProfilesForFollow[uname]?.uploads || 0,
+                followers: allUserFollowersData[uname] || 0
+            }));
+
+        // Populate userFollowers array - who follows this user
+        userFollowers = [];
+        console.log('Looking for followers of:', username);
+        Object.keys(userFollowingLists).forEach(followerUsername => {
+            // Skip deleted users
+            if (followerUsername?.startsWith('[Deleted')) return;
+
+            const theirFollowing = userFollowingLists[followerUsername] || [];
+            console.log(followerUsername, 'follows:', theirFollowing);
+            // Case-insensitive check
+            const isFollowing = theirFollowing.some(u => u.toLowerCase() === username.toLowerCase());
+            if (isFollowing) {
+                console.log('Found follower:', followerUsername);
+                userFollowers.push({
+                    username: followerUsername,
+                    avatar: allUserProfilesForFollow[followerUsername]?.avatar || null,
+                    uploads: allUserProfilesForFollow[followerUsername]?.uploads || 0,
+                    followers: allUserFollowersData[followerUsername] || 0
+                });
+            }
+        });
+    }
+
+    console.log('Final userFollowers:', userFollowers);
+    console.log('Final userFollowing:', userFollowing);
+
+    // Render the lists
+    renderFollowersList();
+    renderFollowingList();
 
     // Update profile username
     const profileUsername = document.getElementById('profile-username');
@@ -586,8 +678,10 @@ async function loadUserProfileData(username) {
         const bannerCssUrl = sanitizeCSSUrl(userProfile.banner);
         if (bannerCssUrl) {
             profileBanner.style.backgroundImage = `url('${bannerCssUrl}')`;
+            profileBanner.style.backgroundPosition = `center ${userProfile.bannerPosition || 50}%`;
         } else {
             profileBanner.style.backgroundImage = '';
+            profileBanner.style.backgroundPosition = '';
         }
     }
 
@@ -723,10 +817,19 @@ function updateAllProfileAvatars(avatarUrl) {
     });
 }
 
+// Banner position state
+let bannerPositionFile = null;
+let bannerPositionY = 50; // Default center (percentage)
+let bannerDragging = false;
+let bannerDragStartY = 0;
+let bannerImageStartY = 0;
+
 // Profile upload handlers
 function initProfileUploads() {
-    // Profile banner upload
-    document.getElementById('profile-banner-input')?.addEventListener('change', async function(e) {
+    const bannerInput = document.getElementById('profile-banner-input');
+
+    // Profile banner upload - show positioning modal first
+    bannerInput?.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -734,44 +837,66 @@ function initProfileUploads() {
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             alert('Image must be under 5MB. Please use a smaller image.');
+            this.value = '';
             return;
         }
 
-        // Get current user ID from Supabase
-        const { user } = await supabaseGetUser();
-        if (!user) {
-            alert('Please log in to update your banner.');
-            return;
+        // Store file for later upload
+        bannerPositionFile = file;
+        bannerPositionY = 50; // Reset to center
+
+        // Show positioning modal with preview
+        const modal = document.getElementById('banner-position-modal');
+        const previewImg = document.getElementById('banner-position-image');
+
+        if (modal && previewImg) {
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
+            previewImg.src = previewUrl;
+            previewImg.style.top = '0px';
+
+            // Wait for image to load to calculate bounds
+            previewImg.onload = () => {
+                const preview = document.getElementById('banner-position-preview');
+                const imgHeight = previewImg.naturalHeight * (preview.offsetWidth / previewImg.naturalWidth);
+                const containerHeight = preview.offsetHeight;
+
+                // Center the image initially
+                if (imgHeight > containerHeight) {
+                    const maxOffset = imgHeight - containerHeight;
+                    previewImg.style.top = `-${maxOffset / 2}px`;
+                }
+            };
+
+            // Force show with cssText to override everything
+            modal.style.cssText = 'display: flex !important; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 999999;';
         }
 
-        try {
-            // Upload to Supabase Storage (using 'uploads' bucket with folder path)
-            const fileExt = file.name.split('.').pop();
-            const filePath = `banners/${user.id}/banner_${Date.now()}.${fileExt}`;
-            const { url, error } = await supabaseUploadFile('uploads', filePath, file);
+        // Clear input so same file can be selected again
+        this.value = '';
+    });
 
-            if (error) {
-                alert('Failed to upload banner. Please try again.');
-                console.error('Banner upload error:', error);
-                return;
-            }
+    // Banner position drag handlers - use event delegation on document
+    document.addEventListener('mousedown', (e) => {
+        if (e.target.closest('#banner-position-preview')) startBannerDrag(e);
+    });
+    document.addEventListener('touchstart', (e) => {
+        if (e.target.closest('#banner-position-preview')) startBannerDrag(e);
+    }, { passive: false });
+    document.addEventListener('mousemove', doBannerDrag);
+    document.addEventListener('touchmove', doBannerDrag, { passive: false });
+    document.addEventListener('mouseup', endBannerDrag);
+    document.addEventListener('touchend', endBannerDrag);
 
-            // Update visual
-            const bannerSection = document.getElementById('profile-banner-section');
-            if (bannerSection) {
-                bannerSection.style.backgroundImage = `url('${url}')`;
-            }
+    // Banner position save button
+    document.getElementById('banner-position-save')?.addEventListener('click', saveBannerWithPosition);
 
-            // Update profile in Supabase
-            await supabaseUpdateProfile(user.id, { banner_url: url });
+    // Banner position cancel button
+    document.getElementById('banner-position-cancel')?.addEventListener('click', closeBannerPositionModal);
 
-            // Update localStorage for compatibility
-            localStorage.setItem('profileBanner', url);
-
-        } catch (err) {
-            alert('Failed to upload banner. Please try again.');
-            console.error('Banner upload error:', err);
-        }
+    // Click outside modal to close
+    document.getElementById('banner-position-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'banner-position-modal') closeBannerPositionModal();
     });
 
     // Profile avatar upload
@@ -831,6 +956,130 @@ function initProfileUploads() {
     });
 }
 
+// Banner drag functions
+function startBannerDrag(e) {
+    e.preventDefault();
+    bannerDragging = true;
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    bannerDragStartY = clientY;
+
+    const img = document.getElementById('banner-position-image');
+    if (img) {
+        bannerImageStartY = parseInt(img.style.top) || 0;
+    }
+}
+
+function doBannerDrag(e) {
+    if (!bannerDragging) return;
+    e.preventDefault();
+
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    const deltaY = clientY - bannerDragStartY;
+
+    const img = document.getElementById('banner-position-image');
+    const preview = document.getElementById('banner-position-preview');
+    if (!img || !preview) return;
+
+    const imgHeight = img.naturalHeight * (preview.offsetWidth / img.naturalWidth);
+    const containerHeight = preview.offsetHeight;
+    const maxOffset = Math.max(0, imgHeight - containerHeight);
+
+    // Calculate new position with bounds
+    let newTop = bannerImageStartY + deltaY;
+    newTop = Math.min(0, Math.max(-maxOffset, newTop));
+
+    img.style.top = `${newTop}px`;
+
+    // Calculate position as percentage (0 = top, 100 = bottom)
+    if (maxOffset > 0) {
+        bannerPositionY = Math.round((Math.abs(newTop) / maxOffset) * 100);
+    } else {
+        bannerPositionY = 50;
+    }
+}
+
+function endBannerDrag() {
+    bannerDragging = false;
+}
+
+function closeBannerPositionModal() {
+    const modal = document.getElementById('banner-position-modal');
+    const previewImg = document.getElementById('banner-position-image');
+
+    if (modal) modal.style.display = 'none';
+    if (previewImg) {
+        URL.revokeObjectURL(previewImg.src);
+        previewImg.src = '';
+    }
+    bannerPositionFile = null;
+}
+
+async function saveBannerWithPosition() {
+    if (!bannerPositionFile) return;
+
+    // Get current user from session (doesn't make network call, more stable)
+    let user = null;
+    try {
+        const { data } = await supabaseClient.auth.getSession();
+        user = data?.session?.user;
+    } catch (e) {
+        // Silent fail
+    }
+
+    if (!user) {
+        alert('Please log in to update your banner.');
+        closeBannerPositionModal();
+        return;
+    }
+
+    const saveBtn = document.getElementById('banner-position-save');
+    if (saveBtn) {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+    }
+
+    try {
+        // Upload to Supabase Storage
+        const fileExt = bannerPositionFile.name.split('.').pop();
+        const filePath = `banners/${user.id}/banner_${Date.now()}.${fileExt}`;
+        const { url, error } = await supabaseUploadFile('uploads', filePath, bannerPositionFile);
+
+        if (error) {
+            alert('Failed to upload banner. Please try again.');
+            console.error('Banner upload error:', error);
+            return;
+        }
+
+        // Update visual with position
+        const bannerSection = document.getElementById('profile-banner-section');
+        if (bannerSection) {
+            bannerSection.style.backgroundImage = `url('${url}')`;
+            bannerSection.style.backgroundPosition = `center ${bannerPositionY}%`;
+        }
+
+        // Update profile in Supabase with URL and position
+        await supabaseUpdateProfile(user.id, {
+            banner_url: url,
+            banner_position: bannerPositionY
+        });
+
+        // Update localStorage for compatibility
+        localStorage.setItem('profileBanner', url);
+        localStorage.setItem('profileBannerPosition', bannerPositionY);
+
+        closeBannerPositionModal();
+
+    } catch (err) {
+        alert('Failed to upload banner. Please try again.');
+        console.error('Banner upload error:', err);
+    } finally {
+        if (saveBtn) {
+            saveBtn.textContent = 'Save';
+            saveBtn.disabled = false;
+        }
+    }
+}
+
 // Save user profile data to global storage (for Junkies page)
 function saveUserProfileData(field, value) {
     const username = localStorage.getItem('profileUsername');
@@ -862,10 +1111,14 @@ function loadProfileData() {
     }
 
     const savedProfileBanner = localStorage.getItem('profileBanner');
+    const savedBannerPosition = localStorage.getItem('profileBannerPosition') || 50;
     const bannerCssUrl = sanitizeCSSUrl(savedProfileBanner);
     if (bannerCssUrl) {
         const bannerSection = document.getElementById('profile-banner-section');
-        if (bannerSection) bannerSection.style.backgroundImage = `url('${bannerCssUrl}')`;
+        if (bannerSection) {
+            bannerSection.style.backgroundImage = `url('${bannerCssUrl}')`;
+            bannerSection.style.backgroundPosition = `center ${savedBannerPosition}%`;
+        }
     }
 
     const savedProfileAvatar = localStorage.getItem('profileAvatar');
@@ -916,32 +1169,22 @@ function updateUserNavSection() {
     const savedUsername = localStorage.getItem('profileUsername');
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-    // Update header title (Preset Junkies vs Username dropdown)
-    const navTitleText = document.getElementById('nav-title-text');
-    const navTitleUser = document.getElementById('nav-title-user');
-    const navTitleUsername = document.getElementById('nav-title-username');
+    // Dashboard collapsible in Community section
+    const dashboardCollapsible = document.getElementById('dashboard-collapsible');
 
     if (isLoggedIn && savedUsername) {
-        // Show username dropdown, hide "Preset Junkies"
-        if (navTitleText) navTitleText.style.display = 'none';
-        if (navTitleUser) navTitleUser.style.display = 'flex';
-        if (navTitleUsername) {
-            navTitleUsername.textContent = savedUsername;
-            // Apply responsive font size
-            const fontSize = getResponsiveUsernameSize(savedUsername);
-            navTitleUsername.style.fontSize = `${fontSize}rem`;
-        }
+        // Show Dashboard collapsible
+        if (dashboardCollapsible) dashboardCollapsible.style.display = 'block';
 
-        // Hide the old HOME section since items are now in dropdown
+        // Hide the old HOME section (replaced by Dashboard)
         if (userNavSection) userNavSection.style.display = 'none';
 
-        // Hide the bottom user section (avatar + logout) - now in dropdown
+        // Hide the bottom user section (avatar + logout) - now in Dashboard
         if (userProfileSection) userProfileSection.style.display = 'none';
         if (authSection) authSection.style.display = 'none';
     } else {
-        // Show "Preset Junkies", hide username dropdown
-        if (navTitleText) navTitleText.style.display = 'block';
-        if (navTitleUser) navTitleUser.style.display = 'none';
+        // Hide Dashboard when logged out
+        if (dashboardCollapsible) dashboardCollapsible.style.display = 'none';
         if (userNavSection) userNavSection.style.display = 'none';
 
         // Show login button, hide user section
@@ -951,37 +1194,20 @@ function updateUserNavSection() {
 }
 window.updateUserNavSection = updateUserNavSection;
 
-// Initialize the user dropdown menu
-function initUserDropdown() {
-    const navTitleUser = document.getElementById('nav-title-user');
-    const dropdown = document.getElementById('nav-user-dropdown');
+// Initialize the Dashboard menu (always expanded)
+function initDashboard() {
+    const dashboardCollapsible = document.getElementById('dashboard-collapsible');
 
-    if (!navTitleUser || !dropdown) return;
+    if (!dashboardCollapsible) return;
 
-    // Toggle dropdown on click
-    navTitleUser.addEventListener('click', (e) => {
-        e.stopPropagation();
-        navTitleUser.classList.toggle('active');
-        dropdown.classList.toggle('show');
-    });
+    // Ensure it's always expanded
+    dashboardCollapsible.classList.add('expanded');
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!navTitleUser.contains(e.target) && !dropdown.contains(e.target)) {
-            navTitleUser.classList.remove('active');
-            dropdown.classList.remove('show');
-        }
-    });
-
-    // Handle dropdown item clicks
-    dropdown.querySelectorAll('.nav-dropdown-item[data-view]').forEach(item => {
+    // Handle Dashboard item clicks
+    dashboardCollapsible.querySelectorAll('.side-nav-subitem[data-view]').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const view = item.dataset.view;
-
-            // Close dropdown
-            navTitleUser.classList.remove('active');
-            dropdown.classList.remove('show');
 
             // Navigate using global function
             if (typeof navigateToView === 'function') {
@@ -991,27 +1217,32 @@ function initUserDropdown() {
     });
 
     // Handle upload button
-    const uploadBtn = document.getElementById('dropdown-upload-btn');
+    const uploadBtn = document.getElementById('dashboard-upload-btn');
     if (uploadBtn) {
         uploadBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            navTitleUser.classList.remove('active');
-            dropdown.classList.remove('show');
-
             if (typeof openUploadModal === 'function') {
                 openUploadModal();
             }
         });
     }
 
-    // Handle logout button
-    const logoutBtn = document.getElementById('dropdown-logout-btn');
+    // Handle logout button (dashboard)
+    const logoutBtn = document.getElementById('dashboard-logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            navTitleUser.classList.remove('active');
-            dropdown.classList.remove('show');
+            if (typeof logout === 'function') {
+                logout();
+            }
+        });
+    }
 
+    // Handle logout button (sidebar)
+    const sidebarLogoutBtn = document.getElementById('logout-btn');
+    if (sidebarLogoutBtn) {
+        sidebarLogoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             if (typeof logout === 'function') {
                 logout();
             }
@@ -1021,6 +1252,7 @@ function initUserDropdown() {
 
 // Current profile selection
 let currentProfileGroup = null;
+window.currentProfileGroup = null;
 let currentUploadFilter = 'all';
 let profileCurrentPage = 1;
 const PROFILE_ITEMS_PER_PAGE_OPTIONS = [12, 24, 36, 48];
@@ -1104,7 +1336,7 @@ function openProfileEditModal() {
         usernameInput.classList.remove('error');
     }
     if (bioInput) bioInput.value = currentBio;
-    if (bioCharCount) bioCharCount.textContent = `${currentBio.length}/150`;
+    if (bioCharCount) bioCharCount.textContent = `${currentBio.length}/100`;
     if (usernameError) usernameError.textContent = '';
 
     if (modal) modal.style.display = 'flex';
@@ -1445,6 +1677,7 @@ function renderUploadCards(filter = currentUploadFilter) {
             const group = groups.find(g => g.id === groupId);
             if (group) {
                 currentProfileGroup = group;
+                window.currentProfileGroup = group;
                 renderProfileContentFromGroup(group);
             }
         });
@@ -1803,21 +2036,29 @@ function renderProfileContentFromGroup(group, page = 1) {
 
     profileCurrentPage = page;
     currentProfileGroup = group;
+    window.currentProfileGroup = group;
 
     const startIndex = (page - 1) * profileItemsPerPage;
     const endIndex = startIndex + profileItemsPerPage;
     const pageItems = group.items.slice(startIndex, endIndex);
 
     // Format title as "Username's [GroupName] [Category] (count)"
-    const categoryLabels = {
-        presets: 'Presets',
-        samples: 'Samples',
-        midi: 'MIDI',
-        projects: 'Projects'
-    };
-    const categoryLabel = categoryLabels[group.category] || '';
-    const profileName = viewingProfileUsername || localStorage.getItem('profileUsername') || 'User';
-    if (title) title.textContent = `${profileName}'s ${group.name} ${categoryLabel} (${group.count})`;
+    // Hide title when viewing likes tab
+    const activeTab = document.querySelector('.profile-tab.active')?.dataset.tab;
+    if (activeTab === 'likes') {
+        if (title) title.style.display = 'none';
+    } else {
+        if (title) title.style.display = '';
+        const categoryLabels = {
+            presets: 'Presets',
+            samples: 'Samples',
+            midi: 'MIDI',
+            projects: 'Projects'
+        };
+        const categoryLabel = categoryLabels[group.category] || '';
+        const profileName = viewingProfileUsername || localStorage.getItem('profileUsername') || 'User';
+        if (title) title.textContent = `${profileName}'s ${group.name} ${categoryLabel} (${group.count})`;
+    }
 
     if (group.items.length === 0) {
         grid.innerHTML = `
@@ -1837,8 +2078,7 @@ function renderProfileContentFromGroup(group, page = 1) {
         wrap.dataset.itemId = item.id;
         wrap.dataset.category = group.category;
         wrap.className = 'profile-item-card-wrap';
-        // Use event delegation instead of inline onclick
-        wrap.addEventListener('click', (e) => handleProfileCardClick(e, item.id, group.category));
+        // Event listener handled via delegation in DOMContentLoaded
         wrap.innerHTML = createCardHTML(item, group.category);
         grid.appendChild(wrap);
 
@@ -2145,7 +2385,10 @@ window.handleProfileCardClick = function(e, itemId, category) {
         return;
     }
 
-    const item = items[category]?.find(i => i.id === itemId);
+    // Use findItemById to check both global items and currentProfileGroup
+    const item = typeof findItemById === 'function'
+        ? findItemById(itemId, category)
+        : items[category]?.find(i => i.id === itemId);
     if (item) {
         selectItemAndShowComments(item, category);
     }
@@ -2212,7 +2455,7 @@ function renderProfileComments() {
             nowPlayingContainer.style.backgroundPosition = 'center';
         } else {
             // Use default banner
-            nowPlayingContainer.style.backgroundImage = `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%)`;
+            nowPlayingContainer.style.backgroundImage = `linear-gradient(135deg, #101010 0%, #16213e 50%, #0f0f1a 100%)`;
             nowPlayingContainer.style.backgroundSize = 'cover';
             nowPlayingContainer.style.backgroundPosition = 'center';
         }
@@ -2600,11 +2843,11 @@ try {
 
 // Current profile being viewed (set when viewing another user's profile)
 let viewingProfileUsername = null;
+let viewingProfileId = null;
 
 // Update profile action buttons visibility and state
 function updateProfileActionButtons() {
     const followBtn = document.getElementById('profile-follow-btn');
-    const messageBtn = document.getElementById('profile-message-btn');
     const actionsContainer = document.getElementById('profile-actions');
 
     if (!actionsContainer) return;
@@ -2613,43 +2856,41 @@ function updateProfileActionButtons() {
     if (!isViewingOwnProfile) {
         actionsContainer.classList.remove('hidden-own-profile');
         updateFollowButtonState();
-
-        // Check if message button should be visible based on DM privacy
-        if (messageBtn && viewingProfileUsername) {
-            const canMessage = canSendDmToUser(viewingProfileUsername);
-            messageBtn.style.display = canMessage ? '' : 'none';
-        }
     } else {
-        // Hide on own profile - you can't follow/message yourself
+        // Hide on own profile - you can't follow yourself
         actionsContainer.classList.add('hidden-own-profile');
     }
 }
 
-// Check if current user can send DM to target user based on their privacy settings
-function canSendDmToUser(targetUsername) {
-    // Get target user's DM privacy setting
-    const userPrivacySettings = safeJSONParse(localStorage.getItem('userPrivacySettings'), {});
-    const targetPrivacy = userPrivacySettings[targetUsername] || 'everyone';
-
-    if (targetPrivacy === 'everyone') return true;
-    if (targetPrivacy === 'nobody') return false;
-
-    // 'followers' - check if current user follows the target (is a follower of target)
-    if (targetPrivacy === 'followers') {
-        // Check if the current user has the target in their followed list
-        const currentUserFollowing = safeJSONParse(localStorage.getItem('followedUsers'), []);
-        return currentUserFollowing.includes(targetUsername);
-    }
-
-    return true;
-}
 
 // Update follow button text and style based on follow state
-function updateFollowButtonState() {
+async function updateFollowButtonState() {
     const followBtn = document.getElementById('profile-follow-btn');
     if (!followBtn || !viewingProfileUsername) return;
 
-    const isFollowing = followedUsers.includes(viewingProfileUsername);
+    let isFollowing = false;
+
+    // Check Supabase first
+    try {
+        const { user } = await supabaseGetUser();
+        if (user && viewingProfileId && typeof supabaseIsFollowing === 'function') {
+            isFollowing = await supabaseIsFollowing(user.id, viewingProfileId);
+        } else if (user && typeof supabaseGetProfileByUsername === 'function') {
+            // Fetch target ID if not cached
+            const { data: targetProfile } = await supabaseGetProfileByUsername(viewingProfileUsername);
+            if (targetProfile) {
+                viewingProfileId = targetProfile.id;
+                isFollowing = await supabaseIsFollowing(user.id, targetProfile.id);
+            }
+        } else {
+            // Fall back to localStorage
+            isFollowing = followedUsers.includes(viewingProfileUsername);
+        }
+    } catch (err) {
+        console.error('Error checking follow state:', err);
+        // Fall back to localStorage
+        isFollowing = followedUsers.includes(viewingProfileUsername);
+    }
 
     if (isFollowing) {
         followBtn.textContent = 'Following';
@@ -2675,19 +2916,80 @@ async function toggleFollow() {
 
     if (!viewingProfileUsername || isViewingOwnProfile) return;
 
-    const index = followedUsers.indexOf(viewingProfileUsername);
-    const isFollowing = index > -1;
+    // Get current user from Supabase
+    let currentUserId = null;
+    let targetUserId = viewingProfileId;
 
-    if (isFollowing) {
-        // Unfollow
-        followedUsers.splice(index, 1);
-    } else {
-        // Follow
-        followedUsers.push(viewingProfileUsername);
+    try {
+        const { user } = await supabaseGetUser();
+        if (user) {
+            currentUserId = user.id;
+        }
+    } catch (err) {
+        console.error('Error getting current user:', err);
     }
 
-    // Save to localStorage
-    localStorage.setItem('followedUsers', JSON.stringify(followedUsers));
+    // If we don't have the target ID, try to fetch it
+    if (!targetUserId && typeof supabaseGetProfileByUsername === 'function') {
+        try {
+            const { data: targetProfile } = await supabaseGetProfileByUsername(viewingProfileUsername);
+            if (targetProfile) {
+                targetUserId = targetProfile.id;
+                viewingProfileId = targetProfile.id; // Cache for future use
+            }
+        } catch (err) {
+            console.error('Error getting target profile:', err);
+        }
+    }
+
+    // Check current follow state from Supabase
+    let isFollowing = false;
+    if (currentUserId && targetUserId && typeof supabaseIsFollowing === 'function') {
+        try {
+            isFollowing = await supabaseIsFollowing(currentUserId, targetUserId);
+        } catch (err) {
+            console.error('Error checking follow status:', err);
+            // Fall back to localStorage check
+            isFollowing = followedUsers.indexOf(viewingProfileUsername) > -1;
+        }
+    } else {
+        // Fall back to localStorage if Supabase not available
+        isFollowing = followedUsers.indexOf(viewingProfileUsername) > -1;
+    }
+
+    // Perform follow/unfollow in Supabase
+    let success = false;
+    if (currentUserId && targetUserId) {
+        try {
+            if (isFollowing) {
+                const { error } = await supabaseUnfollow(currentUserId, targetUserId);
+                success = !error;
+                if (error) console.error('Unfollow error:', error);
+            } else {
+                const { error } = await supabaseFollow(currentUserId, targetUserId);
+                success = !error;
+                if (error) console.error('Follow error:', error);
+
+                // Send follow notification to the user being followed
+                if (success && typeof addFollowNotification === 'function') {
+                    addFollowNotification(targetUserId, viewingProfileUsername);
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling follow in Supabase:', err);
+        }
+    }
+
+    // Update localStorage cache (for offline/backup)
+    if (success || !currentUserId) {
+        const index = followedUsers.indexOf(viewingProfileUsername);
+        if (isFollowing && index > -1) {
+            followedUsers.splice(index, 1);
+        } else if (!isFollowing && index === -1) {
+            followedUsers.push(viewingProfileUsername);
+        }
+        localStorage.setItem('followedUsers', JSON.stringify(followedUsers));
+    }
 
     // Update global follower counts for Junkies page
     updateUserFollowerCount(viewingProfileUsername, isFollowing ? -1 : 1);
@@ -2701,28 +3003,6 @@ async function toggleFollow() {
         let count = parseInt(followersEl.textContent) || 0;
         count = isFollowing ? count - 1 : count + 1;
         followersEl.textContent = count;
-    }
-
-    // Sync with Supabase if available
-    if (typeof supabaseGetUser === 'function' && typeof supabaseGetProfileByUsername === 'function') {
-        try {
-            const { user } = await supabaseGetUser();
-            if (user) {
-                // Get the target user's ID by username
-                const { data: targetProfile } = await supabaseGetProfileByUsername(viewingProfileUsername);
-                if (targetProfile && targetProfile.id) {
-                    if (isFollowing) {
-                        // Was following, now unfollow
-                        await supabaseUnfollow(user.id, targetProfile.id);
-                    } else {
-                        // Was not following, now follow
-                        await supabaseFollow(user.id, targetProfile.id);
-                    }
-                }
-            }
-        } catch (err) {
-            console.error('Error syncing follow to Supabase:', err);
-        }
     }
 }
 
@@ -2741,141 +3021,6 @@ function updateUserFollowerCount(username, delta) {
     localStorage.setItem('allUserFollowers', JSON.stringify(allUserFollowers));
 }
 
-// Store the last messaged user for navigation
-let lastMessagedUser = null;
-let lastMessagedConversationId = null;
-
-// Open message/DM with the profile user
-function openProfileMessage() {
-    // Auth gate - must be logged in to message
-    if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
-        if (typeof showAuthRequiredModal === 'function') showAuthRequiredModal();
-        return;
-    }
-
-    if (!viewingProfileUsername || isViewingOwnProfile) return;
-
-    // Show the message modal
-    const modal = document.getElementById('profile-message-modal');
-    const title = document.getElementById('profile-message-title');
-    const input = document.getElementById('profile-message-input');
-
-    if (modal) {
-        if (title) title.textContent = `Message ${viewingProfileUsername}`;
-        if (input) input.value = '';
-        modal.style.display = 'flex';
-        if (input) input.focus();
-    }
-}
-
-function closeProfileMessageModal() {
-    const modal = document.getElementById('profile-message-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function sendProfileMessage() {
-    const input = document.getElementById('profile-message-input');
-    const message = input ? input.value.trim() : '';
-
-    if (!message) {
-        return;
-    }
-
-    if (!viewingProfileUsername) {
-        closeProfileMessageModal();
-        return;
-    }
-
-    // Get existing DM conversations (same format as notifications.js)
-    let dmConversations = safeJSONParse(localStorage.getItem('dmConversations'), []);
-
-    // Find existing conversation with this user
-    let conversation = dmConversations.find(c =>
-        c.username && c.username.toLowerCase() === viewingProfileUsername.toLowerCase()
-    );
-
-    // Create new conversation if it doesn't exist
-    if (!conversation) {
-        conversation = {
-            id: `dm_${viewingProfileUsername}_${Date.now()}`,
-            oderId: dmConversations.length + 1,
-            username: viewingProfileUsername,
-            messages: []
-        };
-        dmConversations.push(conversation);
-    }
-
-    // Add the message
-    conversation.messages.push({
-        sender: 'You',
-        text: message,
-        time: Date.now(),
-        status: 'delivered'
-    });
-
-    // Save to localStorage
-    localStorage.setItem('dmConversations', JSON.stringify(dmConversations));
-
-    // Store the messaged user for "Go to messages" navigation
-    lastMessagedUser = viewingProfileUsername;
-    lastMessagedConversationId = conversation.id;
-
-    // Close the message modal
-    closeProfileMessageModal();
-
-    // Show the confirmation modal
-    const sentModal = document.getElementById('message-sent-modal');
-    if (sentModal) {
-        sentModal.style.display = 'flex';
-    }
-}
-
-function closeMessageSentModal() {
-    const modal = document.getElementById('message-sent-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function goToMessages() {
-    // Close the confirmation modal
-    closeMessageSentModal();
-
-    // Close profile overlay if active
-    if (previousState.wasProfileOverlay) {
-        closeProfileOverlay();
-    }
-
-    // Navigate to notifications
-    document.querySelectorAll('.tab-panel').forEach(c => c.classList.remove('active'));
-    document.getElementById('notifications-content')?.classList.add('active');
-
-    document.querySelectorAll('.side-nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector('.side-nav-item[data-view="notifications"]')?.classList.add('active');
-
-    document.body.classList.remove('profile-active');
-    document.body.classList.remove('profile-overlay-active');
-
-    // Refresh the DM conversations list and select the conversation
-    if (typeof renderDmConversations === 'function') {
-        renderDmConversations();
-    }
-
-    // Select the conversation we just messaged
-    if (lastMessagedConversationId && typeof selectDmConversation === 'function') {
-        setTimeout(() => {
-            selectDmConversation(lastMessagedConversationId);
-        }, 100);
-    }
-}
-
-// Make modal functions globally available
-window.closeProfileMessageModal = closeProfileMessageModal;
-window.sendProfileMessage = sendProfileMessage;
-window.closeMessageSentModal = closeMessageSentModal;
-window.goToMessages = goToMessages;
 
 // Set the profile being viewed (call this when viewing another user's profile)
 function setViewingProfile(username) {
@@ -2886,18 +3031,28 @@ function setViewingProfile(username) {
 // Initialize profile action button event listeners
 document.addEventListener('DOMContentLoaded', () => {
     const followBtn = document.getElementById('profile-follow-btn');
-    const messageBtn = document.getElementById('profile-message-btn');
 
     if (followBtn) {
         followBtn.addEventListener('click', toggleFollow);
     }
 
-    if (messageBtn) {
-        messageBtn.addEventListener('click', openProfileMessage);
-    }
+    // Initialize the Dashboard collapsible menu
+    initDashboard();
 
-    // Initialize the user dropdown menu in header
-    initUserDropdown();
+    // Event delegation for profile content grid - handles card clicks
+    const profileGrid = document.getElementById('profile-content-grid');
+    if (profileGrid) {
+        profileGrid.addEventListener('click', (e) => {
+            const cardWrap = e.target.closest('.profile-item-card-wrap');
+            if (cardWrap) {
+                const itemId = cardWrap.dataset.itemId;
+                const category = cardWrap.dataset.category;
+                if (itemId && category) {
+                    handleProfileCardClick(e, parseInt(itemId), category);
+                }
+            }
+        });
+    }
 });
 
 // Make functions globally available
@@ -2907,10 +3062,6 @@ window.toggleFollow = toggleFollow;
 window.updateFollowButtonState = updateFollowButtonState;
 
 // ===== FOLLOWERS / FOLLOWING =====
-
-// Followers/following data (populated from real user interactions)
-let userFollowers = [];
-let userFollowing = [];
 
 function showProfileFollowers() {
     // Switch to followers tab
@@ -2959,6 +3110,7 @@ function renderFollowersList(filter = currentFollowersFilter) {
     currentFollowersFilter = filter;
     const grid = document.getElementById('profile-followers-grid');
     const countEl = document.getElementById('profile-followers-count');
+    console.log('renderFollowersList called, grid:', grid, 'userFollowers:', userFollowers);
     if (!grid) return;
 
     // Filter users based on selected letter
@@ -2981,13 +3133,16 @@ function renderFollowersList(filter = currentFollowersFilter) {
         return;
     }
 
-    grid.innerHTML = filteredUsers.map(user => createUserCard(user)).join('');
+    const html = filteredUsers.map(user => createUserCard(user)).join('');
+    console.log('Rendering followers HTML:', html.substring(0, 200));
+    grid.innerHTML = html;
 }
 
 function renderFollowingList(filter = currentFollowingFilter) {
     currentFollowingFilter = filter;
     const grid = document.getElementById('profile-following-grid');
     const countEl = document.getElementById('profile-following-count');
+    console.log('renderFollowingList called, grid:', grid, 'userFollowing:', userFollowing);
     if (!grid) return;
 
     // Filter users based on selected letter
@@ -3010,7 +3165,9 @@ function renderFollowingList(filter = currentFollowingFilter) {
         return;
     }
 
-    grid.innerHTML = filteredUsers.map(user => createUserCard(user)).join('');
+    const html = filteredUsers.map(user => createUserCard(user)).join('');
+    console.log('Rendering following HTML:', html.substring(0, 200));
+    grid.innerHTML = html;
 }
 
 // Initialize A-Z filter event listeners
@@ -3082,16 +3239,6 @@ function createUserCard(user) {
                 }
             </div>
             <div class="profile-user-username">${escapeHTML(user.username)}</div>
-            <div class="profile-user-stats">
-                <span class="profile-user-stat">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span class="profile-user-stat-value">${formatCount(user.uploads)}</span>
-                </span>
-                <span class="profile-user-stat">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14" stroke="currentColor" stroke-width="2"/><line x1="23" y1="11" x2="17" y2="11" stroke="currentColor" stroke-width="2"/></svg>
-                    <span class="profile-user-stat-value">${formatCount(user.followers)}</span>
-                </span>
-            </div>
         </div>
     `;
 }
@@ -3099,4 +3246,54 @@ function createUserCard(user) {
 // Make followers/following functions globally available
 window.showProfileFollowers = showProfileFollowers;
 window.showProfileFollowing = showProfileFollowing;
-window.canSendDmToUser = canSendDmToUser;
+
+// ===== ADMIN FUNCTIONS =====
+
+// Admin delete user profile
+async function adminDeleteUserProfile(username) {
+    if (typeof isAdmin !== 'function' || !isAdmin()) {
+        console.error('Admin access required');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the user "${username}"?\n\nThis will:\n- Anonymize their profile to "[Deleted]"\n- Remove their follows, likes, and comments\n- Their uploaded sounds will remain but show as uploaded by "[Deleted]"\n\nThis action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        // Get the user ID from Supabase
+        const { data: profiles, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('id')
+            .ilike('username', username)
+            .limit(1);
+
+        if (profileError || !profiles || profiles.length === 0) {
+            alert('Could not find user profile');
+            return;
+        }
+
+        const userId = profiles[0].id;
+
+        // Delete using admin function
+        if (typeof supabaseAdminDeleteUser === 'function') {
+            const { error } = await supabaseAdminDeleteUser(userId);
+            if (error) {
+                alert('Failed to delete user: ' + error.message);
+                return;
+            }
+        }
+
+        // Close profile and return to previous view
+        closeProfileOverlay();
+
+        if (typeof showToast === 'function') {
+            showToast('User deleted successfully', 'success');
+        }
+    } catch (err) {
+        console.error('Error deleting user:', err);
+        alert('Failed to delete user: ' + err.message);
+    }
+}
+
+window.adminDeleteUserProfile = adminDeleteUserProfile;
