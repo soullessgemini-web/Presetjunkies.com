@@ -58,6 +58,11 @@ async function rehydrateAuthState() {
         localStorage.removeItem('supabaseUserId');
         document.body.classList.add('guest-mode');
     }
+
+    // Update UI after auth state is determined
+    if (typeof updateUserNavSection === 'function') {
+        updateUserNavSection();
+    }
 }
 
 // Listen for auth state changes
