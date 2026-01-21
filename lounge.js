@@ -2139,7 +2139,7 @@ function hideMediaPreview() {
 
 // User color map for consistent colors
 const userColors = {};
-const colorOptions = ['green', 'blue', 'pink', 'cyan', 'orange', 'purple'];
+const colorOptions = ['green', 'blue', 'pink', 'cyan', 'emerald', 'purple'];
 
 function getUserColor(username) {
     if (!userColors[username]) {
