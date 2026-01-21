@@ -6,8 +6,8 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    background: linear-gradient(180deg, rgba(234, 88, 12, 0.06) 0%, rgba(0, 0, 0, 0.2) 100%);
-    box-shadow: inset -1px 0 0 rgba(234, 88, 12, 0.1);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, rgba(0, 0, 0, 0.2) 100%);
+    box-shadow: inset -1px 0 0 rgba(16, 185, 129, 0.1);
 }
 
 .lounge-section {
@@ -68,12 +68,12 @@
 }
 
 .my-rooms-tab:hover {
-    color: #fdba74;
+    color: #6ee7b7;
 }
 
 .my-rooms-tab.active {
-    color: #fdba74;
-    border-bottom: 2px solid #fdba74;
+    color: #6ee7b7;
+    border-bottom: 2px solid #6ee7b7;
 }
 
 /* Edit Room Tab */
@@ -84,7 +84,7 @@
 }
 
 .my-rooms-tab.edit-room-tab:hover:not(.disabled) {
-    color: #fdba74;
+    color: #6ee7b7;
 }
 
 .my-rooms-tab.edit-room-tab.disabled {
@@ -93,7 +93,7 @@
 }
 
 .my-rooms-tab.edit-room-tab.active {
-    color: #fdba74;
+    color: #6ee7b7;
 }
 
 /* My Rooms Empty State */
@@ -138,7 +138,7 @@
 }
 
 .room-search-container:focus-within {
-    border-color: rgba(234, 88, 12, 0.3);
+    border-color: rgba(16, 185, 129, 0.3);
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -157,8 +157,8 @@
     padding: 7px 14px;
     font-size: 11px;
     font-weight: 600;
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 6px;
     color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
@@ -168,8 +168,8 @@
 }
 
 .create-room-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.4);
 }
 
 .create-room-btn.disabled,
@@ -210,7 +210,7 @@
 }
 
 .lounge-room-item.active {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -220,7 +220,7 @@
     min-width: 16px;
     height: 16px;
     padding: 0 4px;
-    background: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.4);
     border: none;
     color: #fff;
     font-size: 10px;
@@ -260,7 +260,7 @@
 }
 
 .room-icon.default-icon {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -340,7 +340,7 @@
 }
 
 .lounge-community-room.active {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -359,7 +359,7 @@
 }
 
 .lounge-community-room-icon.default-icon {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -414,7 +414,7 @@
 
 .favorite-btn:hover {
     color: #fff;
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .favorite-btn.active {
@@ -422,7 +422,7 @@
 }
 
 .favorite-btn.active:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .leave-room-btn {
@@ -453,10 +453,10 @@
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 4px;
     color: #fff;
     cursor: pointer;
@@ -465,8 +465,8 @@
 }
 
 .join-room-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .join-room-btn.hidden {
@@ -486,7 +486,7 @@
     align-items: center;
     gap: 12px;
     padding: 16px;
-    border-bottom: 1px solid rgba(234, 88, 12, 0.2);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
     font-size: 16px;
     font-weight: 600;
     color: #fff;
@@ -507,7 +507,7 @@
 }
 
 .settings-back:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -660,7 +660,7 @@
     gap: 16px;
     padding: 16px;
     background: #101010;
-    border: 2px dashed rgba(234, 88, 12, 0.3);
+    border: 2px dashed rgba(16, 185, 129, 0.3);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -668,7 +668,7 @@
 }
 
 .upload-card:hover {
-    border-color: rgba(234, 88, 12, 0.5);
+    border-color: rgba(16, 185, 129, 0.5);
     background: #101010;
 }
 
@@ -821,7 +821,7 @@
 
 .settings-footer {
     padding: 16px;
-    border-top: 1px solid rgba(234, 88, 12, 0.2);
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .btn-create {
@@ -961,7 +961,7 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -997,14 +997,14 @@
 }
 
 .chat-header-btn.invite-btn {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
 .chat-header-btn.invite-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
     color: #fff;
 }
 
@@ -1059,12 +1059,12 @@
 }
 
 .lounge-messages::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 4px;
 }
 
 .lounge-messages::-webkit-scrollbar-thumb:hover {
-    background: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.5);
 }
 
 /* Message Styling */
@@ -1170,7 +1170,7 @@
 .message-author {
     font-size: 14px;
     font-weight: 600;
-    color: #fdba74;
+    color: #6ee7b7;
     cursor: pointer;
 }
 
@@ -1330,7 +1330,7 @@
 }
 
 .msg-action:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -1362,8 +1362,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 6px;
     color: #fff;
     cursor: pointer;
@@ -1371,15 +1371,15 @@
 }
 
 .message-user-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
     color: #fff;
 }
 
 /* Message Edited Tag */
 .message-edited {
     font-size: 12px;
-    color: #ea580c;
+    color: #10b981;
     margin-left: 6px;
 }
 
@@ -1424,8 +1424,8 @@
 }
 
 .reaction-btn.active {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
@@ -1480,8 +1480,8 @@
 }
 
 .download-btn:hover {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
@@ -1491,8 +1491,8 @@
 }
 
 .reply-btn:hover {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
@@ -1508,8 +1508,8 @@
     align-items: center;
     gap: 14px;
     padding: 12px 18px;
-    background: rgba(234, 88, 12, 0.08);
-    border-left: 3px solid #ea580c;
+    background: rgba(16, 185, 129, 0.08);
+    border-left: 3px solid #10b981;
     border-radius: 4px 10px 10px 4px;
     margin-bottom: 12px;
 }
@@ -1565,8 +1565,8 @@
     gap: 8px;
     padding: 8px 12px;
     margin-bottom: 6px;
-    background: rgba(234, 88, 12, 0.05);
-    border-left: 2px solid #ea580c;
+    background: rgba(16, 185, 129, 0.05);
+    border-left: 2px solid #10b981;
     border-radius: 0 6px 6px 0;
     font-size: 13px;
     cursor: pointer;
@@ -1574,7 +1574,7 @@
 }
 
 .message-reply-reference:hover {
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .message-reply-reference svg {
@@ -1645,7 +1645,7 @@
     width: 100%;
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 6px;
     color: #fff;
     font-size: 15px;
@@ -1774,17 +1774,17 @@
     align-items: center;
     gap: 12px;
     padding: 5px 8px 5px 15px;
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 10px;
     width: 100%;
     transition: all 0.2s ease;
 }
 
 .chat-input-wrapper:focus-within {
-    border-color: rgba(234, 88, 12, 0.5);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .chat-input-wrapper input {
@@ -1886,7 +1886,7 @@
 }
 
 .right-panel-section:not(:last-child) {
-    border-bottom: 1px solid rgba(234, 88, 12, 0.2);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 /* Room Info Section */
@@ -1940,7 +1940,7 @@
     align-items: flex-start;
     gap: 12px;
     padding: 12px;
-    background: rgba(234, 88, 12, 0.05);
+    background: rgba(16, 185, 129, 0.05);
     border-radius: 8px;
     font-size: 13px;
     color: #fff;
@@ -1982,7 +1982,7 @@
 }
 
 .members-list::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 2px;
 }
 
@@ -1997,7 +1997,7 @@
 }
 
 .member-item:hover {
-    background: rgba(234, 88, 12, 0.08);
+    background: rgba(16, 185, 129, 0.08);
 }
 
 .member-avatar {
@@ -2554,13 +2554,13 @@ body.lounge-active .profile-right-panel {
 }
 
 #profile-message-modal .modal-btn.confirm {
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 #profile-message-modal .modal-btn.confirm:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
 }
 
 /* Message Sent Confirmation Modal */
@@ -2637,13 +2637,13 @@ body.lounge-active .profile-right-panel {
 }
 
 #message-sent-modal .modal-btn.confirm {
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 #message-sent-modal .modal-btn.confirm:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
 }
 
 /* Moderation Modal */
@@ -2746,7 +2746,7 @@ body.lounge-active .profile-right-panel {
     padding: 40px;
     max-width: 400px;
     text-align: center;
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
@@ -2866,10 +2866,10 @@ body.lounge-active .profile-right-panel {
     align-items: center;
     gap: 6px;
     padding: 12px 16px;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 8px;
     color: #fff;
     font-size: 14px;
@@ -2879,8 +2879,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .copy-invite-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .copy-invite-btn.copied {
@@ -2916,10 +2916,10 @@ body.lounge-active .profile-right-panel {
 
 .join-code-container .join-room-btn {
     padding: 12px 20px;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 8px;
     color: #fff;
     font-size: 14px;
@@ -2929,8 +2929,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .join-code-container .join-room-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .join-error {
@@ -2954,10 +2954,10 @@ body.lounge-active .profile-right-panel {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.25);
     border-radius: 5px;
     color: #fff;
     font-size: 11px;
@@ -2968,8 +2968,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .message-mod-btn:hover {
-    background: rgba(234, 88, 12, 0.25);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(16, 185, 129, 0.4);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
@@ -3018,7 +3018,7 @@ body.lounge-active .profile-right-panel {
 }
 
 .emoji-picker-grid::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 3px;
 }
 
@@ -3107,10 +3107,10 @@ body.lounge-active .profile-right-panel {
     padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 5px;
     color: #fff;
     cursor: pointer;
@@ -3119,8 +3119,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .invite-users-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
@@ -3202,7 +3202,7 @@ body.lounge-active .profile-right-panel {
 }
 
 .user-invite-list::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 3px;
 }
 
@@ -3216,7 +3216,7 @@ body.lounge-active .profile-right-panel {
 }
 
 .user-invite-item:hover {
-    background: rgba(234, 88, 12, 0.08);
+    background: rgba(16, 185, 129, 0.08);
 }
 
 .user-invite-item.invited {
@@ -3227,7 +3227,7 @@ body.lounge-active .profile-right-panel {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ea580c 0%, #eb459e 100%);
+    background: linear-gradient(135deg, #10b981 0%, #eb459e 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3248,7 +3248,7 @@ body.lounge-active .profile-right-panel {
     right: -1px;
     width: 10px;
     height: 10px;
-    background: #ea580c;
+    background: #10b981;
     border: 2px solid #101010;
     border-radius: 50%;
 }
@@ -3276,10 +3276,10 @@ body.lounge-active .profile-right-panel {
     padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 5px;
     color: #fff;
     cursor: pointer;
@@ -3288,8 +3288,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .user-invite-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .user-invite-btn.cancel {
@@ -3336,14 +3336,14 @@ body.lounge-active .profile-right-panel {
 }
 
 .invite-accept-btn {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
 .invite-accept-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .invite-decline-btn {
@@ -3561,8 +3561,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .share-room-item:hover {
-    background: rgba(234, 88, 12, 0.1);
-    border-color: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
 }
 
 .share-room-item.selected {
@@ -3646,8 +3646,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .share-tab.active {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
@@ -3681,8 +3681,8 @@ body.lounge-active .profile-right-panel {
 }
 
 .share-dm-item:hover {
-    background: rgba(234, 88, 12, 0.1);
-    border-color: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
 }
 
 .share-dm-item.selected {
@@ -4020,7 +4020,7 @@ body.lounge-active .profile-right-panel {
 
 /* ===== MENTION HIGHLIGHT IN MESSAGES ===== */
 .mention-highlight {
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
     color: #fff;
     padding: 1px 4px;
     border-radius: 4px;
@@ -4029,47 +4029,47 @@ body.lounge-active .profile-right-panel {
 }
 
 .mention-highlight:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .mention-highlight.mention-self {
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
     color: #fff;
 }
 
 .mention-highlight.mention-self:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
 /* Message with mention - subtle highlight */
 .lounge-message.has-mention {
-    background: rgba(234, 88, 12, 0.03);
-    border-left: 2px solid #ea580c;
+    background: rgba(16, 185, 129, 0.03);
+    border-left: 2px solid #10b981;
     margin-left: -2px;
 }
 
 /* Clickable usernames in lounge */
 .lounge-clickable-user {
-    color: #fdba74;
+    color: #6ee7b7;
     cursor: pointer;
     transition: color 0.15s ease;
 }
 
 .lounge-clickable-user:hover {
-    color: #fb923c;
+    color: #34d399;
     text-decoration: underline;
 }
 
 /* Also style shared item uploaders */
 .shared-item-uploader {
-    color: #fb923c;
+    color: #34d399;
     cursor: pointer;
     transition: color 0.15s ease;
 }
 
 .shared-item-uploader:hover {
-    color: #fb923c;
+    color: #34d399;
     text-decoration: underline;
 }
 
@@ -4164,7 +4164,7 @@ body.guest-mode .lounge-section-header {
 .lounge-intro-brand {
     font-size: 20px;
     font-weight: 700;
-    color: #ea580c;
+    color: #10b981;
     letter-spacing: 0.5px;
 }
 
@@ -4215,7 +4215,7 @@ body.guest-mode .lounge-section-header {
 }
 
 .lounge-intro-btn {
-    background: linear-gradient(135deg, #ea580c 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #10b981 0%, #10b981 100%);
     color: #fff;
     border: none;
     padding: 14px 32px;
@@ -4228,7 +4228,8 @@ body.guest-mode .lounge-section-header {
 }
 
 .lounge-intro-btn:hover {
-    background: linear-gradient(135deg, #ea580c 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #10b981 0%, #10b981 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
+
