@@ -1,5 +1,9 @@
 // ===== AUDIO & VISUALIZERS =====
 
+// Track current video element for global playbar integration
+let currentVideoElement = null;
+let isPlayingVideo = false;
+
 // Helper function to safely clean up audio event handlers
 function cleanupAudioHandlers(audioEl) {
     if (audioEl && audioEl._handlers) {
@@ -174,6 +178,11 @@ function updatePlayBarActionStates(item, category) {
 function playItemInGlobalBar(item, category) {
     if (!item) return;
 
+    // Stop any playing video when starting audio
+    if (typeof stopCurrentVideo === 'function') {
+        stopCurrentVideo();
+    }
+
     if (globalAudio) {
         globalAudio.pause();
         globalAudio.currentTime = 0;
@@ -332,6 +341,110 @@ function playItemInGlobalBar(item, category) {
         globalAudio.play().then(() => {
             updatePlayButton(true);
             playbackState.isPlaying = true;
+        }).catch(() => {
+            updatePlayButton(false);
+            playbackState.isPlaying = false;
+        });
+    } else if (category === 'projects' && item.videoBlob) {
+        // Handle project video playback through global playbar
+        isPlayingVideo = true;
+
+        // Get the video element from the card
+        const video = document.getElementById(`video-${item.id}`);
+        if (!video) return;
+
+        currentVideoElement = video;
+        currentVideoPlaying = item.id;
+
+        const playBtns = document.querySelectorAll(`#play-btn-${item.id}`);
+        const container = video.closest('.video-player-container');
+
+        // Set up video event handlers for playbar
+        const videoHandlers = {
+            loadedmetadata: () => {
+                playbackState.duration = video.duration;
+                const totalTimeEl = document.getElementById('total-time');
+                if (totalTimeEl) totalTimeEl.textContent = formatTime(video.duration);
+            },
+            timeupdate: () => {
+                const duration = video.duration || playbackState.duration || 0;
+                playbackState.currentTime = video.currentTime;
+                const currentTimeEl = document.getElementById('current-time');
+                if (currentTimeEl) currentTimeEl.textContent = formatTime(video.currentTime);
+                if (duration > 0) {
+                    const percent = (video.currentTime / duration) * 100;
+                    const progressEl = document.getElementById('play-bar-progress-filled');
+                    if (progressEl) progressEl.style.width = percent + '%';
+                    // Also update card scrub bar
+                    const videoProgress = document.getElementById(`video-progress-${item.id}`);
+                    if (videoProgress) videoProgress.style.width = percent + '%';
+                    const videoTime = document.getElementById(`video-time-${item.id}`);
+                    if (videoTime) videoTime.textContent = `${formatTime(video.currentTime)} / ${formatTime(duration)}`;
+                }
+            },
+            ended: () => {
+                playBtns.forEach(btn => {
+                    const icon = btn?.querySelector('.card-play-icon');
+                    if (icon) icon.textContent = '▶';
+                });
+                container?.classList.remove('playing');
+                updatePlayButton(false);
+                playbackState.isPlaying = false;
+                isPlayingVideo = false;
+                currentVideoElement = null;
+                currentVideoPlaying = null;
+                clearAllCardStyles();
+                if (!playbackState.isLooping) {
+                    if (autoplayEnabled) {
+                        playNext();
+                    } else {
+                        highlightNextCard();
+                    }
+                }
+            },
+            pause: () => {
+                playBtns.forEach(btn => {
+                    const icon = btn?.querySelector('.card-play-icon');
+                    if (icon) icon.textContent = '▶';
+                });
+                container?.classList.remove('playing');
+            },
+            play: () => {
+                playBtns.forEach(btn => {
+                    const icon = btn?.querySelector('.card-play-icon');
+                    if (icon) icon.textContent = '❚❚';
+                });
+                container?.classList.add('playing');
+            }
+        };
+
+        // Clean up any existing handlers
+        if (video._handlers) {
+            ['loadedmetadata', 'timeupdate', 'ended', 'pause', 'play'].forEach(event => {
+                if (video._handlers[event]) {
+                    video.removeEventListener(event, video._handlers[event]);
+                }
+            });
+        }
+
+        video._handlers = videoHandlers;
+        video.addEventListener('loadedmetadata', videoHandlers.loadedmetadata);
+        video.addEventListener('timeupdate', videoHandlers.timeupdate);
+        video.addEventListener('ended', videoHandlers.ended);
+        video.addEventListener('pause', videoHandlers.pause);
+        video.addEventListener('play', videoHandlers.play);
+
+        if (video.duration) {
+            videoHandlers.loadedmetadata();
+        }
+
+        video.volume = playbackState.volume;
+        video.loop = playbackState.isLooping;
+
+        video.play().then(() => {
+            updatePlayButton(true);
+            playbackState.isPlaying = true;
+            container?.classList.add('playing');
         }).catch(() => {
             updatePlayButton(false);
             playbackState.isPlaying = false;
@@ -505,25 +618,49 @@ window.togglePlay = (id, cat) => {
     }
     if (!item) return;
 
-    if (currentlyPlaying === id && globalAudio) {
-        if (!globalAudio.paused) {
-            globalAudio.pause();
-            updatePlayButton(false);
-            playbackState.isPlaying = false;
-            // Update ALL play buttons for this item
-            document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
-                const playIcon = playBtn?.querySelector('.card-play-icon');
-                if (playIcon) playIcon.textContent = '▶';
-            });
-        } else {
-            globalAudio.play().catch(() => {});
-            updatePlayButton(true);
-            playbackState.isPlaying = true;
-            // Update ALL play buttons for this item
-            document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
-                const playIcon = playBtn?.querySelector('.card-play-icon');
-                if (playIcon) playIcon.textContent = '❚❚';
-            });
+    if (currentlyPlaying === id) {
+        // Handle video playback
+        if (isPlayingVideo && currentVideoElement) {
+            if (!currentVideoElement.paused) {
+                currentVideoElement.pause();
+                updatePlayButton(false);
+                playbackState.isPlaying = false;
+                document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
+                    const playIcon = playBtn?.querySelector('.card-play-icon');
+                    if (playIcon) playIcon.textContent = '▶';
+                });
+            } else {
+                currentVideoElement.play().catch(() => {});
+                updatePlayButton(true);
+                playbackState.isPlaying = true;
+                document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
+                    const playIcon = playBtn?.querySelector('.card-play-icon');
+                    if (playIcon) playIcon.textContent = '❚❚';
+                });
+            }
+            return;
+        }
+        // Handle audio playback
+        if (globalAudio) {
+            if (!globalAudio.paused) {
+                globalAudio.pause();
+                updatePlayButton(false);
+                playbackState.isPlaying = false;
+                // Update ALL play buttons for this item
+                document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
+                    const playIcon = playBtn?.querySelector('.card-play-icon');
+                    if (playIcon) playIcon.textContent = '▶';
+                });
+            } else {
+                globalAudio.play().catch(() => {});
+                updatePlayButton(true);
+                playbackState.isPlaying = true;
+                // Update ALL play buttons for this item
+                document.querySelectorAll(`#play-btn-${id}`).forEach(playBtn => {
+                    const playIcon = playBtn?.querySelector('.card-play-icon');
+                    if (playIcon) playIcon.textContent = '❚❚';
+                });
+            }
         }
     } else {
         clearAllCardStyles();
@@ -543,6 +680,20 @@ function initPlayBarControls() {
     const globalPlayBtn = document.getElementById('global-play-btn');
     if (globalPlayBtn) {
         globalPlayBtn.addEventListener('click', () => {
+            // Handle video playback
+            if (isPlayingVideo && currentVideoElement) {
+                if (playbackState.isPlaying) {
+                    currentVideoElement.pause();
+                    updatePlayButton(false);
+                    playbackState.isPlaying = false;
+                } else {
+                    currentVideoElement.play();
+                    updatePlayButton(true);
+                    playbackState.isPlaying = true;
+                }
+                return;
+            }
+            // Handle audio playback
             if (!globalAudio) return;
             if (playbackState.isPlaying) {
                 globalAudio.pause();
@@ -566,9 +717,16 @@ function initPlayBarControls() {
     let isScrubbingPlayBar = false;
 
     function updatePlayBarProgress(e) {
-        if (!globalAudio || !globalAudio.duration) return;
         const rect = playBarProgressBar.getBoundingClientRect();
         const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
+        // Handle video seeking
+        if (isPlayingVideo && currentVideoElement && currentVideoElement.duration) {
+            currentVideoElement.currentTime = percent * currentVideoElement.duration;
+            return;
+        }
+        // Handle audio seeking
+        if (!globalAudio || !globalAudio.duration) return;
         globalAudio.currentTime = percent * globalAudio.duration;
     }
 
@@ -600,6 +758,7 @@ function initPlayBarControls() {
         const volumeFilled = document.getElementById('volume-filled');
         if (volumeFilled) volumeFilled.style.width = (percent * 100) + '%';
         if (globalAudio) globalAudio.volume = percent;
+        if (currentVideoElement) currentVideoElement.volume = percent;
     }
 
     if (volumeSlider) {
@@ -636,6 +795,7 @@ function initPlayBarControls() {
                 if (volumeFilledEl) volumeFilledEl.style.width = (playbackState.volume * 100) + '%';
             }
             if (globalAudio) globalAudio.volume = playbackState.volume;
+            if (currentVideoElement) currentVideoElement.volume = playbackState.volume;
         });
     }
 }
@@ -695,9 +855,11 @@ window.togglePlayBarLoop = () => {
     if (playbackState.isLooping) {
         loopBtn.classList.add('looping');
         if (globalAudio) globalAudio.loop = true;
+        if (currentVideoElement) currentVideoElement.loop = true;
     } else {
         loopBtn.classList.remove('looping');
         if (globalAudio) globalAudio.loop = false;
+        if (currentVideoElement) currentVideoElement.loop = false;
     }
 };
 
@@ -782,6 +944,25 @@ window.sharePlayBarTrack = () => {
 
 let currentVideoPlaying = null;
 
+// Stop any currently playing video
+function stopCurrentVideo() {
+    if (currentVideoPlaying || currentVideoElement) {
+        const video = currentVideoElement || document.getElementById(`video-${currentVideoPlaying}`);
+        if (video) {
+            video.pause();
+            const container = video.closest('.video-player-container');
+            container?.classList.remove('playing');
+            const playBtn = document.getElementById(`play-btn-${currentVideoPlaying}`);
+            const playIcon = playBtn?.querySelector('.card-play-icon');
+            if (playIcon) playIcon.textContent = '▶';
+        }
+        currentVideoPlaying = null;
+        currentVideoElement = null;
+        isPlayingVideo = false;
+    }
+}
+window.stopCurrentVideo = stopCurrentVideo;
+
 function formatVideoTime(seconds) {
     if (!seconds || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -789,55 +970,39 @@ function formatVideoTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Legacy function - now delegates to unified togglePlay
 window.toggleVideoPlay = (id) => {
-    const video = document.getElementById(`video-${id}`);
-    if (!video) return;
-
-    const container = video.closest('.video-player-container');
-    const playBtn = document.getElementById(`play-btn-${id}`);
-    const playIcon = playBtn?.querySelector('.card-play-icon');
-
-    // Find the project item and update center panel
-    const item = items.projects?.find(i => i.id === id);
-    if (item) {
-        updateCenterPanel(item, 'projects');
-    }
-
-    // If a different video is playing, pause it first
-    if (currentVideoPlaying && currentVideoPlaying !== id) {
-        const otherVideo = document.getElementById(`video-${currentVideoPlaying}`);
-        if (otherVideo) {
-            otherVideo.pause();
-            const otherContainer = otherVideo.closest('.video-player-container');
-            otherContainer?.classList.remove('playing');
-            const otherBtn = document.getElementById(`play-btn-${currentVideoPlaying}`);
-            const otherIcon = otherBtn?.querySelector('.card-play-icon');
-            if (otherIcon) otherIcon.textContent = '▶';
-        }
-    }
-
-    if (video.paused) {
-        video.play();
-        container?.classList.add('playing');
-        if (playIcon) playIcon.textContent = '❚❚';
-        currentVideoPlaying = id;
-        setupVideoTimeUpdate(id);
-    } else {
-        video.pause();
-        container?.classList.remove('playing');
-        if (playIcon) playIcon.textContent = '▶';
-        currentVideoPlaying = null;
+    // Use the unified play system for projects
+    if (typeof togglePlay === 'function') {
+        togglePlay(id, 'projects');
     }
 };
 
 window.toggleVideoFullscreen = (id) => {
     const video = document.getElementById(`video-${id}`);
-    if (!video) return;
+    if (!video) {
+        console.error('toggleVideoFullscreen: video not found for id', id);
+        return;
+    }
 
-    if (document.fullscreenElement) {
-        document.exitFullscreen();
-    } else {
-        video.requestFullscreen().catch(() => {});
+    try {
+        if (document.fullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        } else {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+            }
+        }
+    } catch (err) {
+        console.error('Fullscreen error:', err);
     }
 };
 
@@ -847,28 +1012,8 @@ function setupVideoTimeUpdate(id) {
 
     video.dataset.timeUpdateSetup = 'true';
 
-    video.addEventListener('timeupdate', () => {
-        const progress = document.getElementById(`video-progress-${id}`);
-        const timeDisplay = document.getElementById(`video-time-${id}`);
-
-        if (progress && video.duration) {
-            const percent = (video.currentTime / video.duration) * 100;
-            progress.style.width = `${percent}%`;
-        }
-
-        if (timeDisplay) {
-            timeDisplay.textContent = `${formatVideoTime(video.currentTime)} / ${formatVideoTime(video.duration)}`;
-        }
-    });
-
-    video.addEventListener('ended', () => {
-        const container = video.closest('.video-player-container');
-        container?.classList.remove('playing');
-        const playBtn = document.getElementById(`play-btn-${id}`);
-        const playIcon = playBtn?.querySelector('.card-play-icon');
-        if (playIcon) playIcon.textContent = '▶';
-        currentVideoPlaying = null;
-    });
+    // Note: Main playback handlers are set up in playItemInGlobalBar
+    // This only sets up the card's local scrub bar UI (not used when playbar controls video)
 
     // Setup scrub bar
     const scrubBar = document.getElementById(`video-scrub-${id}`);
@@ -904,16 +1049,19 @@ window.setupVideoPlayer = (id) => {
     const video = document.getElementById(`video-${id}`);
     if (!video) return;
 
-    // Setup time update and scrub bar
+    // Setup scrub bar for card (if not already set up)
     setupVideoTimeUpdate(id);
 
-    // Load metadata to get duration
-    video.addEventListener('loadedmetadata', () => {
-        const timeDisplay = document.getElementById(`video-time-${id}`);
-        if (timeDisplay) {
-            timeDisplay.textContent = `0:00 / ${formatVideoTime(video.duration)}`;
-        }
-    });
+    // Load metadata to get duration (only if not already set up)
+    if (!video.dataset.metadataSetup) {
+        video.dataset.metadataSetup = 'true';
+        video.addEventListener('loadedmetadata', () => {
+            const timeDisplay = document.getElementById(`video-time-${id}`);
+            if (timeDisplay && !isPlayingVideo) {
+                timeDisplay.textContent = `0:00 / ${formatVideoTime(video.duration)}`;
+            }
+        });
+    }
 };
 
 // ===== PIANO ROLL VISUALIZATION =====
