@@ -455,6 +455,38 @@ async function supabaseDeleteItem(itemId) {
     return { error };
 }
 
+// Increment a counter field on an item (downloads, saves, shares, etc.)
+async function supabaseIncrementCounter(itemId, field) {
+    // First get the current value
+    const { data: item, error: fetchError } = await supabaseClient
+        .from('items')
+        .select(field)
+        .eq('id', itemId)
+        .single();
+
+    if (fetchError) {
+        console.error('Error fetching item for increment:', fetchError);
+        return { error: fetchError };
+    }
+
+    const currentValue = item?.[field] || 0;
+    const newValue = currentValue + 1;
+
+    // Update with the incremented value
+    const { data, error } = await supabaseClient
+        .from('items')
+        .update({ [field]: newValue })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error incrementing counter:', error);
+    }
+
+    return { data, error };
+}
+
 // =============================================
 // LIKES FUNCTIONS
 // =============================================
@@ -1317,6 +1349,7 @@ window.supabaseGetItem = supabaseGetItem;
 window.supabaseCreateItem = supabaseCreateItem;
 window.supabaseUpdateItem = supabaseUpdateItem;
 window.supabaseDeleteItem = supabaseDeleteItem;
+window.supabaseIncrementCounter = supabaseIncrementCounter;
 window.supabaseLikeItem = supabaseLikeItem;
 window.supabaseUnlikeItem = supabaseUnlikeItem;
 window.supabaseHasLiked = supabaseHasLiked;
