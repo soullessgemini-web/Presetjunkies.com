@@ -4024,11 +4024,17 @@ function initLounge() {
     // Initialize intro splash modal event listeners
     initLoungeIntro();
 
+    // Clear joined rooms for guest users so they see all community rooms
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn && typeof resetJoinedRooms === 'function') {
+        resetJoinedRooms();
+    }
+
     // Load rooms from Supabase
     if (typeof loadRoomsFromSupabase === 'function') {
         loadRoomsFromSupabase();
     }
-    if (typeof loadJoinedRoomsFromSupabase === 'function') {
+    if (isLoggedIn && typeof loadJoinedRoomsFromSupabase === 'function') {
         loadJoinedRoomsFromSupabase();
     }
 
