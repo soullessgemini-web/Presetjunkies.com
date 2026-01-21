@@ -841,16 +841,22 @@ async function supabaseGetRoomMessages(roomId, limit = 100) {
 }
 
 // Send room message
-async function supabaseSendRoomMessage(roomId, authorId, content, replyToId = null, imageUrl = null) {
+async function supabaseSendRoomMessage(roomId, authorId, content, replyToId = null, imageUrl = null, audioUrl = null, audioFilename = null) {
+    const insertData = {
+        room_id: roomId,
+        author_id: authorId,
+        content,
+        reply_to_id: replyToId
+    };
+
+    // Only add image/audio if provided (columns may not exist in all setups)
+    if (imageUrl) insertData.image_url = imageUrl;
+    if (audioUrl) insertData.audio_url = audioUrl;
+    if (audioFilename) insertData.audio_filename = audioFilename;
+
     const { data, error } = await supabaseClient
         .from('room_messages')
-        .insert({
-            room_id: roomId,
-            author_id: authorId,
-            content,
-            reply_to_id: replyToId,
-            image_url: imageUrl
-        })
+        .insert(insertData)
         .select(`
             *,
             author:profiles!author_id(id, username, avatar_url)

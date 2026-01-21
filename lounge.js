@@ -2534,7 +2534,8 @@ async function saveMessage(roomId, messageData) {
     // Save to Supabase if available
     if (typeof supabaseGetUser === 'function' && typeof supabaseSendRoomMessage === 'function') {
         try {
-            const { user } = await supabaseGetUser();
+            const { user, error: userError } = await supabaseGetUser();
+            console.log('saveMessage - user:', user, 'error:', userError);
             if (user) {
                 let content = '';
                 let imageUrl = null;
@@ -2555,7 +2556,7 @@ async function saveMessage(roomId, messageData) {
                     content = messageData.content || messageData.text || '';
                 }
 
-                await supabaseSendRoomMessage(
+                const { data, error } = await supabaseSendRoomMessage(
                     roomId,
                     user.id,
                     content,
@@ -2564,6 +2565,12 @@ async function saveMessage(roomId, messageData) {
                     audioUrl,
                     audioFilename
                 );
+                console.log('saveMessage - result:', data, 'error:', error);
+                if (error) {
+                    console.error('Supabase insert error:', error);
+                }
+            } else {
+                console.log('saveMessage - no user found, not saving to Supabase');
             }
         } catch (err) {
             console.error('Error saving message to Supabase:', err);
