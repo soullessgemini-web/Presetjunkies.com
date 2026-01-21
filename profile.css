@@ -238,30 +238,41 @@ body.profile-active header {
 
 .profile-banner-upload {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 32px;
-    height: 32px;
-    border-radius: 0;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 16px 48px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: white;
     transition: all 0.2s;
-    opacity: 0;
     z-index: 5;
 }
 
-.profile-banner:hover .profile-banner-upload {
+.profile-banner-upload .upload-btn-text {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Hide upload button when banner has image, show on hover */
+.profile-banner.has-image .profile-banner-upload {
+    opacity: 0;
+}
+
+.profile-banner.has-image:hover .profile-banner-upload {
     opacity: 1;
 }
 
 .profile-banner-upload:hover {
-    background: var(--theme-color);
-    border-color: var(--theme-color);
+    background: rgba(16, 185, 129, 0.8);
+    border-color: rgba(16, 185, 129, 1);
 }
 
 .profile-edit-btn-banner {
@@ -333,28 +344,41 @@ body.profile-active header {
 
 .profile-avatar-upload {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 28px;
-    height: 28px;
-    background: var(--theme-color);
-    border-radius: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 2px solid #101010;
     color: white;
     transition: all 0.2s;
+    z-index: 5;
+}
+
+.profile-avatar-upload .upload-btn-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Hide upload button when avatar has image, show on hover */
+.profile-avatar.has-image .profile-avatar-upload {
     opacity: 0;
 }
 
-.profile-avatar:hover .profile-avatar-upload {
+.profile-avatar.has-image:hover .profile-avatar-upload {
     opacity: 1;
 }
 
 .profile-avatar-upload:hover {
-    transform: scale(1.1);
+    background: rgba(16, 185, 129, 0.8);
+    border-color: rgba(16, 185, 129, 1);
 }
 
 /* Profile Info */
@@ -411,16 +435,16 @@ body.profile-active header {
 }
 
 .profile-action-btn.primary {
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     color: #fff;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
 
 .profile-action-btn.primary:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
     color: #fff;
 }
 
@@ -442,8 +466,8 @@ body.profile-active header {
 }
 
 .profile-action-btn.secondary:hover {
-    background: rgba(234, 88, 12, 0.12);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.4);
 }
 
 .profile-action-btn.icon {
@@ -458,7 +482,7 @@ body.profile-active header {
 }
 
 .profile-action-btn.icon:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -511,7 +535,7 @@ body.profile-active header {
 
 .profile-tab.active {
     color: #fff;
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
 }
 
 .profile-tab.active::after {
@@ -585,16 +609,16 @@ body.profile-active header {
 }
 
 .profile-upload-filter:hover {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
 .profile-upload-filter.active {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
 /* Saved Filters */
@@ -619,16 +643,16 @@ body.profile-active header {
 }
 
 .profile-saved-filter:hover {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
 .profile-saved-filter.active {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
 /* Saved Cards */
@@ -661,16 +685,16 @@ body.profile-active header {
 }
 
 .profile-likes-filter:hover {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
 .profile-likes-filter.active {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
 /* Likes Cards */
@@ -704,8 +728,8 @@ body.profile-active header {
 }
 
 .profile-category-card:hover {
-    background: rgba(234, 88, 12, 0.08);
-    border-color: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.2);
 }
 
 .profile-category-card.active {
@@ -740,11 +764,11 @@ body.profile-active header {
 
 /* Cards without VST/DAW image - green glassmorphism style */
 .profile-category-card.no-image {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(234, 88, 12, 0.08));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid rgba(234, 88, 12, 0.3);
-    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
     /* Same layout as cards with images - content at bottom-left */
     justify-content: flex-end;
     align-items: flex-start;
@@ -771,9 +795,9 @@ body.profile-active header {
 }
 
 .profile-category-card.no-image:hover {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(234, 88, 12, 0.15));
-    border-color: rgba(234, 88, 12, 0.5);
-    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.25);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.15));
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
 }
 
 /* Empty state */
@@ -1039,7 +1063,7 @@ body.profile-active header {
     align-items: center;
     gap: 16px;
     padding: 16px 20px;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0.05) 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1227,7 +1251,7 @@ body.profile-active header {
 }
 
 .profile-comment-user:hover {
-    color: #fb923c;
+    color: #34d399;
 }
 
 .profile-comment-text {
@@ -1379,7 +1403,7 @@ body.profile-active header {
 }
 
 .modal-close-btn:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #fff;
 }
 
@@ -1523,7 +1547,7 @@ body.profile-active header {
 .profile-react-btn:hover,
 .profile-reply-btn:hover {
     color: #fff;
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .profile-react-btn svg {
@@ -1708,7 +1732,7 @@ body.profile-active header {
 }
 
 .profile-reaction-item:hover {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
     transform: scale(1.2);
 }
 
@@ -1749,7 +1773,7 @@ body.profile-active header {
 }
 
 .profile-users-count {
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     color: #fff;
     padding: 2px 8px;
     border-radius: 10px;
@@ -1784,7 +1808,7 @@ body.profile-active header {
 
 .az-filter-btn.active {
     color: #fff;
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
 }
 
 .profile-users-grid {
@@ -1809,12 +1833,12 @@ body.profile-active header {
 }
 
 .profile-users-grid::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 3px;
 }
 
 .profile-users-grid::-webkit-scrollbar-thumb:hover {
-    background: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.5);
 }
 
 .profile-users-empty {
@@ -1850,7 +1874,7 @@ body.profile-active header {
 
 .profile-user-card:hover {
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(234, 88, 12, 0.3);
+    border-color: rgba(16, 185, 129, 0.3);
     transform: translateY(-2px);
 }
 
@@ -2042,11 +2066,11 @@ body.profile-overlay-active .profile-action-btn {
 }
 
 .banner-position-modal .modal-btn.confirm {
-    background: rgba(234, 88, 12, 0.8);
-    border: 1px solid rgba(234, 88, 12, 0.9);
+    background: rgba(16, 185, 129, 0.8);
+    border: 1px solid rgba(16, 185, 129, 0.9);
     color: #fff;
 }
 
 .banner-position-modal .modal-btn.confirm:hover {
-    background: rgba(234, 88, 12, 1);
+    background: rgba(16, 185, 129, 1);
 }

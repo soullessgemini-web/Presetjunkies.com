@@ -91,9 +91,6 @@
     <!-- SIDEBAR NAVIGATION -->
     <div class="side-nav" id="side-nav">
         <div class="side-nav-header">
-            <div class="side-nav-mascot">
-                <img src="Emojies/48301-clownpepe.png" alt="Preset Junkies Mascot">
-            </div>
             <div class="side-nav-title">Preset Junkies</div>
         </div>
 
@@ -110,41 +107,36 @@
             <a href="#" class="side-nav-item" data-view="originals">Original Music</a>
             <a href="#" class="side-nav-item" data-view="lounge">The Lounge</a>
             <a href="#" class="side-nav-item" data-view="junkies">Junkies</a>
+        </div>
 
-            <!-- Dashboard (always expanded, shown when logged in) -->
-            <div class="side-nav-collapsible expanded" id="dashboard-collapsible" style="display: none;">
-                <div class="side-nav-collapsible-header" id="dashboard-toggle" style="cursor: default;">
-                    <span>Dashboard</span>
-                    <span class="dashboard-header-badge" id="dashboard-header-badge"></span>
-                </div>
-                <div class="side-nav-collapsible-content" id="dashboard-content">
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="profile">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        Profile
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="notifications">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                        Notifications
-                        <span class="nav-badge" id="dashboard-notif-badge"></span>
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="manage-sounds">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                        Manage Sounds
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" data-view="settings">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        Settings
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem" id="dashboard-upload-btn">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Upload
-                    </a>
-                    <a href="#" class="side-nav-item side-nav-subitem side-nav-logout" id="dashboard-logout-btn">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Logout
-                    </a>
-                </div>
-            </div>
+        <!-- Dashboard (always expanded, shown when logged in) -->
+        <div class="side-nav-section" id="dashboard-collapsible" style="display: none;">
+            <div class="side-nav-section-title">DASHBOARD</div>
+            <a href="#" class="side-nav-item" data-view="profile">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Profile
+            </a>
+            <a href="#" class="side-nav-item" data-view="notifications">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifications
+                <span class="nav-badge" id="dashboard-notif-badge"></span>
+            </a>
+            <a href="#" class="side-nav-item" data-view="manage-sounds">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                Manage Sounds
+            </a>
+            <a href="#" class="side-nav-item" data-view="settings">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+            </a>
+            <a href="#" class="side-nav-item" id="dashboard-upload-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload
+            </a>
+            <a href="#" class="side-nav-item side-nav-logout" id="dashboard-logout-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+            </a>
         </div>
 
         <!-- Login Section (shown when not logged in) -->
@@ -970,12 +962,8 @@
                     <!-- Banner -->
                     <div class="profile-banner" id="profile-banner-section">
                         <button class="profile-close-btn hidden" id="profile-close-btn" data-action="closeProfileOverlay">✕</button>
-                        <button class="profile-back-to-btn hidden" id="profile-back-to-btn" data-action="goBackToParentProfile">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                            <span id="profile-back-to-text">Back to profile</span>
-                        </button>
                         <label class="profile-banner-upload" id="profile-banner-upload" for="profile-banner-input">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            <span class="upload-btn-text">Upload</span>
                         </label>
                         <input type="file" id="profile-banner-input" accept="image/*,image/gif" style="display:none;">
                         <div class="profile-actions" id="profile-actions">
@@ -996,7 +984,7 @@
                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                             </svg>
                             <label class="profile-avatar-upload" for="profile-avatar-input">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                <span class="upload-btn-text">Upload</span>
                             </label>
                             <input type="file" id="profile-avatar-input" accept="image/*" style="display:none;">
                         </div>
@@ -1651,6 +1639,24 @@
                                 </div>
                             </div>
 
+                            <!-- MIDI fields -->
+                            <div class="upload-form-row upload-form-row-2 upload-field-midi-meta" style="display: none;">
+                                <div class="upload-form-group">
+                                    <label class="upload-label">Key <span class="required">*</span></label>
+                                    <div class="upload-autocomplete-wrapper">
+                                        <input type="text" class="upload-input upload-autocomplete" id="upload-midi-key" placeholder="Key..." data-autocomplete="key" autocomplete="off" />
+                                        <div class="upload-autocomplete-dropdown" id="upload-midi-key-dropdown"></div>
+                                    </div>
+                                </div>
+                                <div class="upload-form-group">
+                                    <label class="upload-label">Scale <span class="required">*</span></label>
+                                    <div class="upload-autocomplete-wrapper">
+                                        <input type="text" class="upload-input upload-autocomplete" id="upload-midi-scale" placeholder="Scale..." data-autocomplete="scale" autocomplete="off" />
+                                        <div class="upload-autocomplete-dropdown" id="upload-midi-scale-dropdown"></div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Project fields -->
                             <div class="upload-form-row upload-form-row-5 upload-field-project-meta" style="display: none;">
                                 <div class="upload-form-group">
@@ -1987,6 +1993,20 @@
                         <div class="form-group">
                             <label class="form-label">Tags (comma separated)</label>
                             <input type="text" class="form-input" id="midi-tags" placeholder="melodic, progression, dark" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Key</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" class="form-input autocomplete-input" id="midi-key" placeholder="Type to search key..." autocomplete="off" data-autocomplete="key" />
+                                <div class="autocomplete-dropdown" id="midi-key-dropdown"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Scale</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" class="form-input autocomplete-input" id="midi-scale" placeholder="Type to search scale..." autocomplete="off" data-autocomplete="scale" />
+                                <div class="autocomplete-dropdown" id="midi-scale-dropdown"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">MIDI File</label>
@@ -2777,16 +2797,16 @@
 
     <!-- Modular JavaScript -->
     <script src="utils.js?v=2"></script>
-    <script src="supabase.js?v=11"></script>
-    <script src="state.js?v=9"></script>
+    <script src="supabase.js?v=12"></script>
+    <script src="state.js?v=10"></script>
     <script src="audio.js?v=2"></script>
     <script src="filters.js?v=2"></script>
     <script src="browse.js?v=10"></script>
-    <script src="comments.js?v=12"></script>
+    <script src="comments.js?v=13"></script>
     <script src="user.js?v=4"></script>
     <script src="junkies.js?v=3"></script>
     <script src="upload.js?v=2"></script>
-    <script src="lounge.js?v=22"></script>
+    <script src="lounge.js?v=23"></script>
     <script src="notifications.js?v=13"></script>
     <script src="settings.js?v=3"></script>
     <script src="manage-sounds.js?v=2"></script>

@@ -454,6 +454,13 @@ async function loadRoomsFromSupabase() {
     try {
         if (typeof supabaseGetRooms !== 'function') {
             console.warn('supabaseGetRooms not available');
+            // Still render from localStorage cache
+            if (typeof renderCommunityRooms === 'function') {
+                renderCommunityRooms();
+            }
+            if (typeof renderMyRooms === 'function') {
+                renderMyRooms();
+            }
             return;
         }
 
@@ -462,12 +469,20 @@ async function loadRoomsFromSupabase() {
 
         if (error) {
             console.error('Error loading rooms from Supabase:', error);
+            // Fall back to localStorage cache and render anyway
+            console.log('Falling back to localStorage cache, rooms:', communityRooms.length);
+            if (typeof renderCommunityRooms === 'function') {
+                renderCommunityRooms();
+            }
+            if (typeof renderMyRooms === 'function') {
+                renderMyRooms();
+            }
             return;
         }
 
         console.log('Rooms received from Supabase:', data?.length || 0, data);
 
-        if (data) {
+        if (data && data.length > 0) {
             // Transform Supabase format to local format (handles empty array too)
             communityRooms = data.map(room => {
                 // Parse rules if it's a string (Supabase returns JSON as string)
@@ -515,9 +530,26 @@ async function loadRoomsFromSupabase() {
             if (typeof renderMyRooms === 'function') {
                 renderMyRooms();
             }
+        } else {
+            // Empty data returned - render from localStorage cache
+            console.log('No rooms from Supabase, using localStorage cache:', communityRooms.length);
+            if (typeof renderCommunityRooms === 'function') {
+                renderCommunityRooms();
+            }
+            if (typeof renderMyRooms === 'function') {
+                renderMyRooms();
+            }
         }
     } catch (err) {
         console.error('Error loading rooms from Supabase:', err);
+        // Fall back to localStorage cache on error
+        console.log('Error fallback - using localStorage cache:', communityRooms.length);
+        if (typeof renderCommunityRooms === 'function') {
+            renderCommunityRooms();
+        }
+        if (typeof renderMyRooms === 'function') {
+            renderMyRooms();
+        }
     }
 }
 

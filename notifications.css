@@ -39,7 +39,7 @@
     height: 100%;
     overflow: hidden;
     position: relative;
-    border-right: 1px solid #fb923c;
+    border-right: 1px solid #34d399;
 }
 
 /* Left Panel Content */
@@ -96,7 +96,7 @@
 
 .notif-tab:hover {
     color: #fff;
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .notif-tab.active {
@@ -105,7 +105,7 @@
 }
 
 .notif-tab[data-filter="unread"].active {
-    background: rgba(234, 88, 12, 0.2);
+    background: rgba(16, 185, 129, 0.2);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     color: #fff;
@@ -187,8 +187,8 @@
 }
 
 .notification-item.unread {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(234, 88, 12, 0.08));
-    border-left: 3px solid #ea580c;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
+    border-left: 3px solid #10b981;
 }
 
 .notification-icon {
@@ -204,7 +204,7 @@
 }
 
 .notification-icon.like { background: rgba(233, 30, 99, 0.15); }
-.notification-icon.comment { background: rgba(234, 88, 12, 0.15); }
+.notification-icon.comment { background: rgba(16, 185, 129, 0.15); }
 .notification-icon.save { background: rgba(255, 193, 7, 0.15); }
 .notification-icon.share { background: rgba(33, 150, 243, 0.15); }
 .notification-icon.download { background: rgba(156, 39, 176, 0.15); }
@@ -244,7 +244,7 @@
 }
 
 .notif-username:hover {
-    color: #fb923c;
+    color: #34d399;
     text-decoration: underline;
 }
 
@@ -340,8 +340,8 @@
 
 .view-profile-btn {
     padding: 14px 40px;
-    background: rgba(234, 88, 12, 0.25);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 8px;
     color: #fff;
     font-size: 15px;
@@ -351,8 +351,8 @@
 }
 
 .view-profile-btn:hover {
-    background: rgba(234, 88, 12, 0.35);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.35);
+    border-color: rgba(16, 185, 129, 0.6);
     transform: translateY(-1px);
 }
 
@@ -440,8 +440,8 @@
 }
 
 .activity-tab.active {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
 }
 
 .activity-tab strong {
@@ -495,7 +495,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.3), rgba(234, 88, 12, 0.1));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -582,7 +582,7 @@
 }
 
 .activity-user-row:hover {
-    background: rgba(234, 88, 12, 0.05);
+    background: rgba(16, 185, 129, 0.05);
 }
 
 .activity-user-row:last-child {
@@ -602,7 +602,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.3), rgba(234, 88, 12, 0.1));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
 }
 
 .activity-user-avatar-placeholder svg {
@@ -659,7 +659,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.3), rgba(234, 88, 12, 0.1));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
 }
 
 .activity-comment-content {
@@ -682,7 +682,7 @@
 }
 
 .activity-comment-username:hover {
-    color: #fb923c;
+    color: #34d399;
     text-decoration: underline;
 }
 
@@ -708,10 +708,10 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: rgba(234, 88, 12, 0.1);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 6px;
-    color: #ea580c;
+    color: #10b981;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
@@ -719,8 +719,8 @@
 }
 
 .activity-reply-btn:hover {
-    background: rgba(234, 88, 12, 0.2);
-    border-color: #ea580c;
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
 }
 
 .activity-reply-btn svg {
@@ -743,7 +743,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.3), rgba(234, 88, 12, 0.1));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
     flex-shrink: 0;
     overflow: hidden;
 }
@@ -857,14 +857,14 @@
 }
 
 .invite-accept-btn {
-    background: rgba(234, 88, 12, 0.25);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
 .invite-accept-btn:hover {
-    background: rgba(234, 88, 12, 0.35);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.35);
+    border-color: rgba(16, 185, 129, 0.6);
 }
 
 .invite-decline-btn {

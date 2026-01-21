@@ -255,8 +255,12 @@ function renderCommunityRooms() {
     if (!container) return;
 
     const username = getCurrentUsername();
-    // Filter out rooms the user is banned from or has already joined
-    const visibleRooms = communityRooms.filter(room => !isUserBanned(room.id, username) && !isRoomJoined(room.id));
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    // For guests, show all rooms. For logged-in users, filter out joined rooms
+    const visibleRooms = isLoggedIn
+        ? communityRooms.filter(room => !isUserBanned(room.id, username) && !isRoomJoined(room.id))
+        : communityRooms;
 
     container.innerHTML = visibleRooms.map((room, index) => {
         const cachedImages = roomImagesCache[room.id] || {};
@@ -2139,7 +2143,7 @@ function hideMediaPreview() {
 
 // User color map for consistent colors
 const userColors = {};
-const colorOptions = ['green', 'blue', 'pink', 'cyan', 'orange', 'purple'];
+const colorOptions = ['green', 'blue', 'pink', 'cyan', 'emerald', 'purple'];
 
 function getUserColor(username) {
     if (!userColors[username]) {
@@ -4024,11 +4028,17 @@ function initLounge() {
     // Initialize intro splash modal event listeners
     initLoungeIntro();
 
+    // Clear joined rooms for guest users so they see all community rooms
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn && typeof resetJoinedRooms === 'function') {
+        resetJoinedRooms();
+    }
+
     // Load rooms from Supabase
     if (typeof loadRoomsFromSupabase === 'function') {
         loadRoomsFromSupabase();
     }
-    if (typeof loadJoinedRoomsFromSupabase === 'function') {
+    if (isLoggedIn && typeof loadJoinedRoomsFromSupabase === 'function') {
         loadJoinedRoomsFromSupabase();
     }
 

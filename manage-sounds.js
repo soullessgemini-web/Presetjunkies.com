@@ -277,6 +277,22 @@ function renderManageSoundsGrid() {
     // Render all cards (no pagination)
     if (grid) {
         grid.innerHTML = filteredItems.map(item => createManageSoundCard(item, manageActiveTab === 'saved')).join('');
+
+        // Setup special card types after rendering
+        filteredItems.forEach(item => {
+            // Render piano rolls for MIDI items
+            if (item.category === 'midi' && item.midiNotes && typeof renderPianoRoll === 'function') {
+                setTimeout(() => {
+                    renderPianoRoll(item.id, item.midiNotes, item.themeColor || '#e8e8e8');
+                }, 50);
+            }
+            // Setup video players for project items
+            if (item.category === 'projects' && item.videoBlob && typeof setupVideoPlayer === 'function') {
+                setTimeout(() => {
+                    setupVideoPlayer(item.id);
+                }, 50);
+            }
+        });
     }
 
     // Hide pagination

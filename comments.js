@@ -433,7 +433,7 @@ async function submitCommentInner() {
 }
 
 // Center Panel Functions
-function updateCenterPanel(item, category) {
+async function updateCenterPanel(item, category) {
     if (!item) return;
 
     centerPanelItem = item;
@@ -479,6 +479,22 @@ function updateCenterPanel(item, category) {
     if (!uploaderBanner) uploaderBanner = item.uploaderBanner;
     if (!uploaderAvatar) uploaderAvatar = item.uploaderAvatar;
     if (!uploaderBio) uploaderBio = item.uploaderBio;
+
+    // PRIORITY 4: Fetch from Supabase if still missing data
+    if ((!uploaderBanner || !uploaderAvatar || !uploaderBio) && uploaderName !== 'Unknown') {
+        if (typeof supabaseGetProfileByUsername === 'function') {
+            try {
+                const { data: profile } = await supabaseGetProfileByUsername(uploaderName);
+                if (profile) {
+                    if (!uploaderBanner && profile.banner_url) uploaderBanner = profile.banner_url;
+                    if (!uploaderAvatar && profile.avatar_url) uploaderAvatar = profile.avatar_url;
+                    if (!uploaderBio && profile.bio) uploaderBio = profile.bio;
+                }
+            } catch (err) {
+                console.error('Error fetching uploader profile:', err);
+            }
+        }
+    }
 
     if (banner) {
         const bannerCssUrl = sanitizeCSSUrl(uploaderBanner);

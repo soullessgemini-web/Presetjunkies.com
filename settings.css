@@ -98,8 +98,8 @@
 /* Settings Buttons */
 .settings-btn {
     padding: 10px 20px;
-    background: rgba(234, 88, 12, 0.15);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 6px;
     color: #fff;
     font-size: 13px;
@@ -109,8 +109,8 @@
 }
 
 .settings-btn:hover {
-    background: rgba(234, 88, 12, 0.25);
-    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .settings-btn-danger {
@@ -142,13 +142,13 @@
 }
 
 .settings-select:hover {
-    border-color: rgba(234, 88, 12, 0.4);
+    border-color: rgba(16, 185, 129, 0.4);
 }
 
 .settings-select:focus {
     outline: none;
-    border-color: rgba(234, 88, 12, 0.5);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .settings-select option {
@@ -209,8 +209,8 @@
 
 .settings-form-input:focus {
     outline: none;
-    border-color: rgba(234, 88, 12, 0.5);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .settings-form-input::placeholder {
@@ -241,8 +241,8 @@ textarea.settings-form-input {
 .settings-form-submit {
     width: 100%;
     padding: 14px;
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 8px;
     color: #fff;
     font-size: 14px;
@@ -252,8 +252,8 @@ textarea.settings-form-input {
 }
 
 .settings-form-submit:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
 }
 
 .settings-form-submit.settings-btn-danger {
@@ -323,8 +323,8 @@ textarea.settings-form-input {
 
 .settings-bio-input:focus {
     outline: none;
-    border-color: rgba(234, 88, 12, 0.5);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .settings-bio-input::placeholder {

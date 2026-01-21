@@ -1,4 +1,5 @@
 // ===== FILTERS & TAGS =====
+console.log('filters.js loaded');
 
 function updateDynamicFilters(category) {
     // Check if filterConfigs exists before accessing
@@ -36,85 +37,114 @@ function updateDynamicFilters(category) {
 }
 
 function filterItems() {
+    console.log('filterItems called, currentTab:', currentTab);
+    console.log('selectedTypes:', [...selectedTypes]);
+    console.log('selectedTags:', [...selectedTags]);
+
     const filter1Value = document.getElementById('dynamic-filter-1')?.value?.toLowerCase() || '';
+    console.log('filter1Value (VST filter):', filter1Value, 'selectedVst:', selectedVst);
     const filter2Value = document.getElementById('dynamic-filter-2')?.value?.toLowerCase() || '';
     const filter3Value = document.getElementById('dynamic-filter-3')?.value?.toLowerCase() || '';
     const filter4Value = document.getElementById('dynamic-filter-4')?.value?.toLowerCase() || '';
     const search = document.getElementById('tag-search')?.value?.toLowerCase()?.trim() || '';
 
     const grid = document.getElementById(`${currentTab}-grid`);
-    if (!grid) return;
+    if (!grid) {
+        console.log('Grid not found for tab:', currentTab);
+        return;
+    }
 
     const cards = grid.querySelectorAll('[data-item-id]');
+    console.log('Found cards:', cards.length);
+
     cards.forEach(card => {
-        // Check if items and currentTab data exist
-        if (typeof items === 'undefined' || !items || !items[currentTab]) return;
-        const item = items[currentTab].find(i => i.id === parseInt(card.dataset.itemId));
-        if (!item) return;
+        // Get item data from items array using loose equality (==) for ID comparison
+        const cardId = card.dataset.itemId;
+        let item = null;
+        if (typeof items !== 'undefined' && items && items[currentTab]) {
+            item = items[currentTab].find(i => i.id == cardId);
+        }
+        console.log('Card ID:', cardId, 'Item found:', !!item, 'Item type:', item?.type, 'Item VST:', item?.vst, 'Card dataset vst:', card.dataset.vst);
+
+        // Use dataset attributes as fallback if item not found
+        const itemType = item?.type || card.dataset.type || '';
+        const itemVst = item?.vst || card.dataset.vst || '';
+        const itemTags = item?.tags || (card.dataset.tags ? card.dataset.tags.split(',').filter(t => t) : []);
+        const itemTitle = item?.title || card.dataset.title || '';
+        const itemKey = item?.key || card.dataset.key || '';
+        const itemScale = item?.scale || card.dataset.scale || '';
+        const itemDaw = item?.daw || card.dataset.daw || '';
+        const itemGenre = item?.genre || card.dataset.genre || '';
+        const itemLoopType = item?.loopType || card.dataset.loopType || '';
 
         let matches = true;
 
         if (currentTab === 'presets') {
-            if (filter1Value && item.vst?.toLowerCase() !== filter1Value) matches = false;
-            if (filter2Value && item.type?.toLowerCase() !== filter2Value) matches = false;
+            // Check VST filter - use selectedVst directly (from tag clicks) or filter1Value (from dropdown)
+            const vstFilter = selectedVst || filter1Value;
+            if (vstFilter && itemVst?.toLowerCase() !== vstFilter.toLowerCase()) matches = false;
+            if (filter2Value && itemType?.toLowerCase() !== filter2Value) matches = false;
             if (selectedTypes.size > 0) {
-                const itemType = item.type?.charAt(0).toUpperCase() + item.type?.slice(1).toLowerCase();
-                if (!selectedTypes.has(itemType) && !selectedTypes.has(item.type)) matches = false;
+                const itemTypeUpper = itemType?.toUpperCase() || '';
+                const hasMatch = [...selectedTypes].some(t => t.toUpperCase() === itemTypeUpper);
+                if (!hasMatch) matches = false;
             }
             if (selectedTags.size > 0) {
-                const itemTagsUpper = (item.tags || []).map(t => t.toUpperCase());
+                const itemTagsUpper = (itemTags || []).map(t => t.toUpperCase());
                 const hasAllTags = [...selectedTags].every(tag => itemTagsUpper.includes(tag.toUpperCase()));
                 if (!hasAllTags) matches = false;
             }
         } else if (currentTab === 'samples') {
-            if (filter1Value && item.type?.toLowerCase() !== filter1Value) matches = false;
-            if (filter2Value && item.key?.toLowerCase() !== filter2Value) matches = false;
+            if (filter1Value && itemType?.toLowerCase() !== filter1Value) matches = false;
+            if (filter2Value && itemKey?.toLowerCase() !== filter2Value) matches = false;
             if (selectedSampleTypes.size > 0) {
-                const itemType = item.type?.charAt(0).toUpperCase() + item.type?.slice(1).toLowerCase();
-                if (!selectedSampleTypes.has(itemType) && !selectedSampleTypes.has(item.type)) matches = false;
+                const itemTypeUpper = itemType?.toUpperCase() || '';
+                const hasMatch = [...selectedSampleTypes].some(t => t.toUpperCase() === itemTypeUpper);
+                if (!hasMatch) matches = false;
             }
             if (selectedLoopTypes.size > 0) {
-                if (!selectedLoopTypes.has(item.loopType)) matches = false;
+                if (!selectedLoopTypes.has(itemLoopType)) matches = false;
             }
             if (selectedTags.size > 0) {
-                const itemTagsUpper = (item.tags || []).map(t => t.toUpperCase());
+                const itemTagsUpper = (itemTags || []).map(t => t.toUpperCase());
                 const hasAllTags = [...selectedTags].every(tag => itemTagsUpper.includes(tag.toUpperCase()));
                 if (!hasAllTags) matches = false;
             }
         } else if (currentTab === 'midi') {
-            if (filter1Value && item.key?.toLowerCase() !== filter1Value) matches = false;
-            if (filter2Value && item.scale?.toLowerCase() !== filter2Value) matches = false;
+            if (filter1Value && itemKey?.toLowerCase() !== filter1Value) matches = false;
+            if (filter2Value && itemScale?.toLowerCase() !== filter2Value) matches = false;
             if (selectedMidiKeys.size > 0) {
-                if (!selectedMidiKeys.has(item.key)) matches = false;
+                if (!selectedMidiKeys.has(itemKey)) matches = false;
             }
             if (selectedMidiScales.size > 0) {
-                if (!selectedMidiScales.has(item.scale)) matches = false;
+                if (!selectedMidiScales.has(itemScale)) matches = false;
             }
             if (selectedTags.size > 0) {
-                const itemTagsUpper = (item.tags || []).map(t => t.toUpperCase());
+                const itemTagsUpper = (itemTags || []).map(t => t.toUpperCase());
                 const hasAllTags = [...selectedTags].every(tag => itemTagsUpper.includes(tag.toUpperCase()));
                 if (!hasAllTags) matches = false;
             }
         } else if (currentTab === 'projects') {
-            if (filter1Value && item.daw?.toLowerCase() !== filter1Value) matches = false;
-            if (filter2Value && item.key?.toLowerCase() !== filter2Value) matches = false;
-            if (filter3Value && item.scale?.toLowerCase() !== filter3Value) matches = false;
-            if (filter4Value && item.genre?.toLowerCase() !== filter4Value) matches = false;
-            if (selectedDaw && item.daw?.toLowerCase() !== selectedDaw) matches = false;
+            if (filter1Value && itemDaw?.toLowerCase() !== filter1Value) matches = false;
+            if (filter2Value && itemKey?.toLowerCase() !== filter2Value) matches = false;
+            if (filter3Value && itemScale?.toLowerCase() !== filter3Value) matches = false;
+            if (filter4Value && itemGenre?.toLowerCase() !== filter4Value) matches = false;
+            if (selectedDaw && itemDaw?.toLowerCase() !== selectedDaw) matches = false;
             if (selectedGenres.size > 0) {
-                const itemGenre = item.genre?.charAt(0).toUpperCase() + item.genre?.slice(1).toLowerCase();
-                if (!selectedGenres.has(itemGenre) && !selectedGenres.has(item.genre)) matches = false;
+                const itemGenreUpper = itemGenre?.toUpperCase() || '';
+                const hasMatch = [...selectedGenres].some(g => g.toUpperCase() === itemGenreUpper);
+                if (!hasMatch) matches = false;
             }
             if (selectedTags.size > 0) {
-                const itemTagsUpper = (item.tags || []).map(t => t.toUpperCase());
+                const itemTagsUpper = (itemTags || []).map(t => t.toUpperCase());
                 const hasAllTags = [...selectedTags].every(tag => itemTagsUpper.includes(tag.toUpperCase()));
                 if (!hasAllTags) matches = false;
             }
         }
 
         if (search) {
-            const tagMatch = item.tags?.some(t => t.toLowerCase().includes(search)) || false;
-            const titleMatch = item.title.toLowerCase().includes(search);
+            const tagMatch = itemTags?.some(t => t.toLowerCase().includes(search)) || false;
+            const titleMatch = itemTitle.toLowerCase().includes(search);
             if (!tagMatch && !titleMatch) matches = false;
         }
 
@@ -148,8 +178,11 @@ function updateInstrumentDisplay() {
 
 // Set-based tag toggle handler
 function setupSetTagHandler(selector, dataAttr, set, afterToggle) {
-    document.querySelectorAll(selector).forEach(tag => {
+    const tags = document.querySelectorAll(selector);
+    console.log('setupSetTagHandler:', selector, 'found', tags.length, 'elements');
+    tags.forEach(tag => {
         tag.addEventListener('click', () => {
+            console.log('Tag clicked:', tag.dataset[dataAttr]);
             const value = tag.dataset[dataAttr];
             if (set.has(value)) {
                 set.delete(value);
@@ -164,13 +197,13 @@ function setupSetTagHandler(selector, dataAttr, set, afterToggle) {
     });
 }
 
-// Setup search filter for tags
+// Setup search filter for tags - matches from start of tag name
 function setupTagSearch(inputId, tagSelector, dataAttr) {
     document.getElementById(inputId)?.addEventListener('input', (e) => {
         const search = e.target.value.toLowerCase();
         document.querySelectorAll(tagSelector).forEach(tag => {
             const value = tag.dataset[dataAttr].toLowerCase();
-            tag.style.display = value.includes(search) ? '' : 'none';
+            tag.style.display = value.startsWith(search) ? '' : 'none';
         });
     });
 }
@@ -208,7 +241,7 @@ function renderTrendingTags(category, containerId, set) {
 
 function getTrendingTagsWithCounts(category) {
     const tagCounts = {};
-    // First count tags from uploaded items
+    // Count tags only from items in this specific category
     (items[category] || []).forEach(item => {
         (item.tags || []).forEach(tag => {
             const upperTag = tag.toUpperCase();
@@ -216,14 +249,7 @@ function getTrendingTagsWithCounts(category) {
         });
     });
 
-    // If no items, use global tags from localStorage
-    if (Object.keys(tagCounts).length === 0) {
-        const globalTags = safeJSONParse(localStorage.getItem('globalTags'), {});
-        Object.entries(globalTags).forEach(([tag, count]) => {
-            tagCounts[tag.toUpperCase()] = count;
-        });
-    }
-
+    // No fallback to globalTags - only show tags that exist for this category
     const sorted = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 20);
     return sorted;
 }
@@ -240,7 +266,7 @@ function renderCategoryTrendingTags(category, containerId) {
     const html = tagsWithCounts.map((entry) => {
         const tag = entry[0];
         const count = entry[1];
-        return `<button class="filter-list-item trending-tag ${selectedTags.has(tag) ? 'selected' : ''}" data-tag="${escapeAttr(tag)}"><span class="filter-checkbox"></span><span>${escapeHTML(tag)}</span><span class="filter-count">${count}</span></button>`;
+        return `<button class="filter-list-item trending-tag ${selectedTags.has(tag) ? 'selected' : ''}" data-tag="${escapeAttr(tag)}"><span class="filter-checkbox"></span><span>${escapeHTML(tag)}</span><span class="filter-count"><span class="filter-count-num">${count}</span></span></button>`;
     }).join('');
     container.innerHTML = html;
     container.querySelectorAll('.trending-tag').forEach(btn => {
@@ -304,12 +330,13 @@ function updateFilterCounts() {
         updateTagCount(tag, count);
     });
 
-    // Count presets by tags
+    // Count presets by tags (use uppercase to match rendered tags)
     const presetTagCounts = {};
     items.presets.forEach(item => {
         if (item.tags) {
             item.tags.forEach(tag => {
-                presetTagCounts[tag] = (presetTagCounts[tag] || 0) + 1;
+                const upperTag = tag.toUpperCase();
+                presetTagCounts[upperTag] = (presetTagCounts[upperTag] || 0) + 1;
             });
         }
     });
@@ -353,12 +380,13 @@ function updateFilterCounts() {
         updateTagCount(tag, count);
     });
 
-    // Count samples by tags
+    // Count samples by tags (use uppercase to match rendered tags)
     const sampleTagCounts = {};
     items.samples.forEach(item => {
         if (item.tags) {
             item.tags.forEach(tag => {
-                sampleTagCounts[tag] = (sampleTagCounts[tag] || 0) + 1;
+                const upperTag = tag.toUpperCase();
+                sampleTagCounts[upperTag] = (sampleTagCounts[upperTag] || 0) + 1;
             });
         }
     });
@@ -398,12 +426,13 @@ function updateFilterCounts() {
         updateTagCount(tag, count);
     });
 
-    // Count MIDI by tags
+    // Count MIDI by tags (use uppercase to match rendered tags)
     const midiTagCounts = {};
     items.midi.forEach(item => {
         if (item.tags) {
             item.tags.forEach(tag => {
-                midiTagCounts[tag] = (midiTagCounts[tag] || 0) + 1;
+                const upperTag = tag.toUpperCase();
+                midiTagCounts[upperTag] = (midiTagCounts[upperTag] || 0) + 1;
             });
         }
     });
@@ -443,12 +472,13 @@ function updateFilterCounts() {
         updateTagCount(tag, count);
     });
 
-    // Count projects by tags
+    // Count projects by tags (use uppercase to match rendered tags)
     const projectTagCounts = {};
     items.projects.forEach(item => {
         if (item.tags) {
             item.tags.forEach(tag => {
-                projectTagCounts[tag] = (projectTagCounts[tag] || 0) + 1;
+                const upperTag = tag.toUpperCase();
+                projectTagCounts[upperTag] = (projectTagCounts[upperTag] || 0) + 1;
             });
         }
     });
@@ -490,6 +520,7 @@ function updateTagCount(tag, count) {
 
 // Initialize filter event listeners
 function initFilterListeners() {
+    console.log('initFilterListeners called');
     document.getElementById('dynamic-filter-1')?.addEventListener('change', filterItems);
     document.getElementById('dynamic-filter-2')?.addEventListener('change', filterItems);
     document.getElementById('dynamic-filter-3')?.addEventListener('change', filterItems);
@@ -499,9 +530,12 @@ function initFilterListeners() {
     document.getElementById('dynamic-filter-1')?.addEventListener('change', updateInstrumentDisplay);
 
     // VST Tags (single-select with image update)
-    document.querySelectorAll('.vst-tag').forEach(tag => {
+    const vstTags = document.querySelectorAll('.vst-tag');
+    console.log('VST tags found:', vstTags.length);
+    vstTags.forEach(tag => {
         tag.addEventListener('click', () => {
             const vst = tag.dataset.vst;
+            console.log('VST tag clicked:', vst);
             if (selectedVst === vst) {
                 selectedVst = null;
                 tag.classList.remove('selected');

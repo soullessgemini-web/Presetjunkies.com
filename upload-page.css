@@ -70,15 +70,15 @@ body.upload-active .instrument-display {
 }
 
 .upload-category-tab:hover {
-    background: rgba(234, 88, 12, 0.1);
-    border-color: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
     color: #fff;
 }
 
 .upload-category-tab.active {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.4);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     color: #fff;
 }
 
@@ -135,15 +135,15 @@ body.upload-active .instrument-display {
 }
 
 .upload-item-tab:hover {
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
     color: #fff;
-    border-color: rgba(234, 88, 12, 0.3);
+    border-color: rgba(16, 185, 129, 0.3);
 }
 
 .upload-item-tab.active {
-    background: rgba(234, 88, 12, 0.15);
-    border-color: rgba(234, 88, 12, 0.4);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     color: #fff;
 }
 
@@ -152,7 +152,7 @@ body.upload-active .instrument-display {
     display: inline-block;
     width: 6px;
     height: 6px;
-    background: #ea580c;
+    background: #10b981;
     border-radius: 50%;
     margin-left: 8px;
 }
@@ -173,7 +173,7 @@ body.upload-active .instrument-display {
 }
 
 .upload-item-tab-remove:hover {
-    background: rgba(234, 88, 12, 0.25);
+    background: rgba(16, 185, 129, 0.25);
     color: #fff;
 }
 
@@ -194,8 +194,8 @@ body.upload-active .instrument-display {
 }
 
 .upload-add-item-btn:hover {
-    background: rgba(234, 88, 12, 0.1);
-    border-color: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
@@ -265,14 +265,14 @@ body.upload-active .instrument-display {
 }
 
 .upload-label .required {
-    color: #fff;
+    color: #ef4444;
     margin-left: 2px;
 }
 
 .upload-input,
 .upload-textarea {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 4px;
     padding: 10px 12px;
     color: #fff;
@@ -292,9 +292,9 @@ body.upload-active .instrument-display {
 .upload-input:focus,
 .upload-textarea:focus {
     outline: none;
-    border-color: rgba(234, 88, 12, 0.5);
+    border-color: rgba(16, 185, 129, 0.5);
     background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .upload-input::placeholder,
@@ -354,7 +354,7 @@ select.upload-input option {
     left: 0;
     right: 0;
     background: #101010;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 4px;
     max-height: 200px;
     overflow-y: auto;
@@ -410,9 +410,9 @@ select.upload-input option {
 }
 
 .upload-tags-input-container:focus-within {
-    border-color: rgba(234, 88, 12, 0.5);
+    border-color: rgba(16, 185, 129, 0.5);
     background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .upload-tags-input {
@@ -435,8 +435,8 @@ select.upload-input option {
     align-items: center;
     gap: 5px;
     padding: 4px 8px;
-    background: rgba(234, 88, 12, 0.15);
-    border: 1px solid rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 4px;
     color: #fff;
     font-size: 12px;
@@ -498,7 +498,7 @@ select.upload-input option {
 
 .tag-autocomplete-item:hover,
 .tag-autocomplete-item.highlighted {
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .tag-autocomplete-name {
@@ -543,16 +543,16 @@ select.upload-input option {
 }
 
 .upload-file-item:hover {
-    border-color: rgba(234, 88, 12, 0.4);
-    background: rgba(234, 88, 12, 0.05);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .upload-file-item.has-file {
     border-style: solid;
-    border-color: rgba(234, 88, 12, 0.4);
-    background: rgba(234, 88, 12, 0.08);
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.08);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .upload-file-icon {
@@ -665,8 +665,8 @@ select.upload-input option {
     justify-content: center;
     gap: 10px;
     padding: 14px 24px;
-    background: rgba(234, 88, 12, 0.2);
-    border: 1px solid rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     border-radius: 4px;
     color: #fff;
     font-size: 14px;
@@ -680,11 +680,11 @@ select.upload-input option {
 }
 
 .upload-submit-btn:hover {
-    background: rgba(234, 88, 12, 0.3);
-    border-color: rgba(234, 88, 12, 0.6);
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.6);
     color: #fff;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
 .upload-submit-btn:active {
@@ -708,13 +708,13 @@ select.upload-input option {
 
 .upload-main::-webkit-scrollbar-thumb,
 .upload-autocomplete-dropdown::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 3px;
 }
 
 .upload-main::-webkit-scrollbar-thumb:hover,
 .upload-autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
-    background: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.5);
 }
 
 /* ===== RESPONSIVE ===== */
