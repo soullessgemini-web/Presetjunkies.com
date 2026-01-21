@@ -1403,3 +1403,4 @@ window.migrateLocalStorageToSupabase = migrateLocalStorageToSupabase;
 window.hasLocalDataToMigrate = hasLocalDataToMigrate;
 
 console.log('Supabase client initialized');
+
