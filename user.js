@@ -1,5 +1,23 @@
 // ===== USER & PROFILE =====
 
+// Map database DAW keys to dawImages keys
+const dawKeyToImageKey = {
+    'flstudio': 'fl studio',
+    'fl studio': 'fl studio',
+    'logic': 'logic pro',
+    'logic pro': 'logic pro',
+    'protools': 'pro tools',
+    'pro tools': 'pro tools',
+    'studioone': 'studio one',
+    'studio one': 'studio one',
+    'ableton': 'ableton',
+    'bitwig': 'bitwig',
+    'cakewalk': 'cakewalk',
+    'cubase': 'cubase',
+    'reaper': 'reaper',
+    'reason': 'reason'
+};
+
 // Profile navigation history (like browser history)
 let profileHistory = [];
 let profileHistoryIndex = -1;
@@ -12,31 +30,13 @@ let userFollowing = [];
 // Each entry: { username: string, activeTab: string }
 let parentProfileStack = [];
 
-// Update the "Back to X's profile" button visibility and text
+// Update close button visibility
 function updateBackToButton() {
-    const backBtn = document.getElementById('profile-back-to-btn');
-    const backText = document.getElementById('profile-back-to-text');
     const closeBtn = document.getElementById('profile-close-btn');
 
-    if (!backBtn) return;
-
-    // Only show when in overlay mode and have parent profiles
-    if (parentProfileStack.length > 0 && previousState.wasProfileOverlay) {
-        // Show button with parent's username
-        const parentEntry = parentProfileStack[parentProfileStack.length - 1];
-        if (backText) backText.textContent = `Back to ${parentEntry.username}'s profile`;
-        backBtn.classList.remove('hidden');
-
-        // Hide X button when showing back-to button
-        if (closeBtn) closeBtn.classList.add('hidden');
-    } else {
-        // Hide button when no parent profiles or not in overlay mode
-        backBtn.classList.add('hidden');
-
-        // Show X button if in overlay mode (and no parent to go back to)
-        if (closeBtn && previousState.wasProfileOverlay) {
-            closeBtn.classList.remove('hidden');
-        }
+    // Show X button if in overlay mode
+    if (closeBtn && previousState.wasProfileOverlay) {
+        closeBtn.classList.remove('hidden');
     }
 }
 
@@ -265,6 +265,10 @@ function viewUserProfile(username, fromNavigation = false, asOverlay = false) {
     // Admin delete user button
     const adminDeleteUserBtn = document.getElementById('admin-delete-user-btn');
 
+    // Upload buttons - only show on own profile
+    const bannerUpload = document.getElementById('profile-banner-upload');
+    const avatarUpload = document.querySelector('.profile-avatar-upload');
+
     if (!isViewingOwnProfile) {
         // Show the actions container for other users
         if (actionsContainer) {
@@ -286,6 +290,9 @@ function viewUserProfile(username, fromNavigation = false, asOverlay = false) {
                 adminDeleteUserBtn.classList.add('hidden');
             }
         }
+        // Hide upload buttons on other profiles
+        if (bannerUpload) bannerUpload.style.display = 'none';
+        if (avatarUpload) avatarUpload.style.display = 'none';
     } else {
         // Hide on own profile
         if (adminDeleteUserBtn) {
@@ -294,6 +301,9 @@ function viewUserProfile(username, fromNavigation = false, asOverlay = false) {
         if (actionsContainer) {
             actionsContainer.classList.add('hidden-own-profile');
         }
+        // Show upload buttons on own profile
+        if (bannerUpload) bannerUpload.style.display = '';
+        if (avatarUpload) avatarUpload.style.display = '';
     }
 
     // Final check: ensure X button is hidden when there are parent profiles
@@ -679,9 +689,11 @@ async function loadUserProfileData(username) {
         if (bannerCssUrl) {
             profileBanner.style.backgroundImage = `url('${bannerCssUrl}')`;
             profileBanner.style.backgroundPosition = `center ${userProfile.bannerPosition || 50}%`;
+            profileBanner.classList.add('has-image');
         } else {
             profileBanner.style.backgroundImage = '';
             profileBanner.style.backgroundPosition = '';
+            profileBanner.classList.remove('has-image');
         }
     }
 
@@ -792,6 +804,20 @@ function loadUserUploadsGrid(username) {
         // Initialize audio features
         if (typeof setupCardAudio === 'function') {
             setupCardAudio(item, item.category);
+        }
+
+        // Render piano roll for MIDI items
+        if (item.category === 'midi' && item.midiNotes && typeof renderPianoRoll === 'function') {
+            setTimeout(() => {
+                renderPianoRoll(item.id, item.midiNotes, item.themeColor || '#e8e8e8');
+            }, 50);
+        }
+
+        // Setup video player for project items
+        if (item.category === 'projects' && item.videoBlob && typeof setupVideoPlayer === 'function') {
+            setTimeout(() => {
+                setupVideoPlayer(item.id);
+            }, 50);
         }
     });
 }
@@ -1055,6 +1081,7 @@ async function saveBannerWithPosition() {
         if (bannerSection) {
             bannerSection.style.backgroundImage = `url('${url}')`;
             bannerSection.style.backgroundPosition = `center ${bannerPositionY}%`;
+            bannerSection.classList.add('has-image');
         }
 
         // Update profile in Supabase with URL and position
@@ -1118,6 +1145,7 @@ function loadProfileData() {
         if (bannerSection) {
             bannerSection.style.backgroundImage = `url('${bannerCssUrl}')`;
             bannerSection.style.backgroundPosition = `center ${savedBannerPosition}%`;
+            bannerSection.classList.add('has-image');
         }
     }
 
@@ -1620,7 +1648,22 @@ function renderUploadCards(filter = currentUploadFilter) {
 
     const allGroups = getUserUploadGroups();
     // If filter is 'all', show all groups; otherwise filter by category
-    const groups = filter === 'all' ? allGroups : allGroups.filter(g => g.category === filter);
+    let groups = filter === 'all' ? allGroups : allGroups.filter(g => g.category === filter);
+
+    // When showing all, prepend an "All Sounds" card that combines all items
+    if (filter === 'all' && allGroups.length > 0) {
+        // Add category to each item from its group
+        const allItems = allGroups.flatMap(g => g.items.map(item => ({ ...item, category: g.category })));
+        const allGroup = {
+            id: 'all-sounds',
+            name: 'ALL SOUNDS',
+            category: 'all',
+            groupKey: 'all',
+            count: allItems.length,
+            items: allItems
+        };
+        groups = [allGroup, ...groups];
+    }
 
     const filterLabel = filter === 'all' ? 'All Sounds' : filter;
 
@@ -1646,7 +1689,8 @@ function renderUploadCards(filter = currentUploadFilter) {
             return vstImages[vstKey] || null;
         }
         if (group.category === 'projects') {
-            const dawKey = group.groupKey.toLowerCase();
+            const rawKey = group.groupKey.toLowerCase();
+            const dawKey = dawKeyToImageKey[rawKey] || rawKey;
             return dawImages[dawKey] || null;
         }
         return null;
@@ -1817,7 +1861,8 @@ function renderSavedCards(filter = currentSavedFilter) {
             return vstImages[vstKey] || null;
         }
         if (group.category === 'projects') {
-            const dawKey = group.groupKey.toLowerCase();
+            const rawKey = group.groupKey.toLowerCase();
+            const dawKey = dawKeyToImageKey[rawKey] || rawKey;
             return dawImages[dawKey] || null;
         }
         return null;
@@ -1979,7 +2024,8 @@ function renderLikedCards(filter = currentLikesFilter) {
             return vstImages[vstKey] || null;
         }
         if (group.category === 'projects') {
-            const dawKey = group.groupKey.toLowerCase();
+            const rawKey = group.groupKey.toLowerCase();
+            const dawKey = dawKeyToImageKey[rawKey] || rawKey;
             return dawImages[dawKey] || null;
         }
         return null;
@@ -2074,17 +2120,34 @@ function renderProfileContentFromGroup(group, page = 1) {
     grid.innerHTML = '';
 
     pageItems.forEach(item => {
+        // Use item's own category (important for "All Sounds" group where group.category is 'all')
+        const itemCategory = item.category || group.category;
+
         const wrap = document.createElement('div');
         wrap.dataset.itemId = item.id;
-        wrap.dataset.category = group.category;
+        wrap.dataset.category = itemCategory;
         wrap.className = 'profile-item-card-wrap';
         // Event listener handled via delegation in DOMContentLoaded
-        wrap.innerHTML = createCardHTML(item, group.category);
+        wrap.innerHTML = createCardHTML(item, itemCategory);
         grid.appendChild(wrap);
 
         // Initialize audio features (waveform, scrubbing, etc.)
         if (typeof setupCardAudio === 'function') {
-            setupCardAudio(item, group.category);
+            setupCardAudio(item, itemCategory);
+        }
+
+        // Render piano roll for MIDI items
+        if (itemCategory === 'midi' && item.midiNotes && typeof renderPianoRoll === 'function') {
+            setTimeout(() => {
+                renderPianoRoll(item.id, item.midiNotes, item.themeColor || '#e8e8e8');
+            }, 50);
+        }
+
+        // Setup video player for project items
+        if (itemCategory === 'projects' && item.videoBlob && typeof setupVideoPlayer === 'function') {
+            setTimeout(() => {
+                setupVideoPlayer(item.id);
+            }, 50);
         }
     });
 
