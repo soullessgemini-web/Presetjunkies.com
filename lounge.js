@@ -255,8 +255,12 @@ function renderCommunityRooms() {
     if (!container) return;
 
     const username = getCurrentUsername();
-    // Filter out rooms the user is banned from or has already joined
-    const visibleRooms = communityRooms.filter(room => !isUserBanned(room.id, username) && !isRoomJoined(room.id));
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    // For guests, show all rooms. For logged-in users, filter out joined rooms
+    const visibleRooms = isLoggedIn
+        ? communityRooms.filter(room => !isUserBanned(room.id, username) && !isRoomJoined(room.id))
+        : communityRooms;
 
     container.innerHTML = visibleRooms.map((room, index) => {
         const cachedImages = roomImagesCache[room.id] || {};
