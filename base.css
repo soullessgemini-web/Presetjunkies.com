@@ -10,11 +10,11 @@
 
 /* ===== CORE THEMES & VARIABLES ===== */
 :root {
-    --theme-color: #ea580c;
-    --theme-color-dark: #ea580c;
-    --theme-color-light: #ea580c;
-    --theme-color-shadow: rgba(234, 88, 12, 0.25);
-    --theme-color-rgb: 234, 88, 12;
+    --theme-color: #10b981;
+    --theme-color-dark: #059669;
+    --theme-color-light: #34d399;
+    --theme-color-shadow: rgba(16, 185, 129, 0.25);
+    --theme-color-rgb: 16, 185, 129;
 
     /* Z-index system for consistent layering */
     --z-content: 10;
@@ -43,16 +43,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(234, 88, 12, 0.05);
+    background: rgba(16, 185, 129, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.5);
 }
 
 /* Scale down for 1080p and smaller screens */
@@ -240,12 +240,12 @@ body {
 .form-select:focus {
     outline: none;
     border-color: var(--theme-color);
-    box-shadow: 0 0 10px rgba(234, 88, 12, 0.2);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 /* Ice blue text selection */
 ::selection {
-    background: rgba(234, 88, 12, 0.4);
+    background: rgba(16, 185, 129, 0.4);
     color: #fff;
 }
 
@@ -319,8 +319,8 @@ body {
 .auth-input:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(234, 88, 12, 0.5);
-    box-shadow: 0 0 10px rgba(234, 88, 12, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 .auth-input::placeholder {
@@ -328,13 +328,13 @@ body {
 }
 
 .auth-input.valid {
-    border-color: rgba(234, 88, 12, 0.6);
-    background: rgba(234, 88, 12, 0.08);
+    border-color: rgba(16, 185, 129, 0.6);
+    background: rgba(16, 185, 129, 0.08);
 }
 
 .auth-input.valid:focus {
-    border-color: rgba(234, 88, 12, 0.8);
-    box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);
+    border-color: rgba(16, 185, 129, 0.8);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
 
 .auth-input.invalid {
@@ -510,7 +510,7 @@ body {
 
 .terms-scroll-hint {
     font-size: 11px;
-    color: rgba(234, 88, 12, 0.8);
+    color: rgba(16, 185, 129, 0.8);
     text-align: center;
     margin: 8px 0 0 0;
     transition: opacity 0.3s;
@@ -564,8 +564,8 @@ body {
 .auth-submit-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.8), rgba(234, 88, 12, 0.6));
-    border: 1px solid rgba(234, 88, 12, 0.5);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(16, 185, 129, 0.6));
+    border: 1px solid rgba(16, 185, 129, 0.5);
     border-radius: 8px;
     color: #fff;
     font-size: 15px;
@@ -576,9 +576,9 @@ body {
 }
 
 .auth-submit-btn:hover {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 1), rgba(234, 88, 12, 0.8));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 1), rgba(16, 185, 129, 0.8));
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .auth-submit-btn:active {
@@ -760,7 +760,7 @@ body {
     border-radius: 8px;
     padding: 12px 16px;
     font-size: 13px;
-    color: rgba(234, 88, 12, 0.9);
+    color: rgba(16, 185, 129, 0.9);
     word-break: break-all;
     margin-bottom: 24px;
     max-height: 80px;
@@ -795,13 +795,13 @@ body {
 }
 
 .external-link-continue {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
     color: #fff;
-    border: 1px solid rgba(234, 88, 12, 0.5);
+    border: 1px solid rgba(16, 185, 129, 0.5);
 }
 
 .external-link-continue:hover {
-    background: rgba(234, 88, 12, 0.5);
+    background: rgba(16, 185, 129, 0.5);
 }
 
 /* ===== LINK PREVIEW CARDS ===== */
@@ -822,7 +822,7 @@ body {
 
 .link-preview-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(234, 88, 12, 0.3);
+    border-color: rgba(16, 185, 129, 0.3);
 }
 
 .link-preview-favicon {
@@ -861,7 +861,7 @@ body {
 }
 
 .link-preview-card:hover .link-preview-arrow {
-    color: rgba(234, 88, 12, 0.8);
+    color: rgba(16, 185, 129, 0.8);
 }
 
 /* ===== FILE UPLOAD STYLES ===== */
@@ -876,12 +876,12 @@ body {
 
 .file-upload-area:hover {
     border-color: var(--theme-color);
-    background: rgba(234, 88, 12, 0.1);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .file-upload-area.has-file {
     border-color: var(--theme-color);
-    background: rgba(234, 88, 12, 0.15);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .file-upload-area p {
@@ -955,7 +955,7 @@ body {
 }
 
 .autocomplete-item.selected {
-    background: rgba(234, 88, 12, 0.3);
+    background: rgba(16, 185, 129, 0.3);
 }
 
 .autocomplete-no-results {
@@ -1064,14 +1064,14 @@ body {
 }
 
 .auth-required-create {
-    background: #ea580c;
+    background: #10b981;
     color: #fff;
 }
 
 .auth-required-create:hover {
-    background: #ea580c;
+    background: #10b981;
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .auth-required-dismiss {
