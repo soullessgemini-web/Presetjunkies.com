@@ -1,5 +1,14 @@
 // ===== BROWSE - Cards, Grid, Pagination =====
 
+// Helper to save items to localStorage after modifications
+function saveItemsToLocalStorage() {
+    try {
+        localStorage.setItem('presetJunkiesItems', JSON.stringify(items));
+    } catch (e) {
+        console.warn('Could not save items to localStorage:', e);
+    }
+}
+
 // DAW value to display label mapping
 const dawLabels = {
     'ableton': 'Ableton',
@@ -178,6 +187,9 @@ window.handleDownload = async (id, cat) => {
         // Also update card count
         const cardCountEl = document.getElementById(`card-downloads-${id}`);
         if (cardCountEl) cardCountEl.textContent = formatCount(item.downloads);
+
+        // Save to localStorage
+        saveItemsToLocalStorage();
 
         const a = document.createElement('a');
         a.href = item.presetData;
@@ -444,7 +456,7 @@ function createCardHTML(item, category) {
                     <span class="card-vst-pill">${escapeHTML(formatDawLabel(item.daw).charAt(0).toUpperCase() + formatDawLabel(item.daw).slice(1).toLowerCase())}</span>
                 </div>
                 <div class="item-title">${escapeHTML(item.title)}</div>
-                <div class="card-play-btn video-play-btn" id="play-btn-${item.id}" data-action="toggleVideoPlay" data-id="${escapeAttr(String(item.id))}">
+                <div class="card-play-btn video-play-btn" id="play-btn-${item.id}" data-action="togglePlay" data-id="${escapeAttr(String(item.id))}" data-category="projects">
                     <span class="card-play-icon">▶</span>
                 </div>
                 <div class="video-scrub-bar" id="video-scrub-${item.id}">
@@ -731,6 +743,11 @@ function renderItems(category) {
         wrap.dataset.type = item.type || '';
         wrap.dataset.tags = (item.tags || []).join(',').toLowerCase();
         wrap.dataset.title = item.title.toLowerCase();
+        wrap.dataset.key = item.key || '';
+        wrap.dataset.scale = item.scale || '';
+        wrap.dataset.daw = item.daw || '';
+        wrap.dataset.genre = item.genre || '';
+        wrap.dataset.loopType = item.loopType || '';
 
         wrap.innerHTML = createCardHTML(item, category);
         grid.appendChild(wrap);
