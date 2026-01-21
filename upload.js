@@ -111,6 +111,10 @@ function createEmptyUploadItem() {
         projectKeyLabel: '',
         scale: '',
         scaleLabel: '',
+        midiKey: '',
+        midiKeyLabel: '',
+        midiScale: '',
+        midiScaleLabel: '',
         genre: '',
         description: '',
         tags: [],
@@ -158,6 +162,11 @@ function saveCurrentItemState() {
     item.projectKeyLabel = document.getElementById('upload-project-key')?.value || '';
     item.scale = document.getElementById('upload-scale')?.dataset.selectedValue || '';
     item.scaleLabel = document.getElementById('upload-scale')?.value || '';
+    // MIDI-specific key and scale
+    item.midiKey = document.getElementById('upload-midi-key')?.dataset.selectedValue || '';
+    item.midiKeyLabel = document.getElementById('upload-midi-key')?.value || '';
+    item.midiScale = document.getElementById('upload-midi-scale')?.dataset.selectedValue || '';
+    item.midiScaleLabel = document.getElementById('upload-midi-scale')?.value || '';
     item.genre = document.getElementById('upload-genre')?.dataset.selectedValue || document.getElementById('upload-genre')?.value ||
                  document.getElementById('upload-originals-genre')?.dataset.selectedValue || document.getElementById('upload-originals-genre')?.value || '';
     item.description = document.getElementById('upload-description')?.value || '';
@@ -239,6 +248,19 @@ function loadItemState(index) {
     if (scaleInput) {
         scaleInput.value = item.scaleLabel;
         scaleInput.dataset.selectedValue = item.scale;
+    }
+
+    // MIDI-specific key and scale
+    const midiKeyInput = document.getElementById('upload-midi-key');
+    if (midiKeyInput) {
+        midiKeyInput.value = item.midiKeyLabel || '';
+        midiKeyInput.dataset.selectedValue = item.midiKey || '';
+    }
+
+    const midiScaleInput = document.getElementById('upload-midi-scale');
+    if (midiScaleInput) {
+        midiScaleInput.value = item.midiScaleLabel || '';
+        midiScaleInput.dataset.selectedValue = item.midiScale || '';
     }
 
     const genreEl = document.getElementById('upload-genre');
@@ -490,6 +512,9 @@ function switchUploadCategory(category) {
 
     // Sample fields (Sample Type, Key, BPM in one row)
     document.querySelectorAll('.upload-field-sample-meta').forEach(el => el.style.display = showSample ? '' : 'none');
+
+    // MIDI fields (Key, Scale in one row)
+    document.querySelectorAll('.upload-field-midi-meta').forEach(el => el.style.display = showMidi ? '' : 'none');
 
     // Project fields (DAW, Tempo, Key, Scale, Genre in one row)
     document.querySelectorAll('.upload-field-project-meta').forEach(el => el.style.display = showProject ? '' : 'none');
@@ -1238,8 +1263,8 @@ async function saveItemToSupabase(category, item, files, userId) {
             metadata.bpm = item.bpm || '';
         } else if (category === 'midi') {
             metadata.vst = item.vst || '';
-            metadata.key = item.key || '';
-            metadata.scale = item.scale || '';
+            metadata.key = item.midiKey || '';
+            metadata.scale = item.midiScale || '';
             metadata.bpm = item.bpm || '';
             metadata.midi_notes = item.midiNotes || null;
         } else if (category === 'projects') {
@@ -1448,6 +1473,16 @@ async function submitUpload() {
             if (!item.files.audio) {
                 errors.push(`Item ${itemNum}: Please select an audio file`);
                 markFileError('upload-file-audio-btn');
+                itemHasError = true;
+            }
+            if (!item.midiKey) {
+                errors.push(`Item ${itemNum}: Please select a Key`);
+                markFieldError('upload-midi-key');
+                itemHasError = true;
+            }
+            if (!item.midiScale) {
+                errors.push(`Item ${itemNum}: Please select a Scale`);
+                markFieldError('upload-midi-scale');
                 itemHasError = true;
             }
         } else if (currentUploadCategory === 'projects') {
