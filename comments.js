@@ -837,13 +837,22 @@ function attachCenterPanelCommentListeners(commentEl) {
     });
 
     // Delete comment
-    deleteBtn?.addEventListener('click', function(e) {
+    deleteBtn?.addEventListener('click', async function(e) {
         e.stopPropagation();
         if (menuDropdown) menuDropdown.style.display = 'none';
         const idx = parseInt(this.dataset.index);
         if (!centerPanelItem || !centerPanelItem.comments || !centerPanelItem.comments[idx]) return;
         if (centerPanelItem.comments[idx].user !== 'You') return;
         if (confirm('Delete this comment?')) {
+            const comment = centerPanelItem.comments[idx];
+            // Delete from Supabase if it has an ID
+            if (comment.id && typeof supabaseDeleteComment === 'function') {
+                try {
+                    await supabaseDeleteComment(comment.id);
+                } catch (err) {
+                    console.error('Error deleting comment from Supabase:', err);
+                }
+            }
             centerPanelItem.comments.splice(idx, 1);
             refreshCommentList();
         }
