@@ -655,7 +655,7 @@ async function supabaseGetFollowingCount(userId) {
 // COMMENTS FUNCTIONS
 // =============================================
 
-// Get comments for item
+// Get comments for item (with nested replies)
 async function supabaseGetComments(itemId) {
     const { data, error } = await supabaseClient
         .from('comments')
@@ -666,14 +666,41 @@ async function supabaseGetComments(itemId) {
         .eq('item_id', itemId)
         .order('created_at', { ascending: true });
 
-    return { data, error };
+    if (error || !data) return { data, error };
+
+    // Organize into parent comments with nested replies
+    const parentComments = [];
+    const repliesMap = {};
+
+    data.forEach(comment => {
+        if (comment.parent_id) {
+            // This is a reply
+            if (!repliesMap[comment.parent_id]) {
+                repliesMap[comment.parent_id] = [];
+            }
+            repliesMap[comment.parent_id].push(comment);
+        } else {
+            // This is a parent comment
+            parentComments.push(comment);
+        }
+    });
+
+    // Attach replies to their parents
+    parentComments.forEach(parent => {
+        parent.replies = repliesMap[parent.id] || [];
+    });
+
+    return { data: parentComments, error };
 }
 
-// Add comment
-async function supabaseAddComment(itemId, userId, content) {
+// Add comment (with optional parentId for replies)
+async function supabaseAddComment(itemId, userId, content, parentId = null) {
+    const insertData = { item_id: itemId, user_id: userId, content };
+    if (parentId) insertData.parent_id = parentId;
+
     const { data, error } = await supabaseClient
         .from('comments')
-        .insert({ item_id: itemId, user_id: userId, content })
+        .insert(insertData)
         .select(`
             *,
             user:profiles!user_id(id, username, avatar_url)

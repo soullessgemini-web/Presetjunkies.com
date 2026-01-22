@@ -79,7 +79,7 @@ window.handleCommentReaction = function(emojiCode, element, commentIndex, parent
 
     // Re-render the center panel to show updated reactions
     if (typeof updateCenterPanel === 'function') {
-        updateCenterPanel(centerPanelItem, centerPanelCategory);
+        updateCenterPanel(centerPanelItem, centerPanelCategory, true);
     }
 };
 
@@ -433,7 +433,7 @@ async function submitCommentInner() {
 }
 
 // Center Panel Functions
-async function updateCenterPanel(item, category) {
+async function updateCenterPanel(item, category, skipFetch = false) {
     if (!item) return;
 
     centerPanelItem = item;
@@ -670,6 +670,34 @@ async function updateCenterPanel(item, category) {
 
     updateMetricsPanel(item);
 
+    // Fetch comments from Supabase if available (skip if just refreshing locally)
+    if (!skipFetch && list && typeof supabaseGetComments === 'function' && typeof item.id === 'number') {
+        try {
+            const { data: supabaseComments, error } = await supabaseGetComments(item.id);
+            if (!error && supabaseComments && supabaseComments.length > 0) {
+                // Transform Supabase comments to local format (including nested replies)
+                const currentUsername = localStorage.getItem('profileUsername') || '';
+                item.comments = supabaseComments.map(c => ({
+                    id: c.id, // Store Supabase ID for replies
+                    user: c.user?.username === currentUsername ? 'You' : (c.user?.username || 'Unknown'),
+                    text: c.content,
+                    time: new Date(c.created_at).getTime(),
+                    avatar: c.user?.avatar_url || null,
+                    likes: 0,
+                    replies: (c.replies || []).map(r => ({
+                        id: r.id,
+                        user: r.user?.username === currentUsername ? 'You' : (r.user?.username || 'Unknown'),
+                        text: r.content,
+                        time: new Date(r.created_at).getTime(),
+                        avatar: r.user?.avatar_url || null
+                    }))
+                }));
+            }
+        } catch (err) {
+            console.error('Error fetching comments from Supabase:', err);
+        }
+    }
+
     if (list) {
         if (item.comments && item.comments.length > 0) {
             list.innerHTML = item.comments.map((c, idx) => createCenterPanelCommentHTML(c, idx)).join('');
@@ -899,7 +927,7 @@ function attachCenterPanelCommentListeners(commentEl) {
             replyInput.remove();
         });
 
-        replyInput.querySelector('.center-panel-reply-submit').addEventListener('click', () => {
+        replyInput.querySelector('.center-panel-reply-submit').addEventListener('click', async () => {
             const input = replyInput.querySelector('.center-panel-reply-input');
             const text = input.value.trim();
             if (!text || !centerPanelItem || parentIndex === undefined) return;
@@ -928,7 +956,22 @@ function attachCenterPanelCommentListeners(commentEl) {
             }
             comment.replies.push(newReply);
 
-            updateCenterPanel(centerPanelItem, centerPanelCategory);
+            // Save reply to Supabase
+            if (typeof supabaseGetUser === 'function' && typeof supabaseAddComment === 'function' && comment.id) {
+                try {
+                    const { user } = await supabaseGetUser();
+                    if (user && typeof centerPanelItem.id === 'number') {
+                        const { error } = await supabaseAddComment(centerPanelItem.id, user.id, text, comment.id);
+                        if (error) {
+                            console.error('Error saving reply to Supabase:', error);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error syncing reply to Supabase:', err);
+                }
+            }
+
+            updateCenterPanel(centerPanelItem, centerPanelCategory, true);
         });
 
         replyInput.querySelector('.center-panel-reply-input').addEventListener('keypress', (e) => {

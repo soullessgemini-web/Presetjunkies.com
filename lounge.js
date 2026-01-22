@@ -250,9 +250,15 @@ function filterRooms(searchTerm) {
 }
 
 // Render community rooms
-function renderCommunityRooms() {
+function renderCommunityRooms(retryCount = 0) {
     const container = document.getElementById('community-rooms-list');
-    if (!container) return;
+    if (!container) {
+        // Retry up to 5 times with increasing delay
+        if (retryCount < 5) {
+            setTimeout(() => renderCommunityRooms(retryCount + 1), 100 * (retryCount + 1));
+        }
+        return;
+    }
 
     const username = getCurrentUsername();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -2535,7 +2541,6 @@ async function saveMessage(roomId, messageData) {
     if (typeof supabaseGetUser === 'function' && typeof supabaseSendRoomMessage === 'function') {
         try {
             const { user, error: userError } = await supabaseGetUser();
-            console.log('saveMessage - user:', user, 'error:', userError);
             if (user) {
                 let content = '';
                 let imageUrl = null;
@@ -2565,12 +2570,9 @@ async function saveMessage(roomId, messageData) {
                     audioUrl,
                     audioFilename
                 );
-                console.log('saveMessage - result:', data, 'error:', error);
                 if (error) {
                     console.error('Supabase insert error:', error);
                 }
-            } else {
-                console.log('saveMessage - no user found, not saving to Supabase');
             }
         } catch (err) {
             console.error('Error saving message to Supabase:', err);
@@ -2579,9 +2581,15 @@ async function saveMessage(roomId, messageData) {
 }
 
 // Load messages for a room
-async function loadRoomMessages(roomId) {
+async function loadRoomMessages(roomId, retryCount = 0) {
     const messagesContainer = document.getElementById('lounge-messages');
-    if (!messagesContainer) return;
+    if (!messagesContainer) {
+        // Retry up to 5 times with increasing delay
+        if (retryCount < 5) {
+            setTimeout(() => loadRoomMessages(roomId, retryCount + 1), 100 * (retryCount + 1));
+        }
+        return;
+    }
 
     messagesContainer.innerHTML = '';
     lastMessageAuthor = null;

@@ -1582,7 +1582,7 @@
 .center-panel-list {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 15px;
+    padding: 16px 15px 85px 15px;
 }
 
 .center-panel-list::-webkit-scrollbar {
