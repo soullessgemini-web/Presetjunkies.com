@@ -676,17 +676,17 @@ async function updateCenterPanel(item, category, skipFetch = false) {
             const { data: supabaseComments, error } = await supabaseGetComments(item.id);
             if (!error && supabaseComments && supabaseComments.length > 0) {
                 // Transform Supabase comments to local format (including nested replies)
-                const currentUsername = localStorage.getItem('profileUsername') || '';
+                const currentUsername = (localStorage.getItem('profileUsername') || '').toLowerCase();
                 item.comments = supabaseComments.map(c => ({
                     id: c.id, // Store Supabase ID for replies
-                    user: c.user?.username === currentUsername ? 'You' : (c.user?.username || 'Unknown'),
+                    user: (c.user?.username || '').toLowerCase() === currentUsername ? 'You' : (c.user?.username || 'Unknown'),
                     text: c.content,
                     time: new Date(c.created_at).getTime(),
                     avatar: c.user?.avatar_url || null,
                     likes: 0,
                     replies: (c.replies || []).map(r => ({
                         id: r.id,
-                        user: r.user?.username === currentUsername ? 'You' : (r.user?.username || 'Unknown'),
+                        user: (r.user?.username || '').toLowerCase() === currentUsername ? 'You' : (r.user?.username || 'Unknown'),
                         text: r.content,
                         time: new Date(r.created_at).getTime(),
                         avatar: r.user?.avatar_url || null
